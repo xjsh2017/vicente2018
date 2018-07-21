@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:PSR="http://www.cim.com" xmlns:cge="http://iec.ch/TC57/2005/SVG-schema# " width="1600" height="6400" viewBox="0 0 1600 6400">
+<defs>
+<style type="text/css"><![CDATA[
+.kV3 {stroke:rgb(0,0,0)}
+.kV6 {stroke:rgb(255,102,0)}
+.kV10 {stroke:rgb(128,128,0)}
+.kV13 {stroke:rgb(153,204,0)}
+.kV15 {stroke:rgb(153,204,0)}
+.kV20 {stroke:rgb(153,51,102)}
+.kV35 {stroke:rgb(255,255,0)}
+.kV110 {stroke:rgb(0,255,0)}
+.kV220 {stroke:rgb(255,0,0)}
+.kV330 {stroke:rgb(255,102,0)}
+.kV500 {stroke:rgb(0,255,255)}
+.kV800 {stroke:rgb(0,0,255)}]]></style>
+</defs>
+<g id="backGroundClass">
+<rect fill="none" x="0" y="0" width="1600" height="6400" />
+</g>
+<image x="0" y="0" width="1600" height="140" xlink:href="head.jpg" />
+</svg>

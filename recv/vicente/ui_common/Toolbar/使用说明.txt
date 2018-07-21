@@ -1,0 +1,8 @@
+一: 外部工作:制做工具条
+	使用TBCreator可以很方便的制做真彩色的工具条,能同时生成normal位图和diable位图
+二: 程序工作
+	1. 在工程中加入CtrueColorToolBar.h和CtrueColorToolBar.cpp
+	2. 在资源管理里修改或新建一个工具条, 按钮数与刚才TBCreator制做的位图个数一样, 修改按钮大小为位图大小(一般 32x32 或 48x48).
+	3. 代码中工具条创建的地方改用CtrueColorToolBar来创建
+	4. 工具条Create后加入m_wndToolBar.LoadTrueColorToolBar( 48, IDB_NORMAL, IDB_NORMAL, IDB_DISABLED); 4个参数分别代表的意义是：48表示工具条按钮大小是48×48，第二个是normal工具条位图ID，第三个是hot工具条位图ID，最后一个是disable工具条位图ID
+	5. 工具条动态计算大小请参照Demo程序中的void CMainFrame::UpdateToolBar(CToolBar* tb, TCHAR* text[])

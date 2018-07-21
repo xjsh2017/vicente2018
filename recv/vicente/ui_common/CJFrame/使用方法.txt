@@ -1,0 +1,24 @@
+1.将下列定义加入到工程stdafx.h中
+#include <afxtempl.h>
+#include <afxpriv.h>
+#include <..\src\afximpl.h>
+#include <Afxcview.h>
+
+#define AFX_IDW_SIZEBAR_LEFT	AFX_IDW_DOCKBAR_LEFT	+ 4
+#define AFX_IDW_SIZEBAR_RIGHT	AFX_IDW_DOCKBAR_RIGHT	+ 5
+#define AFX_IDW_SIZEBAR_TOP		AFX_IDW_DOCKBAR_TOP		+ 6
+#define AFX_IDW_SIZEBAR_BOTTOM	AFX_IDW_DOCKBAR_BOTTOM	+ 7
+
+const DWORD dwSizeBarMap[4][2] =
+{
+	{ AFX_IDW_SIZEBAR_TOP,      CBRS_TOP    },
+	{ AFX_IDW_SIZEBAR_BOTTOM,   CBRS_BOTTOM },
+	{ AFX_IDW_SIZEBAR_LEFT,     CBRS_LEFT   },
+	{ AFX_IDW_SIZEBAR_RIGHT,    CBRS_RIGHT  },
+};
+#define safe_delete(p){if(p){delete p;p=NULL;}}
+
+int const	IDC_BUTTON_HIDE		= WM_APP + 9000;
+int const	IDC_BUTTON_MINI		= WM_APP + 9001;
+
+2.将IDB_BUTTON_IMAGES.bmp， IDC_VSPLITBAR.cur， IDC_HSPLITBAR.cur 导入到工程资源中

@@ -1,0 +1,18 @@
+ListCtrlEx提供功能:
+1. 单元格内容可编辑, 提供两种编辑方式,(1).文本方式; (2).下拉框选择
+
+2. 列可隐藏, 隐藏后用鼠标拖动列头部分不会出现
+
+3. 列可用户自选要不要显示, 列头上点右键弹出菜单
+
+DEMO演示:
+1. 行, 列,单元格各自字体颜色, 背景色设置    功能入口:CEditListTestDlg::OnCustomDraw
+2. 编辑功能    功能入口:CEditListTestDlg::OnClickList1
+3. 列隐藏功能	功能入口:CEditListTestDlg::OnButton2
+4. 列选择	功能入口:CListCtrlEx::OnContextMenu
+5. 其它一些简单应用
+
+应用时要注意的地方
+1. 如果超过19列的话要在ListCtrlEx.h中的常量定义的地方多加几个列常量
+2. 因为CListCtrlEx类先截取了WM_CONTEXTMENU消息, 处理完后再转完给所有者窗口, 所以所有者窗口应先判断消息是不是自己想处理的了
+3. InsetColumn时如果是要隐藏列的话不用把列宽设置为0, 只需要设置是否隐藏参数,默认为不隐藏.如果设置了列宽为0, 则不管隐不隐藏都不显示,但用鼠标在列上改变大小时可能把列拖出来

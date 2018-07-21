@@ -1,0 +1,479 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:PSR="http://www.cim.com" xmlns:cge="http://iec.ch/TC57/2005/SVG-schema#" width="1680" height="1050" viewBox="0 0 1680 1050">
+<defs>
+<symbol id="BREAKER_ON">
+<polygon points="74,61 86,61 86,81 74,81" />
+<line x1="80" y1="61" x2="80" y2="39" />
+<line x1="80" y1="103" x2="80" y2="81" />
+</symbol>
+<style type="text/css"><![CDATA[
+.kV3 {stroke:rgb(0,0,0)}
+.kV6 {stroke:rgb(255,102,0)}
+.kV10 {stroke:rgb(128,128,0)}
+.kV13 {stroke:rgb(153,204,0)}
+.kV15 {stroke:rgb(153,204,0)}
+.kV20 {stroke:rgb(153,51,102)}
+.kV35 {stroke:rgb(255,255,0)}
+.kV110 {stroke:rgb(0,255,0)}
+.kV220 {stroke:rgb(255,0,0)}
+.kV330 {stroke:rgb(255,102,0)}
+.kV500 {stroke:rgb(0,255,255)}
+.kV800 {stroke:rgb(0,0,255)}]]></style>
+<symbol id="TRANSTHREE_STAR_T">
+<ellipse fill="none" cx="83" cy="60" rx="17" ry="17" />
+<line x1="84" y1="43" x2="84" y2="32" />
+<line x1="83" y1="57" x2="83" y2="49" />
+<line x1="77" y1="63" x2="83" y2="57" />
+<line x1="83" y1="57" x2="91" y2="63" />
+<line x1="112" y1="41" x2="57" y2="96" />
+<line x1="112" y1="50" x2="112" y2="41" />
+<line x1="112" y1="41" x2="103" y2="42" />
+</symbol>
+<symbol id="TRANSTHREE_STAR">
+<ellipse fill="none" cx="104" cy="74" rx="17" ry="17" />
+<line x1="104" y1="74" x2="104" y2="66" />
+<line x1="98" y1="80" x2="104" y2="74" />
+<line x1="104" y1="74" x2="112" y2="80" />
+<line x1="135" y1="74" x2="121" y2="74" />
+</symbol>
+<symbol id="TRANSTHREE_TRIAN">
+<ellipse fill="none" cx="83" cy="85" rx="17" ry="17" />
+<line x1="83" y1="116" x2="83" y2="102" />
+<polygon fill="none" points="91,93 77,93 84,81" />
+</symbol>
+<symbol id="WAVEREC">
+<rect stroke="RGB(255, 255, 255)" stroke-width="1" x="7" y="9" rx="0" ry="0" width="29" height="14" />
+<line fill="none" stroke="RGB(0, 255, 0)" stroke-width="1" x1="11" y1="5" x2="40" y2="5" />
+<ellipse fill="none" stroke="RGB(255, 0, 0)" stroke-width="1" cx="12" cy="17" rx="3" ry="3" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="18" y1="17" x2="18" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="20" y1="15" x2="20" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="22" y1="13" x2="22" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="26" y1="17" x2="26" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="24" y1="15" x2="24" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="28" y1="19" x2="28" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="30" y1="14" x2="30" y2="23" />
+<polygon stroke="RGB(255, 255, 255)" stroke-width="1" points="7,9  35,9  39,4  11,4" />
+<polygon stroke="RGB(255, 255, 255)" stroke-width="1" points="35,9 35,23 39,18 39,4" />
+</symbol>
+<symbol id="RELAY">
+<rect stroke="RGB(255, 255, 255)" stroke-width="1" x="6" y="5" rx="0" ry="0" width="19" height="20" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="13" y1="9" x2="18" y2="9" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="16" y1="7" x2="16" y2="24" />
+<line fill="none" stroke="RGB(255, 255, 128)" stroke-width="1" x1="7" y1="7" x2="13" y2="7" />
+<line fill="none" stroke="RGB(255, 255, 128)" stroke-width="1" x1="18" y1="7" x2="24" y2="7" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="13" y1="20" x2="18" y2="20" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="11" y1="10" x2="11" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="9" y1="10" x2="9" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="20" y1="10" x2="20" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="22" y1="10" x2="22" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="7" y1="19" x2="13" y2="19" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="7" y1="21" x2="13" y2="21" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="18" y1="19" x2="24" y2="19" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="18" y1="21" x2="24" y2="21" />
+</symbol>
+</defs>
+<g id="backGroundClass">
+<rect fill="RGB(0, 64, 64)" x="0" y="0" width="1680" height="1050" />
+</g>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="40" y1="279" x2="1578" y2="279" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="41" y1="377" x2="1579" y2="377" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="41" y1="409" x2="1579" y2="409" />
+<g id="BreakerClass">
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(404,388)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(45,692)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(401,532)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(383,692)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(588,661) rotate(90.00,80,71)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(667,692)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(784,692)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(760,242)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(929,274) rotate(90.00,80,71)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(362,242)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(558,242)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(155,694)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(266,695)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(923,695)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1053,695)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1175,695)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(1060,242)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1283,695)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(1036,387)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1033,531)" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1403,694)" xlink:href="#BREAKER_ON" />
+</g>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="485" y1="378" x2="484" y2="427" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="485" y1="439" x2="517" y2="439" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="518" y1="408" x2="518" y2="440" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="40" y1="670" x2="1578" y2="670" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="40" y1="698" x2="1578" y2="698" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="39" y1="809" x2="1577" y2="809" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(-75,158)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(-76,221)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(-77,188)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="125" y1="794" x2="125" y2="873" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="103" y="896" font-family="黑体" font-size="12">焦回线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(281,123)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(282,126)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(282,126)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(263,158)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(262,221)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(261,188)" x1="232" y1="511" x2="232" y2="543" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="729" y="896" font-family="黑体" font-size="12">焦杉线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="463" y1="794" x2="463" y2="873" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="637" y1="670" x2="637" y2="732" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="701" y1="699" x2="701" y2="732" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(547,158)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(546,221)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(545,188)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="747" y1="794" x2="747" y2="873" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="445" y="896" font-family="黑体" font-size="12">焦新线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(664,158)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(663,221)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(662,188)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="864" y1="794" x2="864" y2="873" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="847" y="896" font-family="黑体" font-size="12">焦绿I线</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="840" y1="345" x2="840" y2="409" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="840" y1="345" x2="872" y2="345" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="872" y1="345" x2="872" y2="377" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="840" y1="177" x2="840" y2="281" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="822" y="167" font-family="黑体" font-size="12">焦碧线</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="978" y1="344" x2="978" y2="408" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="2" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1040" y1="344" x2="1040" y2="376" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="9" y="254" font-family="黑体" font-size="12">220kV旁母</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="10" y="370" font-family="黑体" font-size="12">220kV II母</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="10" y="428" font-family="黑体" font-size="12">220kV I母</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="3" y="665" font-family="黑体" font-size="12">110kV I母</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="3" y="717" font-family="黑体" font-size="12">110kV II母</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="4" y="803" font-family="黑体" font-size="12">110kV 旁母</text>
+<g id="PowerTransformerClass">
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(400,458)" xlink:href="#TRANSTHREE_STAR_T" />
+<use fill="none" stroke="RGB(255,255,0)" stroke-width="2" transform="translate(394,467)" xlink:href="#TRANSTHREE_STAR" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(398,456) rotate(360.00,83,92)" xlink:href="#TRANSTHREE_TRIAN" />
+<use fill="none" stroke="RGB(255,0,0)" stroke-width="2" transform="translate(1032,457)" xlink:href="#TRANSTHREE_STAR_T" />
+<use fill="none" stroke="RGB(255,255,0)" stroke-width="2" transform="translate(1026,466)" xlink:href="#TRANSTHREE_STAR" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1030,455) rotate(360.00,83,92)" xlink:href="#TRANSTHREE_TRIAN" />
+</g>
+<g id="WaveRecClass">
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(309,411)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#16" ObjectName="220kV故录I_ZH-3" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(309,443)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#17" ObjectName="220kV故录II_ZH-3" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(309,474)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#34" ObjectName="110kV故录_ZH-3" />
+</metadata>
+</g>
+</g>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="349" y="428" font-family="黑体" font-size="12">220kV故录I ZH-3</text>
+<g id="RelayClass">
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(89,408)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#6" ObjectName="220kV第一套母差保护BP-2CS" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(843,227)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#13" ObjectName="220kV焦碧线606第二套线路保护PSL603GM" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(463,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#30" ObjectName="110kV焦新线512线路保护RCS943A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(127,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#27" ObjectName="110kV焦回线502线路保护PCS943A-G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(355,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#25" ObjectName="110kV焦竹I线506线路保护WXH803" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(863,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#31" ObjectName="110kV焦绿I线516线路保护RCS943AMV" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(747,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#24" ObjectName="110kV焦杉线514线路保护RCS943A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(994,301)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#5" ObjectName="220kV母联600断路器保护PSL633U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(843,200)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#12" ObjectName="220kV焦碧线606第一套线路保护RCS931B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(89,436)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#7" ObjectName="220kV第二套母差保护RCS915GA" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(652,747)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#23" ObjectName="110kV母联500断路器保护PSL633U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(89,641)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#22" ObjectName="110kV母差保护RCS915GA" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(443,200)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#8" ObjectName="220kV东焦线602第一套线路保护RCS931GM" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(443,227)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#9" ObjectName="220kV东焦线602第二套线路保护RCS902G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(639,200)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#10" ObjectName="220kV焦朝线604第一套线路保护RCS931GM" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(639,227)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#11" ObjectName="220kV焦朝线604第二套线路保护RCS902G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(237,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#26" ObjectName="110kV焦竹II线504线路保护WXH803" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1005,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#28" ObjectName="110kV焦团线518线路保护RCS943A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1135,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#33" ObjectName="110kV焦桥线522线路保护WXH813AT1R1" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1257,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#29" ObjectName="110kV塘岭线524线路保护RCS941A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(573,496)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#2" ObjectName="#1主变第一套电量保护PST1200U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(573,525)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#3" ObjectName="#1主变第一套电量保护PST1200U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1141,200)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#14" ObjectName="220kV塘焦线614第一套线路保护RCS931B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1141,227)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#15" ObjectName="220kV塘焦线614第二套线路保PSL603GM" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(573,554)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#4" ObjectName="#1主变非电量保护PST1200" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1365,831)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#32" ObjectName="110kV碧岭线526线路保护WXH811A1R1" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1168,487)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#19" ObjectName="#2主变第一套电量保护PCS978T2-G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1168,516)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#20" ObjectName="#2主变第二套电量保护PCS978T2-G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1168,545)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#21" ObjectName="#2主变非电量保护PCS974A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1485,830)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="0#35" ObjectName="110kV焦鼎线528线路保护ipACS-5911" />
+</metadata>
+</g>
+</g>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="534" y="544" font-family="黑体" font-size="12">#1主变</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="117" y="427" font-family="黑体" font-size="12">220kV第一套母差保护BP-2CS</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="871" y="247" font-family="黑体" font-size="12">第二套线路保护PSL603GM</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="492" y="851" font-family="黑体" font-size="12">RCS943A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="156" y="851" font-family="黑体" font-size="12">PCS943A-G</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="383" y="851" font-family="黑体" font-size="12">WXH803</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="891" y="851" font-family="黑体" font-size="12">RCS943AMV</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="775" y="851" font-family="黑体" font-size="12">RCS943A</text>
+<image x="-4" y="-2" width="1690" height="140" xlink:href="国家电网图.jpg" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="345" y="62" font-family="宋体" font-size="48" font-weight="bold">智能型继电保护及故障信息处理系统</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="362" y="121" font-family="宋体" font-size="24" font-style="italic" font-weight="bold">Intelligent Power Fault Analyzing  Processing System</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1115" y="126" font-family="宋体" font-size="36" font-weight="bold">220kV焦岭变</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="87" y="105" font-family="宋体" font-size="24" font-weight="bold">湖南省电力公司</text>
+<image x="1468" y="0" width="212" height="84" xlink:href="未标题-1.jpg" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1364" y="126" font-family="宋体" font-size="28" font-weight="bold">国电南思</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1022" y="320" font-family="黑体" font-size="12">PSL633U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="865" y="318" font-family="黑体" font-size="12">606</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="141" y="770" font-family="黑体" font-size="12">502</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="480" y="770" font-family="黑体" font-size="12">512</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="760" y="770" font-family="黑体" font-size="12">514</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="875" y="770" font-family="黑体" font-size="12">516</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="871" y="220" font-family="黑体" font-size="12">第一套线路保护RCS931B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="117" y="456" font-family="黑体" font-size="12">220kV第二套母差保护RCS915GA</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="493" y="607" font-family="黑体" font-size="12">510</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="999" y="373" font-family="黑体" font-size="12">600</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="657" y="722" font-family="黑体" font-size="12">500</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="681" y="767" font-family="黑体" font-size="12">PSL633U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="117" y="660" font-family="黑体" font-size="12">110kV母差保护RCS915GA</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="495" y="465" font-family="黑体" font-size="12">610</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="442" y1="345" x2="442" y2="409" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="442" y1="345" x2="474" y2="345" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="474" y1="345" x2="474" y2="377" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="442" y1="177" x2="442" y2="281" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="421" y="168" font-family="黑体" font-size="12">东焦线</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="469" y="220" font-family="黑体" font-size="12">第一套线路保护RCS931GM</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="468" y="320" font-family="黑体" font-size="12">602</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="469" y="247" font-family="黑体" font-size="12">第二套线路保护RCS902G</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="638" y1="345" x2="670" y2="345" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="670" y1="345" x2="670" y2="377" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="638" y1="177" x2="638" y2="281" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="617" y="168" font-family="黑体" font-size="12">焦朝线</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="667" y="220" font-family="黑体" font-size="12">第一套线路保护RCS931GM</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="667" y="247" font-family="黑体" font-size="12">第二套线路保护RCS902G</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="664" y="320" font-family="黑体" font-size="12">604</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="638" y1="345" x2="638" y2="409" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(35,160)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(34,223)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(33,190)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="235" y1="796" x2="235" y2="875" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="266" y="851" font-family="黑体" font-size="12">WXH803</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="251" y="770" font-family="黑体" font-size="12">504</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="213" y="896" font-family="黑体" font-size="12">焦竹II线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(146,161)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(145,224)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(144,191)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="346" y1="797" x2="346" y2="876" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="362" y="770" font-family="黑体" font-size="12">506</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="330" y="896" font-family="黑体" font-size="12">焦竹I线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(803,161)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(802,224)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(801,191)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="1003" y1="797" x2="1003" y2="876" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1034" y="851" font-family="黑体" font-size="12">RCS943A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1019" y="770" font-family="黑体" font-size="12">518</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="981" y="896" font-family="黑体" font-size="12">焦团线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(933,161)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(932,224)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(931,191)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="1133" y1="797" x2="1133" y2="876" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1164" y="851" font-family="黑体" font-size="12">WXH813AT1R1</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1149" y="770" font-family="黑体" font-size="12">522</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1111" y="896" font-family="黑体" font-size="12">焦桥线</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1055,161)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1054,224)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1053,191)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="1255" y1="797" x2="1255" y2="876" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1286" y="851" font-family="黑体" font-size="12">RCS941A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1271" y="770" font-family="黑体" font-size="12">524</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1233" y="896" font-family="黑体" font-size="12">塘岭线</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="601" y="515" font-family="黑体" font-size="12">#1主变第一套电量保护PST1200U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="601" y="544" font-family="黑体" font-size="12">#1主变第一套电量保护PST1200U</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1140" y1="345" x2="1172" y2="345" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1172" y1="345" x2="1172" y2="377" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1140" y1="177" x2="1140" y2="281" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1119" y="168" font-family="黑体" font-size="12">塘焦线</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1169" y="220" font-family="黑体" font-size="12">第一套线路保护RCS931B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1169" y="247" font-family="黑体" font-size="12">第二套线路保PSL603GM</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1166" y="320" font-family="黑体" font-size="12">614</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1140" y1="345" x2="1140" y2="409" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="349" y="460" font-family="黑体" font-size="12">220kV故录II ZH-3</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="349" y="491" font-family="黑体" font-size="12">110kV故录 ZH-3</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="601" y="573" font-family="黑体" font-size="12">#1主变非电量保护PST1200</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1163,161)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1162,224)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1161,191)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="1363" y1="797" x2="1363" y2="876" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1394" y="851" font-family="黑体" font-size="12">WXH811A1R1</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1379" y="770" font-family="黑体" font-size="12">526</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1341" y="896" font-family="黑体" font-size="12">碧岭线</text>
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1117" y1="377" x2="1116" y2="426" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1117" y1="438" x2="1149" y2="438" />
+<line fill="none" stroke="RGB(255,0,0)" stroke-width="2" x1="1150" y1="407" x2="1150" y2="439" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(913,122)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(914,125)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(914,125)" x1="232" y1="511" x2="232" y2="543" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1068" y="491" font-family="黑体" font-size="12">#2主变</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1125" y="606" font-family="黑体" font-size="12">520</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1127" y="464" font-family="黑体" font-size="12">620</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1196" y="506" font-family="黑体" font-size="12">第一套电量保护PCS978T2-G</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1196" y="535" font-family="黑体" font-size="12">第二套电量保护PCS978T2-G</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1196" y="564" font-family="黑体" font-size="12">非电量保护PCS974A</text>
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1283,160)" x1="200" y1="511" x2="200" y2="575" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1282,223)" x1="200" y1="511" x2="232" y2="511" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(1281,190)" x1="232" y1="511" x2="232" y2="543" />
+<line fill="none" stroke="RGB(0,255,0)" stroke-width="2" x1="1483" y1="796" x2="1483" y2="875" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1514" y="850" font-family="黑体" font-size="12">ipACS-5911</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1499" y="769" font-family="黑体" font-size="12">528</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1464" y="895" font-family="黑体" font-size="12">焦鼎线</text>
+</svg>

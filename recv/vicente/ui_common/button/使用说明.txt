@@ -1,0 +1,8 @@
+1. 在程序中载入8个文件. BCMenu.h , CBMenu.cpp , BtnST.h , BtnST.cpp , ThemeHelperST.h , ThemeHelperST.cpp , XPStyleButtonST.h, XPStyleButtonST.cpp
+
+2. 将要修改的button的生成类从 CButton生成改 CXPStyleButtonST
+
+3. 在要使用CXPStyleButtonST的地方还需载入ThemeHelperST.h, 创建一个对象, 后面设置时要用
+
+4. 在初始化中加入设置代码, 具体请参见Demo中的BOOL CBtndemoDlg::OnInitDialog()
+
