@@ -1,0 +1,548 @@
+﻿<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:PSR="http://www.cim.com" xmlns:cge="http://iec.ch/TC57/2005/SVG-schema# " width="1710" height="1215" viewBox="0 0 2110 1500">
+<defs>
+<symbol id="BREAKER_ON" preserveAspectRatio="xMidYMid meet">
+<polygon stroke-width="1" points="74,61 86,61 86,81 74,81 " />
+<line stroke-width="1" x1="80" y1="61" x2="80" y2="50" />
+<line stroke-width="1" x1="80" y1="94" x2="80" y2="81" />
+</symbol>
+<symbol id="BREAKER_OFF" preserveAspectRatio="xMidYMid meet">
+<polygon fill="none" stroke-width="1" points="74,61 86,61 86,81 74,81 " />
+<line stroke-width="1" x1="80" y1="61" x2="80" y2="50" />
+<line stroke-width="1" x1="80" y1="94" x2="80" y2="81" />
+</symbol>
+<symbol id="RELAY" preserveAspectRatio="xMidYMid meet">
+<rect stroke="RGB(255, 255, 255)" stroke-width="1" x="5" y="6" rx="0" ry="0" width="24" height="25" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="15" y1="11" x2="20" y2="11" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="17" y1="9" x2="17" y2="26" />
+<line fill="none" stroke="RGB(255, 255, 128)" stroke-width="1" x1="9" y1="9" x2="15" y2="9" />
+<line fill="none" stroke="RGB(255, 255, 128)" stroke-width="1" x1="20" y1="9" x2="26" y2="9" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="15" y1="22" x2="20" y2="22" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="13" y1="12" x2="13" y2="18" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="11" y1="12" x2="11" y2="18" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="21" y1="12" x2="21" y2="18" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="23" y1="12" x2="23" y2="18" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="9" y1="21" x2="15" y2="21" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="9" y1="23" x2="15" y2="23" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="20" y1="21" x2="26" y2="21" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="20" y1="23" x2="26" y2="23" />
+</symbol>
+<style type="text/css"><![CDATA[
+.kV3 {stroke:rgb(0,0,0)}
+.kV6 {stroke:rgb(255,102,0)}
+.kV10 {stroke:rgb(128,128,0)}
+.kV13 {stroke:rgb(153,204,0)}
+.kV15 {stroke:rgb(153,204,0)}
+.kV20 {stroke:rgb(153,51,102)}
+.kV35 {stroke:rgb(255,255,0)}
+.kV110 {stroke:rgb(0,255,0)}
+.kV220 {stroke:rgb(255,0,0)}
+.kV330 {stroke:rgb(255,102,0)}
+.kV500 {stroke:rgb(0,255,255)}
+.kV800 {stroke:rgb(0,0,255)}]]></style>
+<symbol id="TRANSTHREE_TRIAN" preserveAspectRatio="xMidYMid meet">
+<ellipse fill="none" stroke-width="1" cx="83" cy="85" rx="17" ry="17" />
+<line stroke-width="1" x1="83" y1="117" x2="83" y2="102" />
+<polygon fill="none" stroke-width="1" points="91,93 77,93 84,81 " />
+</symbol>
+<symbol id="TRANSTHREE_STAR" preserveAspectRatio="xMidYMid meet">
+<ellipse fill="none" stroke-width="1" cx="104" cy="74" rx="17" ry="17" />
+<line stroke-width="1" x1="104" y1="74" x2="104" y2="66" />
+<line stroke-width="1" x1="98" y1="80" x2="104" y2="74" />
+<line stroke-width="1" x1="104" y1="74" x2="112" y2="80" />
+<line stroke-width="1" x1="144" y1="74" x2="121" y2="74" />
+</symbol>
+<symbol id="WAVEREC" preserveAspectRatio="xMidYMid meet">
+<rect stroke="RGB(255, 255, 255)" stroke-width="1" x="7" y="9" rx="0" ry="0" width="29" height="14" />
+<line fill="none" stroke="RGB(0, 255, 0)" stroke-width="1" x1="11" y1="5" x2="40" y2="5" />
+<ellipse fill="none" stroke="RGB(255, 0, 0)" stroke-width="1" cx="12" cy="17" rx="3" ry="3" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="18" y1="17" x2="18" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="20" y1="15" x2="20" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="22" y1="13" x2="22" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="26" y1="17" x2="26" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="24" y1="15" x2="24" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="28" y1="19" x2="28" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="30" y1="14" x2="30" y2="23" />
+<polygon stroke="RGB(255, 255, 255)" stroke-width="1" points="7,9  35,9  39,4  11,4 " />
+<polygon stroke="RGB(255, 255, 255)" stroke-width="1" points="35,9 35,23 39,18 39,4 " />
+</symbol>
+<symbol id="GEN">
+<ellipse fill="none" cx="85" cy="67" rx="17" ry="17" />
+<polyline fill="none" points="85,67 85,67 85,66 85,66 85,66 85,65 85,65 85,65 84,65 84,64 84,64 84,64 84,64 83,63 83,63 83,63 83,63 82,63 82,62 82,62 82,62 81,62 81,62 81,62 80,62 80,62 80,62 79,62 79,62 79,62 78,62 78,62 78,62 78,63 77,63 77,63 77,63 77,63 76,64 76,64 76,64 76,64 76,65 75,65 75,65 75,65 75,66 75,66 75,66 75,67 75,67 " />
+<polyline fill="none" points="85,67 85,67 85,68 85,68 85,68 85,69 85,69 85,69 86,69 86,70 86,70 86,70 86,70 87,71 87,71 87,71 87,71 88,71 88,72 88,72 88,72 89,72 89,72 89,72 90,72 90,72 90,72 91,72 91,72 91,72 92,72 92,72 92,72 92,71 93,71 93,71 93,71 93,71 94,70 94,70 94,70 94,70 94,69 95,69 95,69 95,69 95,68 95,68 95,68 95,67 95,67 95,67 " />
+<line x1="85" y1="20" x2="85" y2="49" />
+</symbol>
+<symbol id="TRANSTHREE_STAR_T">
+<ellipse fill="none" cx="83" cy="60" rx="17" ry="17" />
+<line x1="84" y1="43" x2="84" y2="32" />
+<line x1="83" y1="57" x2="83" y2="49" />
+<line x1="77" y1="63" x2="83" y2="57" />
+<line x1="83" y1="57" x2="91" y2="63" />
+<line x1="112" y1="41" x2="57" y2="96" />
+<line x1="112" y1="50" x2="112" y2="41" />
+<line x1="112" y1="41" x2="103" y2="42" />
+</symbol>
+<symbol id="CAPACITOR">
+<line x1="89" y1="69" x2="63" y2="69" />
+<line x1="89" y1="79" x2="63" y2="79" />
+<line x1="76" y1="69" x2="76" y2="47" />
+</symbol>
+</defs>
+<g id="backGroundClass">
+<rect id="BK" fill="RGB(0, 0, 0)" width="2110" height="1500" />
+</g>
+<line fill="none" stroke="none" stroke-width="1" class="kV220" x1="150" y1="-15" x2="150" y2="-15" />
+<g id="BusbarSectionClass">
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<line stroke="RGB(255,0,255)" stroke-width="4" x1="256" y1="374" x2="1323" y2="375" />
+</g>
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<line stroke="RGB(255,0,255)" stroke-width="4" x1="256" y1="424" x2="1322" y2="424" />
+</g>
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<line stroke="RGB(0,255,0)" stroke-width="4" x1="243" y1="771" x2="1352" y2="771" />
+</g>
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<line stroke="RGB(0,255,0)" stroke-width="4" x1="247" y1="822" x2="1354" y2="820" />
+</g>
+</g>
+<g id="BreakerClass" />
+<g id="RelayClass">
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(322,233)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2823" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(322,197)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2822" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(229,440)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2837" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(229,472)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2838" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(584,593)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2841" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(584,561)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2840" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(584,529)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2839" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(921,591)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2829" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(921,559)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2828" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(920,525)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2818" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(346,940)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2847" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(494,940)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2848" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(977,940)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2845" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1131,940)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2846" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1295,940)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2849" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(237,730)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2844" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1242,565)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2855" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1242,531)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2854" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1242,499)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2860" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1242,467)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2850" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1242,671)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2856" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1242,705)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2857" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(478,197)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2819" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(478,233)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="由由BH51" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(999,189)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2832" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(999,225)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2836" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1198,188)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2831" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1198,224)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2835" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(920,629)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2830" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(321,271)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2824" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(480,272)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2821" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1001,264)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2834" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1199,266)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2833" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1244,633)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2859" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1244,599)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2858" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1495,530)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2852" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1495,564)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2853" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" transform="translate(1495,492)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2851" />
+</metadata>
+</g>
+</g>
+<g id="PowerTransformerClass" />
+<text fill="RGB(255, 0, 0)" stroke-width="1" x="553" y="90" font-family="宋体" font-size="72" font-weight="700">220kV腾冲变</text>
+<g id="WaveRecClass">
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1283,65)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2826" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1284,97)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2825" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1283,130)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="腾冲BH2843" />
+</metadata>
+</g>
+</g>
+<g id="ACLineSegmentClass" />
+<g id="SynchronousMachineClass" />
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="354" y="258" font-family="宋体" font-size="14" font-weight="400">主二CSC-103BFN0</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="354" y="221" font-family="宋体" font-size="14" font-weight="400">主一CSC-103D</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="286" y="322" font-family="宋体" font-size="14" font-weight="400">288</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="261" y="464" font-family="宋体" font-size="14" font-weight="400">母差第一套BP-2C</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1335" y="84" font-family="宋体" font-size="14" font-weight="400">220kV故障录波器SH2000C</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="261" y="496" font-family="宋体" font-size="14" font-weight="400">母差第二套BP-2C</text>
+<g id="CapacitorClass" />
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="445" y="321" font-family="宋体" font-size="14" font-weight="400">287</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="961" y="320" font-family="宋体" font-size="14" font-weight="400">284</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1159" y="322" font-family="宋体" font-size="14" font-weight="400">283</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="616" y="553" font-family="宋体" font-size="14" font-weight="400">主一RCS-978YN</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="862" y="480" font-family="宋体" font-size="14" font-weight="400">202</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="616" y="585" font-family="宋体" font-size="14" font-weight="400">主二RCS-978YN</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="616" y="618" font-family="宋体" font-size="14" font-weight="400">非电量RCS-974A</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="522" y="481" font-family="宋体" font-size="14" font-weight="400">201</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="490" y="583" font-family="宋体" font-size="14" font-weight="400">1#主变</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="830" y="577" font-family="宋体" font-size="14" font-weight="400">2#主变</text>
+<g transform="translate(-186,-164)">
+<use fill="RGB(255,0,255)" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(659,680)" xlink:href="#TRANSTHREE_STAR_T" />
+<line stroke="RGB(255,0,255)" stroke-width="3" class="kV220" x1="742" y1="648" x2="742" y2="724" />
+<use fill="none" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(662,567)" xlink:href="#BREAKER_ON" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(255,0,255)" transform="translate(82,-91) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+<line stroke="RGB(255,0,255)" stroke-width="2" class="kV220" x1="743" y1="586" x2="743" y2="625" />
+</g>
+<g transform="translate(153,-165)">
+<use fill="RGB(255,0,255)" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(659,680)" xlink:href="#TRANSTHREE_STAR_T" />
+<line stroke="RGB(255,0,255)" stroke-width="3" class="kV220" x1="742" y1="648" x2="742" y2="724" />
+<use fill="none" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(662,567)" xlink:href="#BREAKER_ON" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(255,0,255)" transform="translate(82,-91) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+<line stroke="RGB(255,0,255)" stroke-width="2" class="kV220" x1="743" y1="586" x2="743" y2="625" />
+</g>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1336" y="116" font-family="宋体" font-size="14" font-weight="400">主变故障录波器SH2000C</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="378" y="968" font-family="宋体" font-size="14" font-weight="400">PRS-753D-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="321" y="1014" font-family="宋体" font-size="14" font-weight="400">腾西I回</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="947" y="1014" font-family="宋体" font-size="14" font-weight="400">腾石I回</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="273" y="754" font-family="宋体" font-size="14" font-weight="400">母差BP-2C</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1338" y="149" font-family="宋体" font-size="14" font-weight="400">110kV故障录波器SH2000C</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1280" y="557" font-family="宋体" font-size="14" font-weight="400">35kV1#电容器ISA359GD</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1280" y="491" font-family="宋体" font-size="14" font-weight="400">35kV母差BP2C</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1280" y="523" font-family="宋体" font-size="14" font-weight="400">35kV分段ISA358GC-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1280" y="587" font-family="宋体" font-size="14" font-weight="400">35kV3#电容器ISA359GD</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1280" y="697" font-family="宋体" font-size="14" font-weight="400">35kV1#站用变ISA381GC</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1280" y="728" font-family="宋体" font-size="14" font-weight="400">35kV2#站用变ISA381GA-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="446" y="160" font-family="宋体" font-size="14" font-weight="400">保腾II回</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1168" y="160" font-family="宋体" font-size="14" font-weight="400">苏藤线</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="972" y="160" font-family="宋体" font-size="14" font-weight="400">松腾线</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="470" y="1014" font-family="宋体" font-size="14" font-weight="400">腾西II回</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1103" y="1014" font-family="宋体" font-size="14" font-weight="400">腾石II回</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1273" y="1014" font-family="宋体" font-size="14" font-weight="400">腾来线</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="527" y="965" font-family="宋体" font-size="14" font-weight="400">PRS-753D-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1008" y="965" font-family="宋体" font-size="14" font-weight="400">PRS-753D</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1164" y="967" font-family="宋体" font-size="14" font-weight="400">PRS-753D</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1327" y="965" font-family="宋体" font-size="14" font-weight="400">ISA311G</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="959" y="615" font-family="宋体" font-size="14" font-weight="400">非电量CSC-336C1N</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="959" y="582" font-family="宋体" font-size="14" font-weight="400">主二SGT-756</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="959" y="550" font-family="宋体" font-size="14" font-weight="400">主一CSC-326DN</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="300" y="160" font-family="宋体" font-size="14" font-weight="400">保腾I回</text>
+<g transform="translate(8,-62)">
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(255,0,255)" points="498,488  498,410  469,410 " />
+</g>
+<line stroke="RGB(255,0,255)" class="kV220" x1="468" y1="388" x2="468" y2="433" />
+<use fill="none" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(388,307)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(255,0,255)" stroke-width="3" class="kV220" x1="469" y1="231" x2="469" y2="368" />
+</g>
+<g transform="translate(-147,-61)">
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(255,0,255)" points="498,488  498,410  469,410 " />
+</g>
+<line stroke="RGB(255,0,255)" class="kV220" x1="468" y1="388" x2="468" y2="433" />
+<use fill="none" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(388,307)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(255,0,255)" stroke-width="3" class="kV220" x1="469" y1="231" x2="469" y2="368" />
+</g>
+<g transform="translate(526,-62)">
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(255,0,255)" points="498,488  498,410  469,410 " />
+</g>
+<line stroke="RGB(255,0,255)" class="kV220" x1="468" y1="388" x2="468" y2="433" />
+<use fill="none" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(388,307)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(255,0,255)" stroke-width="3" class="kV220" x1="469" y1="231" x2="469" y2="368" />
+</g>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="164" y="380" font-family="宋体" font-size="14" font-weight="400">220kV I 母</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="164" y="431" font-family="宋体" font-size="14" font-weight="400">220kV II 母</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="160" y="826" font-family="宋体" font-size="14" font-weight="400">110kV II 母</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="160" y="777" font-family="宋体" font-size="14" font-weight="400">110kV I 母</text>
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(475,592)" xlink:href="#BREAKER_ON" />
+<g fill="none" stroke="RGB(0,255,0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" points="556,771  556,672 " />
+</g>
+<g fill="none" stroke="RGB(0,255,0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" points="896,822  896,667 " />
+</g>
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(816,599)" xlink:href="#BREAKER_ON" />
+<g transform="translate(722,-63)">
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(255,0,255)" points="498,488  498,410  469,410 " />
+</g>
+<line stroke="RGB(255,0,255)" class="kV220" x1="468" y1="388" x2="468" y2="433" />
+<use fill="none" stroke="RGB(255,0,255)" stroke-width="2" transform="translate(388,307)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(255,0,255)" stroke-width="3" class="kV220" x1="469" y1="231" x2="469" y2="368" />
+</g>
+<g transform="translate(320,40)">
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(894,761)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(0,255,0)" stroke-width="2" class="kV220" x1="975" y1="843" x2="975" y2="952" />
+<line stroke="RGB(0,255,0)" stroke-width="3" class="kV220" x1="974" y1="780" x2="974" y2="823" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" transform="translate(315,100) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+</g>
+<g transform="translate(157,42)">
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(894,761)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(0,255,0)" stroke-width="2" class="kV220" x1="975" y1="843" x2="975" y2="952" />
+<line stroke="RGB(0,255,0)" stroke-width="3" class="kV220" x1="974" y1="780" x2="974" y2="823" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" transform="translate(315,100) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+</g>
+<g transform="translate(5,43)">
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(894,761)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(0,255,0)" stroke-width="2" class="kV220" x1="975" y1="843" x2="975" y2="952" />
+<line stroke="RGB(0,255,0)" stroke-width="3" class="kV220" x1="974" y1="780" x2="974" y2="823" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" transform="translate(315,100) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+</g>
+<g transform="translate(-480,41)">
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(894,761)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(0,255,0)" stroke-width="2" class="kV220" x1="975" y1="843" x2="975" y2="952" />
+<line stroke="RGB(0,255,0)" stroke-width="3" class="kV220" x1="974" y1="780" x2="974" y2="823" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" transform="translate(315,100) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+</g>
+<g transform="translate(-629,40)">
+<use fill="RGB(0,255,0)" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(894,761)" xlink:href="#BREAKER_ON" />
+<line stroke="RGB(0,255,0)" stroke-width="2" class="kV220" x1="975" y1="843" x2="975" y2="952" />
+<line stroke="RGB(0,255,0)" stroke-width="3" class="kV220" x1="974" y1="780" x2="974" y2="823" />
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" transform="translate(315,100) rotate(180.00,646,670)" points="661,709  661,631  632,631 " />
+</g>
+</g>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="353" y="881" font-family="宋体" font-size="14" font-weight="400">183</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="502" y="881" font-family="宋体" font-size="14" font-weight="400">184</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="990" y="881" font-family="宋体" font-size="14" font-weight="400">192</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1140" y="881" font-family="宋体" font-size="14" font-weight="400">193</text>
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" transform="translate(-76,114)" points="661,709  661,631  632,631 " />
+</g>
+<g transform="translate(0,40)">
+<line fill="none" stroke="RGB(0, 255, 0)" stroke-width="2" x1="897" y1="693" x2="923" y2="693" />
+<line fill="none" stroke="RGB(0, 255, 0)" stroke-width="2" x1="922" y1="693" x2="922" y2="730" />
+</g>
+<g fill="none" stroke="RGB(0,255,0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" points="556,664  556,637 " />
+</g>
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(473,523) rotate(-540.00,83,92)" xlink:href="#TRANSTHREE_TRIAN" />
+<use fill="none" stroke="RGB(0,255,0)" stroke-width="2" transform="translate(812,522) rotate(-540.00,83,92)" xlink:href="#TRANSTHREE_TRIAN" />
+<g fill="none" stroke="RGB(0,255,0)" stroke-width="2">
+<polyline stroke="RGB(0,255,0)" points="896,661  896,638 " />
+</g>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="510" y="221" font-family="宋体" font-size="14" font-weight="400">主一CSC-103D</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="510" y="258" font-family="宋体" font-size="14" font-weight="400">500kV东牌5682线第一套过电压及远跳保护PCS-925A</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1031" y="213" font-family="宋体" font-size="14" font-weight="400">主一CSC-103D</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1031" y="250" font-family="宋体" font-size="14" font-weight="400">主二CSC-103BFN2</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1230" y="212" font-family="宋体" font-size="14" font-weight="400">主一CSC-103D</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1230" y="249" font-family="宋体" font-size="14" font-weight="400">主二CSC-103BFN3</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="958" y="653" font-family="宋体" font-size="14" font-weight="400">辅助保护CSC122TN</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="353" y="296" font-family="宋体" font-size="14" font-weight="400">断路器CSC122B</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="512" y="297" font-family="宋体" font-size="14" font-weight="400">断路器CSC122B</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1033" y="289" font-family="宋体" font-size="14" font-weight="400">断路器CSC122B</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1231" y="291" font-family="宋体" font-size="14" font-weight="400">断路器CSC122B</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1282" y="625" font-family="宋体" font-size="14" font-weight="400">35kV4#电容器ISA359GD-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1282" y="655" font-family="宋体" font-size="14" font-weight="400">35kV6#电容器ISA359GD-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1533" y="556" font-family="宋体" font-size="14" font-weight="400">35kV3#电抗器ISA348G</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1533" y="587" font-family="宋体" font-size="14" font-weight="400">35kV4#电抗器ISA348G-NW</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1533" y="514" font-family="宋体" font-size="14" font-weight="400">35kV1#电抗器ISA348G</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="1305" y="881" font-family="宋体" font-size="14" font-weight="400">191</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="517" y="669" font-family="宋体" font-size="14" font-weight="400">101</text>
+<text fill="RGB(255, 255, 255)" stroke-width="1" x="858" y="676" font-family="宋体" font-size="14" font-weight="400">102</text>
+</svg>

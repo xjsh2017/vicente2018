@@ -1,0 +1,255 @@
+说明:屏蔽了字母和数字,比如 200KV大宇变 得到的结果为 DYB
+这个在下拉框的快速选择时比较有用
+
+void GetFirstLetter(CString strName, CString& strFirstLetter)
+{
+    TBYTE ucHigh, ucLow;
+    int  nCode;
+    CString strRet;
+
+    strFirstLetter.Empty();
+
+    for (int i=0; i<strName.GetLength(); i++)
+    {
+        if ( (TBYTE)strName[i] < 0x80 )
+            continue;
+
+        ucHigh = (TBYTE)strName[i];
+        ucLow  = (TBYTE)strName[i+1];
+        if ( ucHigh < 0xa1 || ucLow < 0xa1)
+            continue;
+        else
+            nCode = (ucHigh - 0xa0) * 100 + ucLow - 0xa0;
+
+        strRet = FirstLetter(nCode);
+        strFirstLetter += strRet;
+        i++;
+    }
+}
+
+
+CString FirstLetter(int nCode)
+{
+   if(nCode >= 1601 && nCode < 1637) return "A";
+   if(nCode >= 1637 && nCode < 1833) return "B";
+   if(nCode >= 1833 && nCode < 2078) return "C";
+   if(nCode >= 2078 && nCode < 2274) return "D";
+   if(nCode >= 2274 && nCode < 2302) return "E";
+   if(nCode >= 2302 && nCode < 2433) return "F";
+   if(nCode >= 2433 && nCode < 2594) return "G";
+   if(nCode >= 2594 && nCode < 2787) return "H";
+   if(nCode >= 2787 && nCode < 3106) return "J";
+   if(nCode >= 3106 && nCode < 3212) return "K";
+   if(nCode >= 3212 && nCode < 3472) return "L";
+   if(nCode >= 3472 && nCode < 3635) return "M";
+   if(nCode >= 3635 && nCode < 3722) return "N";
+   if(nCode >= 3722 && nCode < 3730) return "O";
+   if(nCode >= 3730 && nCode < 3858) return "P";
+   if(nCode >= 3858 && nCode < 4027) return "Q";
+   if(nCode >= 4027 && nCode < 4086) return "R";
+   if(nCode >= 4086 && nCode < 4390) return "S";
+   if(nCode >= 4390 && nCode < 4558) return "T";
+   if(nCode >= 4558 && nCode < 4684) return "W";
+   if(nCode >= 4684 && nCode < 4925) return "X";
+   if(nCode >= 4925 && nCode < 5249) return "Y";
+   if(nCode >= 5249 && nCode < 5590) return "Z";
+   if(nCode >= 5601 && nCode <= 8794)
+   {
+    CString CodeData = "cjwgnspgcenegypbtwxzdxykygtpjnmjqmbsgzscyjsyyfpggbzgydywjkgaljswkbjqhyjwpdzlsgmr";
+     CString str1 = "ybywwccgznkydgttngjeyekzydcjnmcylqlypyqbqrpzslwbdgkjfyxjwcltbncxjjjjcxdtqsqzycdxxhgckbphffss";
+     CString str2 = "pybgmxjbbyglbhlssmzmpjhsojnghdzcdklgjhsgqzhxqgkezzwymcscjnyetxadzpmdssmzjjqjyzcjjfwqjbdzbjgd";
+     CString str3 = "nzcbwhgxhqkmwfbpbqdtjjzkqhylcgxfptyjyyzpsjlfchmqshgmmxsxjpkdcmbbqbefsjwhwwgckpylqbgldlcctnma";
+     CString str4 = "eddksjngkcsgxlhzaybdbtsdkdylhgymylcxpycjndqjwxqxfyyfjlejbzrwccqhqcsbzkymgplbmcrqcflnymyqmsqt";
+     CString str5 = "rbcjthztqfrxchxmcjcjlxqgjmshzkbswxemdlckfsydsglycjjssjnqbjctyhbftdcyjdgwyghqfrxwckqkxebpdjpx";
+     CString str6 = "jqsrmebwgjlbjslyysmdxlclqkxlhtjrjjmbjhxhwywcbhtrxxglhjhfbmgykldyxzpplggpmtcbbajjzyljtyanjgbj";
+     CString str7 = "flqgdzyqcaxbkclecjsznslyzhlxlzcghbxzhznytdsbcjkdlzayffydlabbgqszkggldndnyskjshdlxxbcghxyggdj";
+     CString str8 = "mmzngmmccgwzszxsjbznmlzdthcqydbdllscddnlkjyhjsycjlkohqasdhnhcsgaehdaashtcplcpqybsdmpjlpcjaql";
+     CString str9 = "cdhjjasprchngjnlhlyyqyhwzpnccgwwmzffjqqqqxxaclbhkdjxdgmmydjxzllsygxgkjrywzwyclzmcsjzldbndcfc";
+     CString str10 = "xyhlschycjqppqagmnyxpfrkssbjlyxyjjglnscmhcwwmnzjjlhmhchsyppttxrycsxbyhcsmxjsxnbwgpxxtaybgajc";
+     CString str11 = "xlypdccwqocwkccsbnhcpdyznbcyytyckskybsqkkytqqxfcwchcwkelcqbsqyjqcclmthsywhmktlkjlychwheqjhtj";
+     CString str12 = "hppqpqscfymmcmgbmhglgsllysdllljpchmjhwljcyhzjxhdxjlhxrswlwzjcbxmhzqxsdzpmgfcsglsdymjshxpjxom";
+     CString str13 = "yqknmyblrthbcftpmgyxlchlhlzylxgsssscclsldclepbhshxyyfhbmgdfycnjqwlqhjjcywjztejjdhfblqxtqkwhd";
+     CString str14 = "chqxagtlxljxmsljhdzkzjecxjcjnmbbjcsfywkbjzghysdcpqyrsljpclpwxsdwejbjcbcnaytmgmbapclyqbclzxcb";
+     CString str15 = "nmsggfnzjjbzsfqyndxhpcqkzczwalsbccjxpozgwkybsgxfcfcdkhjbstlqfsgdslqwzkxtmhsbgzhjcrglyjbpmljs";
+     CString str16 = "xlcjqqhzmjczydjwbmjklddpmjegxyhylxhlqyqhkycwcjmyhxnatjhyccxzpcqlbzwwwtwbqcmlbmynjcccxbbsnzzl";
+     CString str17 = "jpljxyztzlgcldcklyrzzgqtgjhhgjljaxfgfjzslcfdqzlclgjdjcsnclljpjqdcclcjxmyzftsxgcgsbrzxjqqcczh";
+     CString str18 = "gyjdjqqlzxjyldlbcyamcstylbdjbyregklzdzhldszchznwczcllwjqjjjkdgjcolbbzppglghtgzcygezmycnqcycy";
+     CString str19 = "hbhgxkamtxyxnbskyzzgjzlqjdfcjxdygjqjjpmgwgjjjpkjsbgbmmcjssclpqpdxcdyykypcjddyygywchjrtgcnyql";
+     CString str20 = "dkljczzgzccjgdyksgpzmdlcphnjafyzdjcnmwescsglbtzcgmsdllyxqsxsbljsbbsgghfjlwpmzjnlyywdqshzxtyy"; 
+     CString str21 = "whmcyhywdbxbtlmswyyfsbjcbdxxlhjhfpsxzqhfzmqcztqcxzxrdkdjhnnyzqqfnqdmmgnydxmjgdhcdycbffallztd";
+     CString str22 = "ltfkmxqzdngeqdbdczjdxbzgsqqddjcmbkxffxmkdmcsychzcmljdjynhprsjmkmpcklgdbqtfzswtfgglyplljzhgjj";
+     CString str23 = "gypzltcsmcnbtjbhfkdhbyzgkpbbymtdlsxsbnpdkleycjnycdykzddhqgsdzsctarlltkzlgecllkjljjaqnbdggghf";
+     CString str24 = "jtzqjsecshalqfmmgjnlyjbbtmlycxdcjpldlpcqdhsycbzsckbzmsljflhrbjsnbrgjhxpdgdjybzgdlgcsezgxlblg";
+     CString str25 = "yxtwmabchecmwyjyzlljjshlgndjlslygkdzpzxjyyzlpcxszfgwyydlyhcljscmbjhblyjlycblydpdqysxktbytdkd";
+     CString str26 = "xjypcnrjmfdjgklccjbctbjddbblblcdqrppxjcglzcshltoljnmdddlngkaqakgjgyhheznmshrphqqjchgmfprxcjg";
+     CString str27 = "dychghlyrzqlcngjnzsqdkqjymszswlcfqjqxgbggxmdjwlmcrnfkkfsyyljbmqammmycctbshcptxxzzsmphfshmclm";
+     CString str28 = "ldjfyqxsdyjdjjzzhqpdszglssjbckbxyqzjsgpsxjzqznqtbdkwxjkhhgflbcsmdldgdzdblzkycqnncsybzbfglzzx"; 
+     CString str29 = "swmsccmqnjqsbdqsjtxxmbldxcclzshzcxrqjgjylxzfjphymzqqydfqjjlcznzjcdgzygcdxmzysctlkphtxhtlbjxj";
+     CString str30 = "lxscdqccbbqjfqzfsltjbtkqbsxjjljchczdbzjdczjccprnlqcgpfczlclcxzdmxmphgsgzgszzqjxlwtjpfsyaslcj";
+     CString str31 = "btckwcwmytcsjjljcqlwzmalbxyfbpnlschtgjwejjxxglljstgshjqlzfkcgnndszfdeqfhbsaqdgylbxmmygszldyd";
+     CString str32 = "jmjjrgbjgkgdhgkblgkbdmbylxwcxyttybkmrjjzxqjbhlmhmjjzmqasldcyxyqdlqcafywyxqhz";
+	 CodeData += str1;
+	 CodeData += str2;
+	 CodeData += str3;
+	 CodeData += str4;
+	 CodeData += str5;
+	 CodeData += str6;
+	 CodeData += str7;
+	 CodeData += str8;
+	 CodeData += str9;
+	 CodeData += str10;
+	 CodeData += str11;
+	 CodeData += str12;
+	 CodeData += str13;
+	 CodeData += str14;
+	 CodeData += str15;
+	 CodeData += str16;
+	 CodeData += str17;
+	 CodeData += str18;
+	 CodeData += str19;
+	 CodeData += str20;
+	 CodeData += str21;
+	 CodeData += str22;
+	 CodeData += str23;
+	 CodeData += str24;
+	 CodeData += str25;
+	 CodeData += str26;
+	 CodeData += str27;
+	 CodeData += str28;
+	 CodeData += str29;
+	 CodeData += str30;
+	 CodeData += str31;
+	 CodeData += str32;
+
+    CString gbcode;
+    gbcode.Format("%d", nCode);
+	int pos1 = atoi(gbcode.Mid(0,2));
+	int pos2 = atoi(gbcode.Mid(gbcode.GetLength()-2,2));
+    int pos = (pos1-56)*94 + pos2;
+    CString strResult = CodeData.Mid(pos-1,1);
+    strResult.MakeUpper();
+    return strResult;
+   } 
+   return "";
+}
+
+
+
+////////////////////////////////////////////////////
+实例
+
+void CMyDialogBar::OnEditchangeCombo1() 
+{
+	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+	CComboBox * pCMB = (CComboBox *)GetDlgItem(IDC_CMB_SEARCHSTATION);
+	if(pCMB != NULL)
+	{
+		//清空
+	//	pCMB ->ResetContent();
+		int count = pCMB ->GetCount();
+		for (int i=0;i < count; i++)
+		{
+			pCMB->DeleteString( 0 );
+		}
+
+		//进行比较,填充下拉框
+		CompareStation(m_strValue);
+	}
+}
+
+//判断是否为中文
+BOOL CMyDialogBar::IsChinese(CString str)
+{
+    TBYTE ucHigh, ucLow;
+
+
+    if ( (TBYTE)str[0] < 0x80 )
+         return FALSE;
+    ucHigh = (TBYTE)str[0];
+    ucLow  = (TBYTE)str[1];
+    if ( ucHigh < 0xa1 || ucLow < 0xa1)
+            return FALSE;
+    return TRUE;
+}
+
+void CMyDialogBar::CompareStation(CString str)
+{
+	if(str == "")
+		return;
+	CSTDrawApp * pApp = (CSTDrawApp *)AfxGetApp();
+	CDataEngine * pDB = pApp ->GetDataEngine();
+	if(IsChinese(str)) //输入为中文,直接与厂站名比较
+	{
+		int length = str.GetLength();
+		CComboBox * pCMB = (CComboBox *)GetDlgItem(IDC_CMB_SEARCHSTATION);
+		if(pCMB == NULL)
+			return;
+		POSITION pos = pDB ->m_StationList.GetHeadPosition();
+		while(pos != NULL)
+		{
+			CStationObj * pObj = pDB ->m_StationList.GetNext(pos);
+			if(pObj ->m_Name.GetLength() < length)
+				continue;
+			CString strTemp = pObj->m_Name;
+			for (int i=0; i<strTemp.GetLength(); i++)
+			{
+				int a = (TBYTE)strTemp[i];
+				if ( !IsChinese(strTemp) )
+					strTemp = strTemp.Right(strTemp.GetLength() - 1);
+				else
+					break;
+			}
+			if(strTemp.GetLength() < length)
+				continue;
+			strTemp = strTemp.Left(length);
+
+			if(strTemp == str)
+			{			
+				pCMB ->AddString(pObj ->m_Name);
+				int Index = pCMB ->FindString(0,pObj ->m_Name);
+				if(Index != -1)
+				{
+					pCMB ->SetItemDataPtr(Index, pObj);
+				}
+			}
+		}
+	}
+	else
+	{
+		//拼音
+		int length = str.GetLength();
+		str.MakeUpper();
+		CComboBox * pCMB = (CComboBox *)GetDlgItem(IDC_CMB_SEARCHSTATION);
+		if(pCMB == NULL)
+			return;
+		POSITION pos = pDB ->m_StationList.GetHeadPosition();
+		while(pos != NULL)
+		{
+			CStationObj * pObj = pDB ->m_StationList.GetNext(pos);
+			if(pObj ->m_Name.GetLength() < length)
+				continue;
+			CString strTemp;
+			pObj ->GetFirstLetter(pObj ->m_Name, strTemp);
+			CString strPY = strTemp.Left(length);
+
+			if(strPY == str)
+			{
+				//加入到下拉框				
+				pCMB ->AddString(pObj ->m_Name);
+				int Index = pCMB ->FindString(0,pObj ->m_Name);
+				if(Index != -1)
+				{
+					pCMB ->SetItemDataPtr(Index, pObj);
+				}
+			}
+		}
+	}
+	CComboBox * pCMB = (CComboBox *)GetDlgItem(IDC_CMB_SEARCHSTATION);
+	if(pCMB != NULL)
+	{
+		//注意鼠标的焦点
+		::SetCursor(LoadCursor(NULL,MAKEINTRESOURCE(IDC_ARROW)));
+		pCMB ->ShowDropDown(TRUE);
+	}
+}

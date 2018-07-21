@@ -1,0 +1,5 @@
+ddvue.ocx为AutoCAD的DWG文件的显示控件，在VC中的使用方法为：
+1.在系统中注册ddvue.ocx，注册方法见DDVue_Manual.pdf
+2.在对话框中添加ActiveX控件，选择DDVue Control
+3.在为对话框生成变量时会提示需导入类，按提示导入即可
+4.类的函数说明参考DDVue_Manual.pdf

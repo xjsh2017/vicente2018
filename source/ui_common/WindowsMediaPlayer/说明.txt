@@ -1,0 +1,1 @@
+windows Media Player控件类，主要为在VS中找不到ActiveX控件里的windows Media Player控件类所提供，里面有24类，版本较新.方法介绍：http://blog.csdn.net/akof1314/archive/2009/11/29/4900244.aspx

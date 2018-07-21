@@ -1,0 +1,507 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:PSR="http://www.cim.com" xmlns:cge="http://iec.ch/TC57/2005/SVG-schema#" width="1680" height="1200" viewBox="0 0 1680 1200">
+<defs>
+<style type="text/css"><![CDATA[
+.kV3 {stroke:rgb(0,0,0)}
+.kV6 {stroke:rgb(255,102,0)}
+.kV10 {stroke:rgb(128,128,0)}
+.kV13 {stroke:rgb(153,204,0)}
+.kV15 {stroke:rgb(153,204,0)}
+.kV20 {stroke:rgb(153,51,102)}
+.kV35 {stroke:rgb(255,255,0)}
+.kV110 {stroke:rgb(0,255,0)}
+.kV220 {stroke:rgb(255,0,0)}
+.kV330 {stroke:rgb(255,102,0)}
+.kV500 {stroke:rgb(0,255,255)}
+.kV800 {stroke:rgb(0,0,255)}]]></style>
+<symbol id="TRANSTHREE_STAR_T">
+<ellipse fill="none" cx="83" cy="60" rx="17" ry="17" />
+<line x1="84" y1="43" x2="84" y2="32" />
+<line x1="83" y1="57" x2="83" y2="49" />
+<line x1="77" y1="63" x2="83" y2="57" />
+<line x1="83" y1="57" x2="91" y2="63" />
+<line x1="112" y1="41" x2="57" y2="96" />
+<line x1="112" y1="50" x2="112" y2="41" />
+<line x1="112" y1="41" x2="103" y2="42" />
+</symbol>
+<symbol id="TRANSTHREE_TRIAN">
+<ellipse fill="none" cx="83" cy="85" rx="17" ry="17" />
+<line x1="83" y1="116" x2="83" y2="102" />
+<polygon fill="none" points="91,93 77,93 84,81" />
+</symbol>
+<symbol id="TRANSTHREE_STAR">
+<ellipse fill="none" cx="104" cy="74" rx="17" ry="17" />
+<line x1="104" y1="74" x2="104" y2="66" />
+<line x1="98" y1="80" x2="104" y2="74" />
+<line x1="104" y1="74" x2="112" y2="80" />
+<line x1="135" y1="74" x2="121" y2="74" />
+</symbol>
+<symbol id="BREAKER_ON">
+<polygon points="74,61 86,61 86,81 74,81" />
+<line x1="80" y1="61" x2="80" y2="39" />
+<line x1="80" y1="103" x2="80" y2="81" />
+</symbol>
+<symbol id="RELAY">
+<rect stroke="RGB(255, 255, 255)" stroke-width="1" x="6" y="5" rx="0" ry="0" width="19" height="20" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="13" y1="9" x2="18" y2="9" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="16" y1="7" x2="16" y2="24" />
+<line fill="none" stroke="RGB(255, 255, 128)" stroke-width="1" x1="7" y1="7" x2="13" y2="7" />
+<line fill="none" stroke="RGB(255, 255, 128)" stroke-width="1" x1="18" y1="7" x2="24" y2="7" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="13" y1="20" x2="18" y2="20" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="11" y1="10" x2="11" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="9" y1="10" x2="9" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="20" y1="10" x2="20" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="22" y1="10" x2="22" y2="16" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="7" y1="19" x2="13" y2="19" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="7" y1="21" x2="13" y2="21" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="18" y1="19" x2="24" y2="19" />
+<line fill="none" stroke="RGB(0, 0, 0)" stroke-width="1" x1="18" y1="21" x2="24" y2="21" />
+</symbol>
+<symbol id="WAVEREC">
+<rect stroke="RGB(255, 255, 255)" stroke-width="1" x="7" y="9" rx="0" ry="0" width="29" height="14" />
+<line fill="none" stroke="RGB(0, 255, 0)" stroke-width="1" x1="11" y1="5" x2="40" y2="5" />
+<ellipse fill="none" stroke="RGB(255, 0, 0)" stroke-width="1" cx="12" cy="17" rx="3" ry="3" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="18" y1="17" x2="18" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="20" y1="15" x2="20" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="22" y1="13" x2="22" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="26" y1="17" x2="26" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="24" y1="15" x2="24" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="28" y1="19" x2="28" y2="22" />
+<line fill="none" stroke="RGB(255, 255, 255)" stroke-width="1" x1="30" y1="14" x2="30" y2="23" />
+<polygon stroke="RGB(255, 255, 255)" stroke-width="1" points="7,9  35,9  39,4  11,4" />
+<polygon stroke="RGB(255, 255, 255)" stroke-width="1" points="35,9 35,23 39,18 39,4" />
+</symbol>
+</defs>
+<g id="backGroundClass">
+<rect fill="RGB(0, 64, 64)" x="0" y="0" width="1680" height="1200" />
+</g>
+<image x="1387" y="4" width="212" height="84" xlink:href="国家电网3.jpg" />
+<g id="BusbarSectionClass">
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(133,-34)">
+<metadata>
+<cge:PSR_Ref ObjectID="90#2" ObjectName="220kV1母" />
+</metadata>
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<line stroke-width="4" class="kV220" x1="227" y1="366" x2="1193" y2="366" />
+<metadata>
+<cge:PSR_Ref />
+</metadata>
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<line stroke-width="4" class="kV220" x1="227" y1="414" x2="1191" y2="414" />
+<metadata>
+<cge:PSR_Ref />
+</metadata>
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<line stroke-width="4" class="kV110" x1="195" y1="879" x2="1359" y2="878" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<line stroke-width="4" class="kV110" x1="200" y1="825" x2="1365" y2="829" />
+</g>
+</g>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="150" y="372" font-family="宋体" font-size="14" font-weight="bold">220kV II母</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="150" y="420" font-family="宋体" font-size="14" font-weight="bold">220kV I母</text>
+<g id="PowerTransformerClass">
+<g>
+<use fill="none" stroke-width="2" transform="translate(357,548)" class="kV220" xlink:href="#TRANSTHREE_STAR_T" />
+<metadata>
+<cge:PSR_Ref />
+</metadata>
+</g>
+<use fill="none" stroke-width="2" transform="translate(360,550)" class="kV110" xlink:href="#TRANSTHREE_TRIAN" />
+<use fill="none" stroke-width="2" transform="translate(358,549)" class="kV35" xlink:href="#TRANSTHREE_STAR" />
+<g>
+<use fill="none" stroke-width="2" transform="translate(996,549)" class="kV220" xlink:href="#TRANSTHREE_STAR_T" />
+<metadata>
+<cge:PSR_Ref />
+</metadata>
+</g>
+<use fill="none" stroke-width="2" transform="translate(1000,549)" class="kV110" xlink:href="#TRANSTHREE_TRIAN" />
+<use fill="none" stroke-width="2" transform="translate(998,548)" class="kV35" xlink:href="#TRANSTHREE_STAR" />
+</g>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="150" y="906" font-family="宋体" font-size="14" font-weight="bold">110kV I母</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="146" y="849" font-family="宋体" font-size="14" font-weight="bold">110kV II母</text>
+<g id="ACLineSegmentClass">
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="580,414  580,318  596,318" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="644,366  644,318  628,318" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2" transform="translate(133,-34)" />
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2" transform="translate(133,-34)" />
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2" transform="translate(133,-34)" />
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="445,828  445,932  477,932  477,880" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2" transform="translate(133,-34)" />
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2" transform="translate(133,-34)" />
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="337,415  337,319  369,319  369,367" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="354,256  394,256  394,583  441,581" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="443,661  443,719  384,719  384,999  352,999" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="335,829  335,933  367,933  367,881" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="432,412  432,316  464,316  464,364" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="704,415  704,319  736,319  736,367" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="721,215  721,271" />
+</g>
+<g fill="none" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(133,-34)" />
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="254,827  254,931  286,931  286,879" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="270,995  270,1026" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="675,825  675,929  707,929  707,877" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="996,825  996,929  1028,929  1028,877" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="449,219  449,275" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="461,996  461,1027" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="691,990  691,1021" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1012,991  1012,1022" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="895,413  895,317  927,317  927,365" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="912,254  952,254  952,581  1082,582" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="560,826  560,930  592,930  592,878" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="576,991  576,1022" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="786,826  786,930  818,930  818,878" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="802,991  802,1022" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="890,826  890,930  922,930  922,878" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="906,991  906,1022" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1083,658  1083,718  1137,719  1137,999  1105,999" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1088,829  1088,933  1120,933  1120,881" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1170,829  1170,933  1202,933  1202,881" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1186,995  1186,1026" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1264,828  1264,932  1296,932  1296,880" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV110" points="1280,994  1280,1025" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="999,412  999,316  1031,316  1031,364" />
+</g>
+<g fill="none" stroke="RGB(255, 255, 255)" stroke-width="2">
+<polyline class="kV220" points="1016,212  1016,268" />
+</g>
+</g>
+<g id="BreakerClass">
+<use fill="none" stroke-width="2" transform="translate(533,247) rotate(-90.00,80,71)" class="kV220" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(381,893)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(274,217)" class="kV220" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(272,896)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(369,213)" class="kV220" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(641,216)" class="kV220" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(190,892)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(611,890)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(932,890)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(832,215)" class="kV220" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(496,891)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(722,891)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(826,891)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(1025,896)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(1106,894)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(1200,893)" class="kV110" xlink:href="#BREAKER_ON" />
+<use fill="none" stroke-width="2" transform="translate(936,213)" class="kV220" xlink:href="#BREAKER_ON" />
+</g>
+<g id="RelayClass">
+<g transform="translate(133,-34)">
+<metadata>
+<cge:PSR_Ref ObjectID="1#62" ObjectName="220kV桂冶线断路器CSC-122A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(180,425)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#61" ObjectName="220kV母差失灵第一套保护CSC-150A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(180,456)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#63" ObjectName="220kV母差失灵第二套保护BP-2CS" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(572,283)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#64" ObjectName="220kV母联600断路器保护CSC-122B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(200,757)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#65" ObjectName="110kV母差保护CSC-150A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(200,786)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#66" ObjectName="110kV母联500断路器保护CSC-122M" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(721,218)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#67" ObjectName="220kV桂螃I线602第一套线路保护PSL-603U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(721,244)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#68" ObjectName="220kV桂螃I线602第二套线路保护RCS-902G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(450,216)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#69" ObjectName="220kV桂螃II线604第一套线路保护PSL-603U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(450,242)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#70" ObjectName="220kV桂螃II线604第二套线路保护RCS-902G" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(499,593)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="1#71" ObjectName="#1主变第一套电量保护CSC-326B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(499,620)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#20" ObjectName="#1主变第二套电量保护CSC-326B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(499,647)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#21" ObjectName="#1主变非电量保护CSC-336C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1139,598)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#22" ObjectName="#2主变第一套电量保护CSC-326B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1139,625)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#23" ObjectName="#2主变第二套电量保护CSC-326B" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1139,652)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#24" ObjectName="#2主变保护C(CSC-336C)" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(269,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#11" ObjectName="110kV螃月线508保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(461,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#12" ObjectName="110kV螃六线512保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(575,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#13" ObjectName="110kV团螃线514保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(690,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#14" ObjectName="110kV螃鹅I线516保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(802,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#15" ObjectName="110kV螃公I线518保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(906,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#16" ObjectName="110kV螃公II线522保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1010,976)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#17" ObjectName="110kV螃鹅II线524保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1185,980)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#18" ObjectName="110kV螃铁线526保护PSL-621C" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1016,215)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#25" ObjectName="220kV株螃线606第一套线路保护PSL-603U" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1016,241)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#26" ObjectName="220kV株螃线606第二套线路保护PCS-931GPM" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(1281,980)" xlink:href="#RELAY" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#27" ObjectName="110kV螃电线528线路保护PSL-621U" />
+</metadata>
+</g>
+</g>
+<g id="WaveRecClass">
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(681,475)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#102" ObjectName="220kV线路故障录波器YS-900A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(681,504)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#103" ObjectName="主变故障录波器YS-900A" />
+</metadata>
+</g>
+<g>
+<use fill="RGB(128, 255, 0)" stroke="RGB(0, 0, 0)" stroke-width="2" transform="translate(681,446)" xlink:href="#WAVEREC" />
+<metadata>
+<cge:PSR_Ref ObjectID="80#101" ObjectName="110kV线路故障录波器YS-900A" />
+</metadata>
+</g>
+</g>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="360" y="626" font-family="宋体" font-size="14" font-weight="bold">#1主变</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="408" y="211" font-family="宋体" font-size="14" font-weight="bold">220kV桂螃II线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="678" y="211" font-family="宋体" font-size="14" font-weight="bold">220kV桂螃I线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="591" y="207" font-family="宋体" font-size="14" font-weight="bold">母联</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="599" y="349" font-family="宋体" font-size="14" font-weight="bold">600</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="686" y="294" font-family="宋体" font-size="14" font-weight="bold">602</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="315" y="296" font-family="宋体" font-size="14" font-weight="bold">620</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="413" y="290" font-family="宋体" font-size="14" font-weight="bold">604</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="231" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃月线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="423" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃六线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="648" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃鹅I线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="975" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃鹅II线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="979" y="970" font-family="宋体" font-size="14" font-weight="bold">524</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="655" y="969" font-family="宋体" font-size="14" font-weight="bold">516</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="314" y="973" font-family="宋体" font-size="14" font-weight="bold">510</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="233" y="970" font-family="宋体" font-size="14" font-weight="bold">508</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="417" y="970" font-family="宋体" font-size="14" font-weight="bold">512</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="873" y="294" font-family="宋体" font-size="14" font-weight="bold">610</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="539" y="967" font-family="宋体" font-size="14" font-weight="bold">514</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="534" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV团螃线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="759" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃公I线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="766" y="970" font-family="宋体" font-size="14" font-weight="bold">518</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="863" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃公II线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="870" y="970" font-family="宋体" font-size="14" font-weight="bold">522</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="1067" y="973" font-family="宋体" font-size="14" font-weight="bold">520</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="1244" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃电线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="1153" y="974" font-family="宋体" font-size="14" font-weight="bold">526</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="1139" y="1050" font-family="宋体" font-size="14" font-weight="bold">110kV螃铁线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="1247" y="973" font-family="宋体" font-size="14" font-weight="bold">528</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="1005" y="629" font-family="宋体" font-size="14" font-weight="bold">#2主变</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="207" y="446" font-family="黑体" font-size="12">220kV母差失灵第一套保护CSC-150A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="209" y="478" font-family="黑体" font-size="12">220kV母差失灵第二套保护BP-2CS</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="601" y="302" font-family="黑体" font-size="12">CSC-122B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="230" y="775" font-family="黑体" font-size="12">110kV母差保护CSC-150A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="230" y="806" font-family="黑体" font-size="12">110kV母联500断路器保护CSC-122M</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="750" y="237" font-family="黑体" font-size="12">第一套线路保护PSL-603U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="750" y="263" font-family="黑体" font-size="12">第二套线路保护RCS-902G</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="480" y="234" font-family="黑体" font-size="12">第一套线路保护PSL-603U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="480" y="261" font-family="黑体" font-size="12">第二套线路保护RCS-902G</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="529" y="615" font-family="黑体" font-size="12">第一套电量保护CSC-326B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="529" y="644" font-family="黑体" font-size="12">第二套电量保护CSC-326B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="529" y="667" font-family="黑体" font-size="12">非电量保护CSC-336C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1170" y="617" font-family="黑体" font-size="12">第一套电量保护CSC-326B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1170" y="647" font-family="黑体" font-size="12">第二套电量保护CSC-326B</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1170" y="674" font-family="黑体" font-size="12">非电量变保护CSC-336C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="726" y="493" font-family="黑体" font-size="12">220kV线路故障录波器YS-900A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="726" y="522" font-family="黑体" font-size="12">主变故障录波器YS-900A</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="298" y="998" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="487" y="996" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="601" y="996" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="717" y="996" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="830" y="996" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="936" y="996" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1041" y="996" font-family="黑体" font-size="12">PSL-621C</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1214" y="1000" font-family="黑体" font-size="12">PSL-621C</text>
+<image x="0" y="-1" width="1920" height="140" xlink:href="国家电网图.jpg" />
+<image x="1465" y="5" width="212" height="84" xlink:href="未标题-1.jpg" />
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1092" y="119" font-family="宋体" font-size="36" font-weight="bold">220kV螃蟹嘴变</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="379" y="59" font-family="宋体" font-size="48" font-weight="bold">智能型电网故障信息处理系统</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="388" y="120" font-family="宋体" font-size="24" font-style="oblique" font-weight="bold">Intelligent Power Fault Analyzing Processing System</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="108" y="113" font-family="宋体" font-size="24" font-weight="bold">湖南省电力公司</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1394" y="127" font-family="宋体" font-size="28" font-weight="bold">上海许继</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="973" y="208" font-family="宋体" font-size="14" font-weight="bold">220kV株螃线</text>
+<text fill="RGB(255, 255, 255)" stroke="none" stroke-width="1" x="981" y="291" font-family="宋体" font-size="14" font-weight="bold">606</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1045" y="234" font-family="黑体" font-size="12">第一套线路保护PSL-603U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1045" y="260" font-family="黑体" font-size="12">第二套线路保护PCS-931GPM</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="1310" y="1000" font-family="黑体" font-size="12">PSL-621U</text>
+<text fill="RGB(255,255,255)" stroke="none" stroke-width="1" x="726" y="464" font-family="黑体" font-size="12">110kV线路故障录波器YS-900A</text>
+</svg>

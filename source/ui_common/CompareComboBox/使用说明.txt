@@ -1,0 +1,15 @@
+本来基础子CComboBox,实现了使用下拉框的输入框输入中文和拼音首字母过滤筛选数据项的功能，使用方法如下:
+1.下拉框的风格选择为dropdown,因为需要下拉框可输入
+2.将下拉框对象改为CCompareCmb的对象，如：CCompareCmb	m_cmbStation;
+3.在变更下拉框中的填充元素时，应调用CCompareCmb::OnDataFilled() 函数
+	/*
+	* @brief	OnDataFilled	始数据填充完毕后调用此函数，方便查询条件为空后重新填充数据
+	* @param	[In]a param of Type BOOL bAutoSelect 重新填充时是否自动选择到指定项		
+	* @param	[In]a param of Type int index	指定自动选择到的项。-1表示最后一项，大于等于0的值则直接对应下拉框的索引	
+	* @return   void	
+	*/
+	void OnDataFilled(BOOL bAutoSelect = TRUE, int index = -1);
+
+
+此控件存在一个问题，比如原本下拉框中有1000项数据，用户使用字母筛选后列出10项，用户在这10项中选中了一项，但是现在起点击下拉框的下拉箭头时下拉列表只会显示10项数据，只有用户在输入框中删除输入框中所有文字才能在下拉框中显示出所有数据。
+当然此问题可以避免，只需在用户选中某项时自动将所有数据填充到下拉列表中，并自动选中刚才用户选中的项。但将产生另两个问题：1.在数据项很多时会比较慢，特别是数据项有几千项时卡顿很明显； 2.需响应CBN_SELCHANGE消息，这将使得CCompareCmb的使用者无法使用此消息（这点很致命）。
