@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="gb2312"?>
+<CONFIG_ROOT>
+	<DATABASE_SETTING Des="数据库配置">
+		<DB_MAINHOST Des="数据库IP地址">192.168.116.6</DB_MAINHOST>
+		<DB_DSN Des="数据库名">ipofas</DB_DSN>
+		<DB_USER Des="数据库用户名">ipofas</DB_USER>
+		<DB_PASSWORD Des="数据库密码">sagacity</DB_PASSWORD>
+		<DB_TYPE Des="数据库类型" des="1:MYSQL 2:ORACLE 3:MSSQL 4:达梦 5:金仓">4</DB_TYPE>
+	</DATABASE_SETTING>
+	<FILE_BASE_CONFIG Des="文件基本设置">
+		<FILE_CODE_FORMAT Des="xml文件编码格式，1:utf8 2:gb2312">2</FILE_CODE_FORMAT>
+	</FILE_BASE_CONFIG>
+	<FILE_STORE_DIR_CONFIG Des="文件本地临时存放路径">
+		<MODEL_DATA_FILE Des="模型文件临时存放目录">/home/d5000/gansu/var/ScadaRelay/data_trans/model/out/</MODEL_DATA_FILE>
+		<RUN_DATA_FILE Des="运行数据临时存放目录">/home/d5000/gansu/var/ScadaRelay/data_trans/data/out/</RUN_DATA_FILE>
+	</FILE_STORE_DIR_CONFIG>
+</CONFIG_ROOT>
