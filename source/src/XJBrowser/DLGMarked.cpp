@@ -70,6 +70,20 @@ void DLGMarked::OnBtnUnmark()
 	// TODO: Add your control notification handler code here
 	//更新挂牌状态
 	m_bMark = FALSE;
+
+	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
+	PT_ZONE zone;
+	CString sRecords;
+	int nState = pApp->GetPTSetModState(zone, sRecords);
+	CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
+
+	if (sRunnerUserID != pApp->m_User.m_strUSER_ID){
+		CString str;
+		str.Format("该装置已授权给用户 [%s]，您无法进行取消操作！", sRunnerUserID);
+		AfxMessageBox(str);
+
+		return;
+	}
 	
 	//更新数据库的挂牌表
 	if (InsertDBMark())

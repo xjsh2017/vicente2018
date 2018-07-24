@@ -1669,6 +1669,11 @@
 #define IDS_COLUMN_VALUE_2              62165
 #define IDS_PTS_MOD_PROGRESS            62166
 #define IDS_WINDOW_MSG                  62167
+#define IDS_FUNC_HANGOUTSTATUS          62168
+#define IDS_HANGOUT_STATUS              62169
+#define IDS_HANGOUTING_STATUS           62170
+#define IDS_HANGOUTNONE_STATUS          62171
+#define IDS_VALIDATE_USERALREADYLOGIN_ERROR 62172
 
 // Next default values for new objects
 // 

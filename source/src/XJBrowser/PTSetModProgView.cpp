@@ -87,6 +87,7 @@ BEGIN_MESSAGE_MAP(CPTSetModProgView, CScrollView)
 	ON_WM_ERASEBKGND()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONDBLCLK()
 	//}}AFX_MSG_MAP
 	ON_MESSAGE(ADD_REMIND, OnAddRemind)
 	ON_MESSAGE(THREAD_FILL_DATA, OnThreadUpdate)
@@ -492,6 +493,13 @@ void CPTSetModProgView::OnMouseMove(UINT nFlags, CPoint point)
 }
 
 void CPTSetModProgView::OnLButtonDown(UINT nFlags, CPoint point) 
+{
+	// TODO: Add your message handler code here and/or call default
+	
+	CScrollView::OnLButtonDown(nFlags, point);
+}
+
+void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
 	CPoint ptDoc = point;

@@ -13,6 +13,7 @@
 #include "..\..\ui_common\Interface\SvgViewerInterface.h"
 
 #include "CommWnd.h"
+#include "HangoutWnd.h"
 #include "ToolTipWnd.h"
 
 //##ModelId=49B87B7C0261
@@ -109,7 +110,9 @@ public:
 	CRITICAL_SECTION m_CriticalSection;
 
 	CCommWnd	m_wndComm;
+	CHangoutWnd	m_wndHangout;
 	CSize		m_szCommWnd;
+	CSize		m_szHangoutWnd;
 
 	BOOL	m_bRefreshMark;
 	BOOL	m_bRefreshNoteMark;

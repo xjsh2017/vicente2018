@@ -268,6 +268,15 @@ void CXJBrowserView::OnInitialUpdate()
 		m_wndComm.Show();
 	}
 
+	m_szHangoutWnd.cx = 220;
+	m_szHangoutWnd.cy = 120;
+	if(g_role != MODE_SUB)
+	{
+		m_wndHangout.CreateWnd(this, CPoint(100, 200), m_szHangoutWnd);
+		
+		m_wndHangout.Show();
+	}
+
 	if( !g_bShowDraft )
 	{
 		//不显示施工图
@@ -931,6 +940,9 @@ BOOL CXJBrowserView::OpenStationView( CString strID )
 
 	if(g_role != MODE_SUB)
 		m_wndComm.SetStation(pObj);
+
+	if(g_role != MODE_SUB)
+		m_wndHangout.SetStation(pObj);
 
 	//文件路径
 	CString strPath;
@@ -2361,8 +2373,10 @@ void CXJBrowserView::OnStationInit( WPARAM wParam, LPARAM lParam )
 	{
 		OpenStationView("");
 		m_sStationID = "";
-		if(g_role != MODE_SUB)
+		if(g_role != MODE_SUB){
 			m_wndComm.SetStation(NULL);
+			m_wndHangout.SetStation(NULL);
+		}
 		Invalidate();
 	}
 }
@@ -2389,6 +2403,12 @@ void CXJBrowserView::RePositionCommWnd()
 	CPoint pt(rcClient.right - m_szCommWnd.cx-10, rcClient.top+10);
 	if(g_role != MODE_SUB)
 		m_wndComm.Show(pt);
+	
+	CRect rcTmp;
+	m_wndComm.GetWindowRect(&rcTmp);
+	CPoint pt2(rcClient.right - m_szCommWnd.cx-10, rcClient.top+10 + rcTmp.Height() + 6);
+	if(g_role != MODE_SUB)
+		m_wndHangout.Show(pt2);
 
 	CWnd* pBtn = (CWnd*)GetDlgItem(IDC_BTN_DRAFT);
 	if( pBtn )
@@ -2430,8 +2450,10 @@ void CXJBrowserView::OnStationChanged( WPARAM wParam, LPARAM lParam )
 	CStationObj* pStation = (CStationObj*)lParam;
 	if(pStation->m_sID == m_sStationID)
 	{
-		if(g_role != MODE_SUB)
+		if(g_role != MODE_SUB){
 			m_wndComm.SetStation(pStation);
+			m_wndHangout.SetStation(pStation);
+		}
 	}
 }
 

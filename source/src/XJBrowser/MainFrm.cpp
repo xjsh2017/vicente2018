@@ -646,7 +646,7 @@ int CMainFrame::InitDockWindows()
 	}
 	// 浮动的Bar
 	if(!m_wndGlobalMsgBar.Create(this, 102, StringFromID(IDS_WINDOW_MSG),
-		CSize(500,200), CBRS_BOTTOM | CBRS_SIZE_DYNAMIC))
+		CSize(600,200), CBRS_BOTTOM | CBRS_SIZE_DYNAMIC))
 	{
 		TRACE("failed to create msgbar\n");
 		return -1;
@@ -700,6 +700,8 @@ int CMainFrame::InitDockWindows()
 	{
 		//隐藏
 		m_wndGlobalMsgBar.GetDockingFrame()->ShowControlBar(&m_wndGlobalMsgBar,FALSE,FALSE);
+		//FloatControlBar(&m_wndGlobalMsgBar, CPoint(100,100), CBRS_ALIGN_LEFT);
+		//m_wndGlobalMsgBar.ShowWindow(SW_HIDE);
 	}
 
 	return 0;
@@ -2129,8 +2131,13 @@ void CMainFrame::OnClose()
 	// TODO: Add your message handler code here and/or call default
 	if(AfxMessageBox( StringFromID(IDS_TIP_EXITCONFIRM), MB_YESNO) != IDYES)
 		return;
-	WriteLog("CMainFrame::OnClose start", XJ_LOG_LV3);
+
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	
+	// 用户退出，置标志位
+	pApp->SetUserLoginFlag(pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID, CString(""));
+
+	WriteLog("CMainFrame::OnClose start", XJ_LOG_LV3);
 
 	g_Exiting = TRUE;
 
@@ -3119,8 +3126,11 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
 			PT_ZONE zone;
-			int nCurPTSetModState = pApp->GetPTSetModState(zone, CString());
+			CString sRecords;
+			int nCurPTSetModState = pApp->GetPTSetModState(zone, sRecords);
+			CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
 			// 运行人员或者超级用户
+			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
 			if (3 == nCurPTSetModState){
 				KillTimer(m_nMsgTimer);
 				DoPtsetVerify0();
@@ -3132,6 +3142,9 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 				m_nMsgTimer = SetTimer(201, 3*1000, NULL);
 			}
 		}
+		
+		//m_wndGlobalMsgBar.GetDockingFrame()->ShowControlBar(&m_wndGlobalMsgBar,0 != nCurPTSetModState ? TRUE : FALSE,FALSE);
+		//m_wndGlobalMsgBar.EnableDocking(FALSE);
 	}
 
 	CMDIFrameWnd::OnTimer(nIDEvent);
@@ -3156,7 +3169,7 @@ void CMainFrame::DoPtsetVerify0()
 		if(g_PTControlModel == 1)
 		{
 			//普通模式,要求运行人员验证
-			CDlgValidateID dlgID(0);
+			CDlgValidateID dlgID(0, 1);
 			dlgID.m_strFuncID = FUNC_XJBROWSER_CONTROL;
 			if(dlgID.DoModal() == IDOK)
 			{	

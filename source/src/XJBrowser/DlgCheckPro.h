@@ -31,6 +31,7 @@ public:
 	int	m_nType;
 	MODIFY_LIST	m_arrModifyList;
 	CTypedPtrArray<CPtrArray, PT_SETTING*> m_arrSetting; //定值描述列表
+	CTypedPtrArray<CPtrArray, void*> m_arrSetting2;
 
 
 // Overrides
@@ -48,7 +49,6 @@ private:
 	*/
 	//##ModelId=49B87B8C009C
 	int	InitListStyle();
-
 	void UpdateLabels();
 
 	void LoadPTSETMod();
@@ -56,12 +56,17 @@ private:
 	void ClearSettingConfig();
 	void FillListData();
 
+	void LoadData();
+	void ClearData();
+	void FillData();
+
 // Implementation
 protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CDlgCheckPro)
 	virtual BOOL OnInitDialog();
+    afx_msg void OnCustomdrawList(NMHDR*, LRESULT*);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

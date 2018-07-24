@@ -103,6 +103,7 @@ protected:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	//}}AFX_MSG
 	afx_msg void OnAddRemind(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnThreadUpdate(WPARAM wParam, LPARAM lParam);

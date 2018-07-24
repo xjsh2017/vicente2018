@@ -17,7 +17,7 @@ class CDlgValidateID : public CDialog
 public:
 	//##ModelId=49B87BA3035C
 	CDlgValidateID(CWnd* pParent = NULL);   // standard constructor
-	CDlgValidateID(int nPersonType, CWnd* pParent = NULL);
+	CDlgValidateID(int nPersonType, int nValidateType = -1, CWnd* pParent = NULL);
 
 // Dialog Data
 	//{{AFX_DATA(CDlgValidateID)
@@ -34,6 +34,7 @@ public:
 	//##ModelId=49B87BA30361
 	CString m_strFuncID;
 	int      m_nPersonType;
+	int      m_nValidateType;
 	//用于比较的用户ID
 	CString m_strComUserID;
 

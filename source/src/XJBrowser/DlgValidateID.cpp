@@ -26,11 +26,12 @@ CDlgValidateID::CDlgValidateID(CWnd* pParent /*=NULL*/)
 	m_strUserGroup = "";
 	m_strFuncID = "";
 	m_nPersonType = -1;
+	m_nValidateType = -1;
 	m_strComUserID = "";
 }
 
 
-CDlgValidateID::CDlgValidateID(int nPersonType, CWnd* pParent /*=NULL*/)
+CDlgValidateID::CDlgValidateID(int nPersonType, int nValidateType, CWnd* pParent /*=NULL*/)
 : CDialog(CDlgValidateID::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDlgValidateID)
@@ -40,6 +41,7 @@ CDlgValidateID::CDlgValidateID(int nPersonType, CWnd* pParent /*=NULL*/)
 	m_strUserGroup = "";
 	m_strFuncID = "";
 	m_nPersonType = nPersonType;
+	m_nValidateType = nValidateType;
 }
 
 
@@ -148,6 +150,8 @@ void CDlgValidateID::OnOK()
 		//group_id
 		Field Field1;
 		pApp->m_DBEngine.SetField(sql, Field1, "group_id", EX_STTP_DATA_TYPE_STRING);
+		Field Field2;
+		pApp->m_DBEngine.SetField(sql, Field2, "notes", EX_STTP_DATA_TYPE_STRING);
 
 		CString str;
 		//条件
@@ -188,6 +192,75 @@ void CDlgValidateID::OnOK()
 			{
 				//只应该有一个值
 				m_strUserGroup = pMemset->GetValue((UINT)0); //用户组ID
+				CString sLoginFlag = pMemset->GetValue((UINT)1); //用户说明：特殊用，1 - 已登录；0 或 其它- 未登录
+
+				if (sLoginFlag == "1" && m_nValidateType == -1){
+					AfxMessageBox( StringFromID(IDS_VALIDATE_USERALREADYLOGIN_ERROR));
+					GetDlgItem(IDC_EDT_USERNAME)->SetFocus();
+					delete[] sError;
+					delete pMemset;
+					return;
+				}
+
+				CString str;
+				if (m_nValidateType != -1){
+					if (0 == m_nPersonType){	// 运行组
+						if (m_strUserGroup != StringFromID(IDS_USERGROUP_RUNNER)
+							&& m_strUserGroup != StringFromID(IDS_USERGROUP_SUPER)){
+							str.Format("验证用户所在组必须为：[%s] / [%s]"
+								, StringFromID(IDS_USERGROUP_RUNNER)
+								, StringFromID(IDS_USERGROUP_SUPER));
+							AfxMessageBox(str);
+							delete[] sError;
+							delete pMemset;
+							return;
+						}else if (m_strUser != pApp->m_User.m_strUSER_ID){
+							str.Format("验证用户必须为授权用户：[%s]"
+								, pApp->m_User.m_strUSER_ID);
+							AfxMessageBox(str);
+							delete[] sError;
+							delete pMemset;
+							return;
+						}
+					}else if (1 == m_nPersonType){	// 监护组
+						if (m_strUserGroup != StringFromID(IDS_USERGROUP_MONITOR)
+							&& m_strUserGroup != StringFromID(IDS_USERGROUP_SUPER)){
+							str.Format("验证用户所在组必须为：[%s] / [%s]"
+								, StringFromID(IDS_USERGROUP_MONITOR)
+								, StringFromID(IDS_USERGROUP_SUPER));
+							AfxMessageBox(str);
+							delete[] sError;
+							delete pMemset;
+							return;
+						}
+					}else if (0 == m_nPersonType){	// 运行组
+						if (m_strUserGroup != StringFromID(IDS_USERGROUP_OPERATOR)
+							&& m_strUserGroup != StringFromID(IDS_USERGROUP_SUPER)){
+							str.Format("验证用户所在组必须为：[%s] / [%s]"
+								, StringFromID(IDS_USERGROUP_OPERATOR)
+								, StringFromID(IDS_USERGROUP_SUPER));
+							AfxMessageBox(str);
+							delete[] sError;
+							delete pMemset;
+							return;
+						}else if (m_strUser != pApp->m_User.m_strUSER_ID){
+							str.Format("验证用户必须为授权用户：[%s]"
+								, pApp->m_User.m_strUSER_ID);
+							AfxMessageBox(str);
+							delete[] sError;
+							delete pMemset;
+							return;
+						}
+					}else{
+					}
+
+					g_LoginFailTimes = 0;
+					delete[] sError;
+					delete pMemset;
+
+					EndDialog(IDOK);
+					return;
+				}
 
 				g_LoginFailTimes = 0;
 

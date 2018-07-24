@@ -442,6 +442,10 @@ SOURCE=..\..\common\globalfun.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HangoutWnd.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HideHeaderCtrl.cpp
 # End Source File
 # Begin Source File
@@ -1596,6 +1600,10 @@ SOURCE=.\GeoView.h
 # Begin Source File
 
 SOURCE=.\GlobalFunc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\HangoutWnd.h
 # End Source File
 # Begin Source File
 

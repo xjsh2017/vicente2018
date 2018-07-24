@@ -111,8 +111,8 @@ private:
 	int			m_nOPTime;
 	/** @brief           定值修改用时*/
 	int			m_nPTSetModTimer;
-	/** @brief           定值修改用时*/
-	int			m_nDZModOpTimer;
+	/** @brief           定时*/
+	int			m_nTimer11;
 	/** @brief           是否能按组显示*/
 	//##ModelId=49B87B8B03C8
 	BOOL		m_bCanGroup;

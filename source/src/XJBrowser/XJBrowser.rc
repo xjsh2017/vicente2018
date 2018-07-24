@@ -4464,6 +4464,11 @@ BEGIN
     IDS_COLUMN_VALUE_2      "定值"
     IDS_PTS_MOD_PROGRESS    "定值修改进度"
     IDS_WINDOW_MSG          "定值修改监视窗口"
+    IDS_FUNC_HANGOUTSTATUS  "挂牌状态"
+    IDS_HANGOUT_STATUS      "挂牌"
+    IDS_HANGOUTING_STATUS   "挂牌中"
+    IDS_HANGOUTNONE_STATUS  "未挂牌"
+    IDS_VALIDATE_USERALREADYLOGIN_ERROR "用户已登录！"
 END
 
 #endif    // Chinese (P.R.C.) resources

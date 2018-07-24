@@ -4036,6 +4036,8 @@ BOOL CXJBrowserApp::DoLogin()
 
 		//添加人工操作日志
 		AddNewManOperator(FUNC_XJBROWSER_BROWSER, "用户登陆", strMsg, -1);
+
+		SetUserLoginFlag(m_User.m_strUSER_ID, m_User.m_strGROUP_ID, CString("1"));
 		
 		return TRUE;
 	}
@@ -4863,6 +4865,11 @@ BOOL CXJBrowserApp::RevertTempPTSetToDB(const PT_ZONE &zone, int nFlag)
 			, zone.cpu
 		, zone.code);
 	}
+	strSQL.Format("UPDATE tb_pt_setting_def SET reserve3 = '' WHERE pt_id= '%s' AND cpu_code = '%d' AND zone = '%d'"
+		, zone.PT_ID
+		, zone.cpu
+		, zone.code);
+
 	WriteLog(strSQL);
 	//AfxMessageBox(strSQL);
 	
@@ -4932,7 +4939,7 @@ BOOL CXJBrowserApp::SaveNewPTSetToDB(CString &sCPU, CString &sPTID, CTypedPtrArr
 		PT_SETTING* pts = (PT_SETTING*)arrSetting.GetAt(i);
 
 		CString strSQL;
-		strSQL.Format("UPDATE tb_pt_setting_def SET reserve2 = '%s' WHERE pt_id= '%s' AND cpu_code = '%s' AND setting_id = '%s'"
+		strSQL.Format("UPDATE tb_pt_setting_def SET reserve1 = '%s' WHERE pt_id= '%s' AND cpu_code = '%s' AND setting_id = '%s'"
 			, pts->Value
 			, sPTID
 			, sCPU
@@ -5061,6 +5068,8 @@ int CXJBrowserApp::GetPTSetModState(PT_ZONE &data, CString &sRecords, CString &s
 			data.PT_ID = pMemset->GetValue((UINT)1);
 			str = pMemset->GetValue((UINT)2);
 
+			str.TrimLeft();
+			str.TrimRight();
 			if (!str.IsEmpty()){
 				//AfxMessageBox(str);
 				vector<CString> v = SplitCString(str, ',');
@@ -5089,6 +5098,102 @@ int CXJBrowserApp::GetPTSetModState(PT_ZONE &data, CString &sRecords, CString &s
 	pMemset = NULL;
     
     return nReturn;
+}
+
+CString CXJBrowserApp::GetUserIDByState(int nState, CString &sRecords)
+{
+	CString sReturn = "";
+
+	PT_ZONE zone;
+	int nCurState = -1;
+
+	sRecords.TrimLeft();
+	sRecords.TrimRight();
+	if (sRecords.IsEmpty()){
+		nCurState = GetPTSetModState(zone, sRecords);
+	}
+
+	CString sUserID;
+	CString sTime;
+	vector<CString> v = SplitCString(sRecords, ";");
+	if (nState > 0 && v.size() > nState - 1){
+		vector<CString> v2 = SplitCString(v[nState - 1], ",");
+		sUserID = v2[1];
+		sTime = v2[0];
+
+		sReturn = sUserID;
+	}
+
+	return sReturn;
+}
+
+BOOL CXJBrowserApp::SetUserLoginFlag(const CString &sUserID, const CString &sUserGroupID, CString &sFlag)
+{
+	if(sUserID.IsEmpty() || sUserGroupID.IsEmpty())
+		return FALSE;
+	
+	BOOL bReturn = FALSE;
+	
+	CString str;
+	char * sError = NULL;
+	
+	sError = new char[MAXMSGLEN];
+	memset(sError, '\0', MAXMSGLEN);
+	
+	CMemSet* pMemset;
+	pMemset = new CMemSet;
+	
+	int nResult;
+	{
+		CString strSQL;
+		strSQL.Format("UPDATE tb_sys_user SET notes = '%s' WHERE user_id= '%s' AND group_id = '%s'"
+			, sFlag
+			, sUserID
+			, sUserGroupID);
+		WriteLog(strSQL);
+		
+		//进行查询
+		MutiSQL_DATA MutiSql;
+		bzero(&MutiSql, sizeof(MutiSQL_DATA));
+		MutiSql.Funtype = EX_STTP_FUN_TYPE_UPDATE;
+		strncpy(MutiSql.SQL_BODY_Content, strSQL, strSQL.GetLength());
+		
+		memset(sError, '\0', MAXMSGLEN);
+		try
+		{
+			nResult = m_DBEngine.XJExecuteSql(MutiSql, sError, pMemset);
+		}
+		catch (...)
+		{
+			str.Format("CXJBrowserApp::SetUserLoginFlag, 查询失败");
+			WriteLog(str);
+			delete[] sError;
+			delete pMemset;
+			
+			return FALSE;
+		}
+		
+		if(pMemset != NULL && nResult == 1)
+		{	
+			str.Format("CXJBrowserApp::SetUserLoginFlag, 更新成功");
+			WriteLog(str);
+			//AfxMessageBox(str);
+		}
+		else
+		{
+			str.Format("CXJBrowserApp::SetUserLoginFlag, 更新失败, 原因为%s", sError);
+			WriteLog(str);
+		}
+		
+		pMemset->FreeData(true);
+	}
+	
+	delete[] sError;
+	delete pMemset;
+	sError = NULL;
+	pMemset = NULL;
+	
+	return TRUE;
 }
 
 BOOL CXJBrowserApp::RevertPTSetModState(int nRevertStateID, int nFlag)

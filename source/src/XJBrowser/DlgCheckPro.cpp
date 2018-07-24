@@ -5,11 +5,29 @@
 #include "xjbrowser.h"
 #include "DlgCheckPro.h"
 
+#pragma   warning   (disable   :   4786)
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+struct PT_SETTING_DATA{
+	PT_SETTING* pts;
+	CString reserve1;
+	CString reserve2;
+	BOOL bMod;
+
+	PT_SETTING_DATA::PT_SETTING_DATA(){
+		bMod = FALSE;
+		pts = NULL;
+		reserve1 = "";
+		reserve2 = "";
+	}
+};
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CDlgCheckPro dialog
@@ -41,11 +59,60 @@ void CDlgCheckPro::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CDlgCheckPro, CDialog)
 	//{{AFX_MSG_MAP(CDlgCheckPro)
 	//}}AFX_MSG_MAP
+    ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_PTSET, OnCustomdrawList)
 END_MESSAGE_MAP()
+
+void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
+{
+	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( pNMHDR );
+	
+    // Take the default processing unless we set this to something else below.
+    *pResult = 0;
+	
+    // First thing - check the draw stage. If it's the control's prepaint
+    // stage, then tell Windows we want messages for every item.
+	
+    if ( CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage )
+	{
+        *pResult = CDRF_NOTIFYITEMDRAW;
+	}
+    else if ( CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage )
+	{
+        // This is the notification message for an item.  We'll request
+        // notifications before each subitem's prepaint stage.
+		
+        *pResult = CDRF_NOTIFYSUBITEMDRAW;
+	}
+    else if ( (CDDS_ITEMPREPAINT | CDDS_SUBITEM) == pLVCD->nmcd.dwDrawStage )
+	{
+        // This is the prepaint stage for a subitem. Here's where we set the
+        // item's text and background colors. Our return value will tell 
+        // Windows to draw the subitem itself, but it will use the new colors
+        // we set here.
+        // The text color will cycle through red, green, and light blue.
+        // The background color will be light blue for column 0, red for
+        // column 1, and black for column 2.
+		
+        COLORREF crText, crBkgnd;
+        
+        if ( 12 == pLVCD->iSubItem )
+		{
+            crText = RGB(255,0,0);
+            //crBkgnd = RGB(128,128,255);
+		
+			pLVCD->clrText = crText;
+			//pLVCD->clrTextBk = crBkgnd;
+		}
+
+        // Tell Windows to paint the control itself.
+        *pResult = CDRF_DODEFAULT;
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CDlgCheckPro message handlers
 
+/*
 BOOL CDlgCheckPro::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
@@ -64,13 +131,13 @@ BOOL CDlgCheckPro::OnInitDialog()
 	else if (m_nType ==1)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
-
+		
 		LoadPTSETMod();
 	}
 	else if (m_nType ==2)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
-
+		
 		LoadPTSETMod();
 	}
 	else
@@ -81,6 +148,38 @@ BOOL CDlgCheckPro::OnInitDialog()
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
+}
+*/
+BOOL CDlgCheckPro::OnInitDialog() 
+{
+	CDialog::OnInitDialog();
+	InitListStyle();
+	
+	UpdateLabels();
+	
+	// TODO: Add extra initialization here
+	if (m_nType ==0)
+	{
+		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
+	}
+	else if (m_nType ==1)
+	{
+		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
+	}
+	else if (m_nType ==2)
+	{
+		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
+	}
+	else
+	{
+		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
+	}
+	
+	LoadData();
+	FillData();
+	
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CDlgCheckPro::UpdateLabels()
@@ -218,6 +317,325 @@ int CDlgCheckPro::InitListStyle()
 	//设置风格
 	m_List.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
 	return 0;
+}
+
+void CDlgCheckPro::ClearData()
+{
+	//清除定值列表
+	for(int i = 0; i < m_arrSetting2.GetSize(); i++)
+	{
+		PT_SETTING_DATA * data = (PT_SETTING_DATA*)m_arrSetting2.GetAt(i);
+		delete data->pts;
+		data->pts = NULL;
+		delete data;
+	}
+	m_arrSetting2.RemoveAll();
+}
+
+void CDlgCheckPro::LoadData()
+{
+	ClearData();
+	
+	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	PT_ZONE data;
+	CString sRecords;
+	int nCurrentState = pApp->GetPTSetModState(data, sRecords);
+
+	map<CString, CString> mapMod;
+
+	int nPTCount = m_arrModifyList.GetSize();
+	for(int i = 0; i < nPTCount; i++)
+	{
+		STTP_DATA * sttpData = (STTP_DATA*)m_arrModifyList.GetAt(i);
+		CString strID;
+		strID.Format("%d", sttpData->id);
+
+		mapMod.insert(make_pair(strID, sttpData->str_value.c_str()));
+	}
+
+	WriteLog("CDlgCheckPro::LoadData, 查询开始", XJ_LOG_LV3);
+
+	//查找最新的num条记录
+	//组建查询条件
+	SQL_DATA sql;
+	sql.Conditionlist.clear();
+	sql.Fieldlist.clear();
+
+	//根据PT_ID, cpu_code, zone, 103group(如果要分组显示的话)查找
+	//setting_id,CODE_NAME,NAME,103item,property,vpickList,unit,s_precision,datatype
+	//按setting_ID从小到大排列
+		
+	CString str;
+		
+	//字段
+	//Setting_ID
+	Field Field1;
+	pApp->m_DBEngine.SetField(sql, Field1, "Setting_ID", EX_STTP_DATA_TYPE_INT);
+
+	//name
+	Field Field2;
+	pApp->m_DBEngine.SetField(sql, Field2, "name", EX_STTP_DATA_TYPE_STRING);
+
+	//code_name
+	Field Field3;
+	pApp->m_DBEngine.SetField(sql, Field3, "code_name", EX_STTP_DATA_TYPE_STRING);
+
+	//vpickList
+	Field Field4;
+	pApp->m_DBEngine.SetField(sql, Field4, "vpicklist", EX_STTP_DATA_TYPE_STRING);
+
+	//unit
+	Field Field5;
+	pApp->m_DBEngine.SetField(sql, Field5, "unit", EX_STTP_DATA_TYPE_STRING);
+
+	//s_precision
+	Field Field6;
+	pApp->m_DBEngine.SetField(sql, Field6, "s_precision", EX_STTP_DATA_TYPE_STRING);
+
+	//datatype
+	Field Field7;
+	pApp->m_DBEngine.SetField(sql, Field7, "datatype", EX_STTP_DATA_TYPE_INT);
+
+	//minvalue
+	Field Field8;
+	pApp->m_DBEngine.SetField(sql, Field8, "minvalue", EX_STTP_DATA_TYPE_FLOAT);
+
+	//maxvalue
+	Field Field9;
+	pApp->m_DBEngine.SetField(sql, Field9, "maxvalue", EX_STTP_DATA_TYPE_FLOAT);
+
+	//stepvalue
+	Field Field10;
+	pApp->m_DBEngine.SetField(sql, Field10, "stepvalue", EX_STTP_DATA_TYPE_FLOAT);
+
+	//stepvalue
+	Field Field11;
+	pApp->m_DBEngine.SetField(sql, Field11, "103group", EX_STTP_DATA_TYPE_INT);
+	
+	//stepvalue
+	Field Field12;
+	pApp->m_DBEngine.SetField(sql, Field12, "103item", EX_STTP_DATA_TYPE_INT);
+
+	//stepvalue
+	Field Field13;
+	pApp->m_DBEngine.SetField(sql, Field13, "61850ref", EX_STTP_DATA_TYPE_INT);
+
+	Field Field14;
+	pApp->m_DBEngine.SetField(sql, Field14, "RESERVE1", EX_STTP_DATA_TYPE_STRING);
+	
+	Field Field15;
+	pApp->m_DBEngine.SetField(sql, Field15, "RESERVE3", EX_STTP_DATA_TYPE_STRING);
+
+	//条件
+	//PT_ID
+	Condition condition1;
+	str.Format("PT_ID = '%s'", data.PT_ID);
+	pApp->m_DBEngine.SetCondition(sql, condition1, str);
+
+	//cpu_code
+	Condition condition2;
+	str.Format("CPU_CODE = %d", data.cpu);
+	pApp->m_DBEngine.SetCondition(sql, condition2, str);
+
+	//按Setting_ID大小排序
+	Condition condition4;
+	str.Format("order by SETTING_ID");
+	pApp->m_DBEngine.SetCondition(sql, condition4, str, EX_STTP_WHERE_ABNORMALITY); //非where条件
+
+	CMemSet pMemset;
+		
+	char sError[MAXMSGLEN];
+	memset(sError, '\0', MAXMSGLEN);
+		
+	int nResult;
+	try
+	{
+		nResult = pApp->m_DBEngine.XJSelectData(EX_STTP_INFO_PT_SETTING_CFG, sql, sError, &pMemset);
+	}
+	catch (...)
+	{
+		WriteLogEx("CDlgCheckPro::LoadPTSET, 查询失败");
+		return;
+	}
+	if(nResult == 1)
+	{
+		pMemset.MoveFirst();
+		int nCount = pMemset.GetMemRowNum();
+		CString strLog;
+		strLog.Format("CDlgCheckPro::LoadPTSET,查询到%d条记录", nCount);
+		WriteLog(strLog, XJ_LOG_LV3);
+		//EnterCriticalSection(&m_CriticalOper);
+		for(int i = 0; i < nCount; i++)
+		{
+			/*if(g_role != MODE_MAIN)
+				break;
+			if(MODE_SUB != g_role && i%20 == 0)
+				Sleep(1);
+			*/
+			//创建定值对象
+			PT_SETTING * pts = new PT_SETTING;
+			PT_SETTING_DATA *data = new PT_SETTING_DATA;
+			data->pts = pts;
+			//setting_id,NAME,CODE_NAME,
+			//vpickList,unit,s_precision,datatype
+			CString str;
+			pts->ID = pMemset.GetValue((UINT)0); //Setting_ID
+			pts->Name = pMemset.GetValue(1); //NAME
+			pts->CodeName = pMemset.GetValue(2); //Code_Name
+			pts->VPickList = pMemset.GetValue(3); //vpicklist
+			pts->Unit = "";
+			pts->Unit = pMemset.GetValue(4); //unit
+			pts->Precision = pMemset.GetValue(5); //s_precision
+			str = pMemset.GetValue(6); //datatype
+			pts->DataType = atoi(str);
+			str = pMemset.GetValue(7);
+			pts->minValue = str;//atof(str);
+			str = pMemset.GetValue(8);
+			pts->maxValue = str;//atof(str);
+			str = pMemset.GetValue(9);
+			pts->stepValue = str;//atof(str);
+			str = pMemset.GetValue(10);
+			pts->Group = atoi(str);
+			str = pMemset.GetValue(11);
+			pts->Item = atoi(str);
+			str = pMemset.GetValue(12);
+			pts->nRefType = 1;
+			if(!str.IsEmpty())
+			{
+				str.MakeUpper();
+				if(str.Find("$SP$", 0) != -1)
+					pts->nRefType = 0;
+			}
+			else
+			{
+				CString sGroupName;// = GetGroupName(pts->Group);
+				if(!sGroupName.IsEmpty())
+				{
+					if(sGroupName.Find( StringFromID(IDS_COMMON_PARAMETER), 0) != -1)
+						pts->nRefType = 0;
+				}
+			}
+			str = pMemset.GetValue(13);
+			pts->ntimeMStoS = 0;
+			if(!str.IsEmpty())
+			{
+				pts->ntimeMStoS = atoi(str);
+			}
+			str = pMemset.GetValue(13);
+			//pts->VPickList = str;
+			data->reserve1 = str;
+			str = pMemset.GetValue(14);
+			data->reserve2 = str;
+
+			if (mapMod.count(pts->ID) == 1)
+				data->reserve2 = mapMod[pts->ID];
+
+			m_arrSetting2.Add(data);
+					
+			pMemset.MoveNext();
+		}
+
+		// 从 m_arrModifyList 载入修改值
+
+	}
+	else
+	{
+		CString str;
+		str.Format("CDlgCheckPro::LoadData,查询失败,原因为%s", sError);
+		WriteLogEx(str);
+	}
+	
+	WriteLog("CDlgCheckPro::LoadData,查询结束", XJ_LOG_LV3);
+
+}
+
+void CDlgCheckPro::FillData()
+{
+	//WriteLog("CDlgCheckPro::FillData, 开始", XJ_LOG_LV3);
+	
+	//填充数据时禁止刷新
+	m_List.SetRedraw(FALSE);
+	//EnterCriticalSection(&m_CriticalOper);  
+	//int nGroupCount = m_arrGroup.GetSize();
+	PT_SETTING *pts = NULL;
+	PT_SETTING_DATA *data = NULL;
+	int nIndex = 0;
+	for(int i = 0; i < m_arrSetting2.GetSize(); i ++)
+	{
+		data = (PT_SETTING_DATA*)m_arrSetting2.GetAt(i);
+		if (NULL == data)
+			continue;
+		pts = data->pts;
+		if (NULL == pts)
+			continue;
+
+		CString sID = pts->ID;
+		if(1 == g_PTIndexType)
+		{
+			sID.Format("%d", nIndex+1);
+		}
+		m_List.InsertItem(nIndex, sID); //ID
+		CString strName;
+		int z = pts->Name.Find(",", 0);
+		if (z != -1)
+		{
+			strName = pts->Name.Left(z);
+		}
+		else
+		{
+			strName = pts->Name;
+		}
+		m_List.SetItemText(nIndex, 1, strName); //名称
+		m_List.SetItemText(nIndex, 2, pts->CodeName); //代码
+		m_List.SetItemText(nIndex, 3, pts->Unit); //单位
+		m_List.SetItemText(nIndex, 4, pts->OrderValue); //基准值
+		CString str;
+		str.Format("%d", pts->Group);
+		m_List.SetItemText(nIndex, 5, str);
+		str.Format("%d", pts->Item);
+		m_List.SetItemText(nIndex,6, str);
+		str.Format("%s", pts->stepValue);
+		m_List.SetItemText(nIndex, 7, str);
+		
+		str.Format("%s/%s", pts->minValue, pts->maxValue);
+		m_List.SetItemText(nIndex, 8, str);
+		m_List.SetItemText(nIndex, 9, pts->Precision);
+		switch (pts->DataType)
+		{
+			//0-浮点 1-整型 2-控制字(十六进制) 3-字符串 4-控制字(二进制)
+		case 0:
+			str = StringFromID(IDS_DATATYPE_FLOAT);
+			break;
+		case 1:
+			str = StringFromID(IDS_DATATYPE_INT);
+			break;
+		case 2:
+			str = StringFromID(IDS_DATATYPE_CONTROL16);
+			break;
+		case 3:
+			str = StringFromID(IDS_DATATYPE_STRING);
+			break;
+		case 4:
+			str = StringFromID(IDS_DATATYPE_STRING);
+			break;
+		default:
+			str = _T("");
+			break;
+		}
+		m_List.SetItemText(nIndex, 10, str);
+		m_List.SetItemText(nIndex, 11, data->reserve1);
+		m_List.SetItemText(nIndex, 12, data->reserve2);
+		m_List.SetItemData(nIndex, (DWORD)data);
+		
+		
+		nIndex++;
+	}
+	//恢复刷新
+	//LeaveCriticalSection(&m_CriticalOper);
+	m_List.SetRedraw(TRUE);
+	
+	
+	WriteLog("CDlgCheckPro::FillListData, 结束", XJ_LOG_LV3);
 }
 
 void CDlgCheckPro::LoadPTSETMod()
@@ -372,7 +790,7 @@ void CDlgCheckPro::LoadPTSET()
 	pApp->m_DBEngine.SetField(sql, Field13, "61850ref", EX_STTP_DATA_TYPE_INT);
 
 	Field Field14;
-	pApp->m_DBEngine.SetField(sql, Field14, "RESERVE2", EX_STTP_DATA_TYPE_STRING);
+	pApp->m_DBEngine.SetField(sql, Field14, "RESERVE1", EX_STTP_DATA_TYPE_STRING);
 	
 	Field Field15;
 	pApp->m_DBEngine.SetField(sql, Field15, "RESERVE3", EX_STTP_DATA_TYPE_STRING);
