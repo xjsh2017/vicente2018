@@ -93,6 +93,8 @@ private:
 	/** @brief           当前状态. 0-空闲. 1-正在召唤定值. 2-正在召唤定值区号. 3-正在修改定值. 4-正在切换定值组*/
 	//##ModelId=49B87B8B038B
 	int m_nCurrentStatus;
+	/** @brief           当前状态. 0-空闲. 1-正在执行定值修改*/
+	int m_nCurrentDetailStatus;
 	/** @brief           要修改的值链表*/
 	//##ModelId=49B87B8B039A
 	MODIFY_LIST	m_arrModifyList;

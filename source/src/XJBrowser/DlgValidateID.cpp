@@ -233,7 +233,7 @@ void CDlgValidateID::OnOK()
 							delete pMemset;
 							return;
 						}
-					}else if (0 == m_nPersonType){	// 运行组
+					}else if (2 == m_nPersonType){	// 运行组
 						if (m_strUserGroup != StringFromID(IDS_USERGROUP_OPERATOR)
 							&& m_strUserGroup != StringFromID(IDS_USERGROUP_SUPER)){
 							str.Format("验证用户所在组必须为：[%s] / [%s]"

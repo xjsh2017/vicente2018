@@ -61,6 +61,7 @@ CPTSetting::CPTSetting()
 	m_arrGroup.RemoveAll();
 	m_nNewValueIndex = 11;
 	m_nCurrentStatus = 0;
+	m_nCurrentDetailStatus = 0;
 	m_arrModifyList.RemoveAll();
 	m_nSrc = 0;
 	m_nTimer = 0;
@@ -3523,6 +3524,7 @@ void CPTSetting::OnBtnPtsetModify2()
 					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sOperUser, -1, OPER_FAILD,m_nOperationNum);
 					
 					pApp->RevertPTSetModState(1);
+					m_nCurrentDetailStatus = 0;
 					return;
 				}
 			}
@@ -3534,6 +3536,7 @@ void CPTSetting::OnBtnPtsetModify2()
 			RevertModifyValue();
 			UpdateControlsEnable();
 			pApp->RevertPTSetModState(1);
+			m_nCurrentDetailStatus = 0;
 
 			return;
 		}
@@ -3565,7 +3568,7 @@ void CPTSetting::OnBtnPtsetModify2()
 				    // 监护人员确认后修改状态机
 					//pApp->ModifyDZModState(3, m_sMonUser, m_pObj);
 					PT_ZONE zone;
-					zone.PT_ID = m_pObj->m_sID;
+					pApp->GetPTSetModState(zone);
 					pApp->NextPTSetModState(3, zone, m_sMonUser);
 				}
 				else
@@ -3580,6 +3583,7 @@ void CPTSetting::OnBtnPtsetModify2()
 					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sMonUser, -1, OPER_FAILD,m_nOperationNum);
 					
 					pApp->RevertPTSetModState(1);
+					m_nCurrentDetailStatus = 0;
 					return;
 				}
 			}
@@ -3591,6 +3595,7 @@ void CPTSetting::OnBtnPtsetModify2()
 			RevertModifyValue();
 			UpdateControlsEnable();
 			pApp->RevertPTSetModState(1);
+			m_nCurrentDetailStatus = 0;
 			
 			return;
 		}
@@ -3620,6 +3625,7 @@ BOOL CPTSetting::ExcutePTSet()
 
 	if (NULL == m_pObj){
 		m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+		m_nCurrentDetailStatus = 0;
 		return FALSE;
 	}
 
@@ -3663,6 +3669,7 @@ BOOL CPTSetting::ExcutePTSet()
 		m_sMonUser = _T("");
 
 		pApp->RevertPTSetModState(1);
+		m_nCurrentDetailStatus = 0;
 		m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
 
 		bReturn = FALSE;
@@ -4054,6 +4061,7 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 				
 				// 重启定时
 				KillTimer(m_nPTSetModTimer);
+				m_nCurrentDetailStatus = 0;
 				m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
 
 				return;
@@ -4095,6 +4103,7 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 		AfxMessageBox(strOutput, MB_OK);
 		
 		pApp->RevertPTSetModState(1);
+		m_nCurrentDetailStatus = 0;
 
 		// 重启定时
 		KillTimer(m_nPTSetModTimer);
@@ -4259,11 +4268,12 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		// 修改状态机
 		//pApp->ModifyDZModState(5, m_sOperUser, m_pObj);
 		PT_ZONE zone;
-		zone.PT_ID = m_pObj->m_sID;
+		pApp->GetPTSetModState(zone);
 		pApp->NextPTSetModState(5, zone, m_sOperUser);
 
 		//提示
 		AfxMessageBox( StringFromID(IDS_EXECUTE_MODIFYSETTING_SUCCESS), MB_OK|MB_ICONINFORMATION);
+		m_nCurrentDetailStatus = 0;
 		m_btnModifySetting.EnableWindow(FALSE);
 		m_btnModifyZone.EnableWindow(FALSE);
 
@@ -4282,6 +4292,7 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 
 		// 修改状态机
 		pApp->RevertPTSetModState(1);
+		m_nCurrentDetailStatus = 0;
 	}
 
 	m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
@@ -6061,17 +6072,27 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		m_btnModifyZone.EnableWindow(bEnable);
 
 		if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
-			if (4 == nDZModState){	
+			if (4 == nDZModState && 0 == m_nCurrentDetailStatus){	
+				m_nCurrentDetailStatus = 1;
 				AfxMessageBox("运行人员已验证定值单内容，定值修改内容将下发到子站，单击确定将执行定值修改"
 					, MB_OK|MB_ICONINFORMATION);
 				
-				//ExcutePTSet();
+				ExcutePTSet();
 			}
 
 			if (sFlag == _T("1")){
 				RevertModifyValue();
 				pApp->SetRevertModifyValueFlag(0);
 			}
+		}
+
+		if (5 == m_pObj->m_nRunStatu){
+			
+			if (sFlag == _T("1")){
+				RevertModifyValue();
+				pApp->SetRevertModifyValueFlag(0);
+			}
+
 		}
 		
 		// 启用定时器
@@ -6386,6 +6407,7 @@ void CPTSetting::RevertModifyValue(int nType)
 		// 还原数据库位置
 		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
 		pApp->RevertPTSetModState(1);
+		m_nCurrentDetailStatus = 0;
 	}
 	else if(nType == 2)
 	{
@@ -7410,7 +7432,7 @@ void CPTSetting::OnBtnPtsetVerify0()
 				// 运行人员核对后修改状态机
 				//pApp->ModifyDZModState(4, m_sRunUser, m_pObj);
 				PT_ZONE zone;
-				zone.PT_ID = m_pObj->m_sID;
+				pApp->GetPTSetModState(zone);
 				pApp->NextPTSetModState(4, zone, m_sRunUser);
 			}
 			else
@@ -7436,6 +7458,7 @@ void CPTSetting::OnBtnPtsetVerify0()
 		UpdateControlsEnable();
 		
 		pApp->RevertPTSetModState(1);
+		m_nCurrentDetailStatus = 0;
 
 		return;
 	}

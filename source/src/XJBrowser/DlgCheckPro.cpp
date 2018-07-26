@@ -94,14 +94,29 @@ void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
         // column 1, and black for column 2.
 		
         COLORREF crText, crBkgnd;
+
+		int nRowIdx = static_cast<int> (pLVCD->nmcd.dwItemSpec); //行索引
+		int nColIdx = pLVCD->iSubItem; //列索引
         
-        if ( 12 == pLVCD->iSubItem )
+        if ( 12 == nColIdx )
 		{
-            crText = RGB(255,0,0);
-            //crBkgnd = RGB(128,128,255);
-		
-			pLVCD->clrText = crText;
-			//pLVCD->clrTextBk = crBkgnd;
+			//值
+			CString strValue = m_List.GetItemText(nRowIdx, nColIdx);
+			CString strOldValue = m_List.GetItemText(nRowIdx, nColIdx - 1);
+			
+			//去除两边空格
+			strValue.TrimLeft();
+			strValue.TrimRight();
+			strOldValue.TrimLeft();
+			strOldValue.TrimRight();
+
+			if (strValue != strOldValue){
+				crText = RGB(255,0,0);
+				//crBkgnd = RGB(128,128,255);
+				
+				pLVCD->clrText = crText;
+				//pLVCD->clrTextBk = crBkgnd;
+			}
 		}
 
         // Tell Windows to paint the control itself.
@@ -190,13 +205,21 @@ void CDlgCheckPro::UpdateLabels()
 	PT_ZONE data;
 	CString sRecords;
 	int nState = pApp->GetPTSetModState(data, sRecords);
-	//str.Format("%d, %d", data.cpu, data.code);
+	str.Format("%d, %d", data.cpu, data.code);
 	//AfxMessageBox(str);
 	CString sCPU = m_sCPU, sZone = m_sZone;
-	if (m_sCPU.IsEmpty())
+	m_sCPU.TrimLeft();
+	m_sCPU.TrimRight();
+	m_sZone.TrimLeft();
+	m_sZone.TrimRight();
+	if (m_sCPU.IsEmpty()){
 		sCPU.Format("%d", data.cpu);
-	if (m_sZone.IsEmpty())
+		m_sCPU = sCPU;
+	}
+	if (m_sZone.IsEmpty()){
 		sZone.Format("%d", data.code);
+		m_sZone = sZone;
+	}
 	
 	
 	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(data.PT_ID, TYPE_SEC);
@@ -344,11 +367,17 @@ void CDlgCheckPro::LoadData()
 	map<CString, CString> mapMod;
 
 	int nPTCount = m_arrModifyList.GetSize();
+// 	CString ttstr;
+// 	ttstr.Format("m_arrModifyList.size() = %d", m_arrModifyList.GetSize());
+// 	AfxMessageBox(ttstr);
 	for(int i = 0; i < nPTCount; i++)
 	{
 		STTP_DATA * sttpData = (STTP_DATA*)m_arrModifyList.GetAt(i);
 		CString strID;
 		strID.Format("%d", sttpData->id);
+
+// 		ttstr.Format("%s, %s", strID, sttpData->str_value.c_str());
+// 		AfxMessageBox(ttstr);
 
 		mapMod.insert(make_pair(strID, sttpData->str_value.c_str()));
 	}
@@ -434,8 +463,12 @@ void CDlgCheckPro::LoadData()
 
 	//cpu_code
 	Condition condition2;
-	str.Format("CPU_CODE = %d", data.cpu);
+	str.Format("CPU_CODE = %s", m_sCPU/*data.cpu*/);
 	pApp->m_DBEngine.SetCondition(sql, condition2, str);
+
+	Condition condition3;
+	str.Format("ZONE = %s", m_sZone/*data.id*/);
+	pApp->m_DBEngine.SetCondition(sql, condition3, str);
 
 	//按Setting_ID大小排序
 	Condition condition4;
@@ -527,6 +560,14 @@ void CDlgCheckPro::LoadData()
 			str = pMemset.GetValue(14);
 			data->reserve2 = str;
 
+			data->reserve2.TrimLeft();
+			data->reserve2.TrimRight();
+			if(data->reserve2.IsEmpty())
+				data->reserve2 = data->reserve1;
+
+// 			if (i == 2)
+// 				data->reserve2 = CString("18.8");
+
 			if (mapMod.count(pts->ID) == 1)
 				data->reserve2 = mapMod[pts->ID];
 
@@ -544,7 +585,8 @@ void CDlgCheckPro::LoadData()
 		str.Format("CDlgCheckPro::LoadData,查询失败,原因为%s", sError);
 		WriteLogEx(str);
 	}
-	
+	str.Format("m_arrSetting2.size() = %d", m_arrSetting2.GetSize());
+	//AfxMessageBox(str);
 	WriteLog("CDlgCheckPro::LoadData,查询结束", XJ_LOG_LV3);
 
 }

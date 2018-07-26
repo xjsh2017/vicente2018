@@ -4869,6 +4869,7 @@ BOOL CXJBrowserApp::RevertTempPTSetToDB(const PT_ZONE &zone, int nFlag)
 		, zone.PT_ID
 		, zone.cpu
 		, zone.code);
+	//AfxMessageBox(strSQL);
 
 	WriteLog(strSQL);
 	//AfxMessageBox(strSQL);

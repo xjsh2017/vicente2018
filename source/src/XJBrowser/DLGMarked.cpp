@@ -390,16 +390,19 @@ BOOL DLGMarked::InsertDBMark()
 	
 	delete[] sError;
 	sError = NULL;
-
+	
 	PT_ZONE zone;
-	zone.PT_ID = m_pObj->m_sID;
-	pApp->NextPTSetModState(m_bMark ? 1 : 0, zone, pApp->m_User.m_strUSER_ID);
-
+	pApp->GetPTSetModState(zone, CString());
 	if (!m_bMark){
-		PT_ZONE zone;
-		pApp->GetPTSetModState(zone, CString());
 		pApp->RevertTempPTSetToDB(zone);
 	}
+
+	if (m_bMark){
+		zone.cpu = 0;
+		zone.code = 0;
+	}
+
+	pApp->NextPTSetModState(m_bMark ? 1 : 0, zone, pApp->m_User.m_strUSER_ID);
 	
  	return bReturn;
 }
