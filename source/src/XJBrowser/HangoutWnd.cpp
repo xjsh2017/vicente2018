@@ -258,6 +258,7 @@ CHangoutWnd::CHangoutWnd()
 	m_arrPane.RemoveAll();
 	m_pTitlePane = NULL;
 	m_bMouseDown = FALSE;
+	m_bAlreadyShowOnce = FALSE;
 }
 
 CHangoutWnd::~CHangoutWnd()
@@ -552,35 +553,30 @@ void CHangoutWnd::ShowChannelDetail( int nChannel )
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
-	CCJTabCtrlBar &bar = pMainFrame->m_wndGlobalMsgBar;
+	CCJTabCtrlBar &pane = pMainFrame->m_wndGlobalMsgBar;
 	
-	LONG w = 500;
+	LONG w = 600;
 	LONG h = 220;
 	
-	BOOL bView = (bar.IsVisible());
+	CRect rcRect;
+	
+	BOOL bView = (pane.IsVisible());
+	pane.ShowWindow(bView ? SW_HIDE : SW_SHOW);
+
 	//pMainFrame->ShowControlBar(&bar, !bView, FALSE);
 	if (m_bAlreadyShowOnce){
-		CRect rcRect2;
-		bar.GetWindowRect(rcRect2);
-		m_pointPTSetModView.x = rcRect2.left;
-		m_pointPTSetModView.y = rcRect2.top;
-		bar.ShowWindow(bView ? SW_HIDE : SW_SHOW);
-		pMainFrame->FloatControlBar(&bar, m_pointPTSetModView, CBRS_ALIGN_LEFT);
-		return;
+		pane.GetWindowRect(rcRect);
+		m_pointPTSetModView.x = rcRect.left;
+		m_pointPTSetModView.y = rcRect.top;
+	}else{
+		//pMainFrame->m_wndOutputBar.GetWindowRect(&rcRect);
+		m_pointPTSetModView.x = 200;//rcRect.right - w;
+		m_pointPTSetModView.y = 300;//rcRect.top - h;
+		//AfxMessageBox(str);
+		m_bAlreadyShowOnce = true;
 	}
-	
-	CRect rcRect;
-	CRect rcRect2;
-	GetWindowRect(&rcRect);
-	bar.GetWindowRect(rcRect2);
-	m_pointPTSetModView.x = rcRect.right - w;
-	m_pointPTSetModView.y = rcRect.bottom - h;
-	//AfxMessageBox(str);
-	
-	bar.ShowWindow(bView ? SW_HIDE : SW_SHOW);
-	pMainFrame->FloatControlBar(&bar, m_pointPTSetModView, CBRS_ALIGN_LEFT);
-	//bar.MoveWindow(point.x, point.y, w, h);
-	m_bAlreadyShowOnce = true;
+
+	pMainFrame->FloatControlBar(&pane, m_pointPTSetModView, CBRS_ALIGN_LEFT);
 }
 
 /****************************************************

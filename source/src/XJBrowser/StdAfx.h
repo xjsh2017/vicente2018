@@ -37,6 +37,9 @@
 #include <afxole.h>
 #pragma warning(disable:4700)
 
+#define DELETE_POINTER(p)	{if (NULL != p) {delete p; p = NULL;}}
+#define DELETE_POINTERS(p)	{if (NULL != p) {delete[] p; p = NULL;}}
+
 #include "PictureEx.h"	//Gif∂Øª≠¿‡
 #include "..\..\ui_common\OXSplashWnd\OXSplashWnd.h"
 #include "..\..\common\define.h"

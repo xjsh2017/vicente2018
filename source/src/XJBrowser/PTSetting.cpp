@@ -3383,7 +3383,7 @@ void CPTSetting::OnBtnPtsetModify2()
 		return;
 	
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-
+	CString str;
 	/*
 	if (g_bVerify)
 	{
@@ -3497,6 +3497,18 @@ void CPTSetting::OnBtnPtsetModify2()
 					
 					CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 					CString str;
+					
+					CString sRecords;
+					int nState = pApp->GetPTSetModState(PT_ZONE(), sRecords);
+					if (1 != nState){
+						CString sCurUserID = pApp->GetUserIDByState(2, sRecords);
+						str.Format("用户[%s]正在对该装置进行定值修改操作作业 或者 该装置已取消了挂牌，请稍后再试", sCurUserID);
+						AfxMessageBox(str, MB_OK | MB_ICONWARNING);
+
+						RevertModifyValue(1, 1);
+						return;
+					}
+
 					str.Format("用户%s以操作员身份验证成功:修改定值", m_sOperUser);
 					WriteLog(str);
 					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sOperUser, -1, OPER_SUCCESS,m_nOperationNum);
@@ -3516,15 +3528,27 @@ void CPTSetting::OnBtnPtsetModify2()
 				{
 					//无操作权限
 					//回复修改前的值
+
+					CString sRecords;
+					int nState = pApp->GetPTSetModState(PT_ZONE(), sRecords);
+					if (1 != nState){
+						CString sCurUserID = pApp->GetUserIDByState(2, sRecords);
+						str.Format("用户[%s]正在对该装置进行定值修改操作作业 或者 该装置已取消了挂牌，请稍后再试", sCurUserID);
+						AfxMessageBox(str, MB_OK | MB_ICONWARNING);
+						
+						RevertModifyValue(1, 1);
+						m_nCurrentDetailStatus = 0;
+						return;
+					}
+					
 					RevertModifyValue();
-					CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-					CString str;
 					str.Format("用户%s以操作员身份验证失败:修改定值", m_sOperUser);
 					WriteLog(str, XJ_LOG_LV2);
 					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sOperUser, -1, OPER_FAILD,m_nOperationNum);
 					
-					pApp->RevertPTSetModState(1);
+					//pApp->RevertPTSetModState(1);
 					m_nCurrentDetailStatus = 0;
+
 					return;
 				}
 			}
@@ -3533,9 +3557,23 @@ void CPTSetting::OnBtnPtsetModify2()
 		{
 			//不同意修改
 			//回复修改前的值
-			RevertModifyValue();
 			UpdateControlsEnable();
-			pApp->RevertPTSetModState(1);
+
+			CString str;
+			CString sRecords;
+			int nState = pApp->GetPTSetModState(PT_ZONE(), sRecords);
+			if (1 != nState){
+				CString sCurUserID = pApp->GetUserIDByState(2, sRecords);
+				str.Format("用户[%s]正在对该装置进行定值修改操作作业 或者 该装置已取消了挂牌，请稍后再试", sCurUserID);
+				AfxMessageBox(str, MB_OK | MB_ICONWARNING);
+				
+				RevertModifyValue(1, 1);
+				m_nCurrentDetailStatus = 0;
+				return;
+			}
+			
+			RevertModifyValue();
+			//pApp->RevertPTSetModState(1);
 			m_nCurrentDetailStatus = 0;
 
 			return;
@@ -4270,6 +4308,7 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		PT_ZONE zone;
 		pApp->GetPTSetModState(zone);
 		pApp->NextPTSetModState(5, zone, m_sOperUser);
+		pApp->SetRevertModifyValueFlag(0);
 
 		//提示
 		AfxMessageBox( StringFromID(IDS_EXECUTE_MODIFYSETTING_SUCCESS), MB_OK|MB_ICONINFORMATION);
@@ -6037,22 +6076,32 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 // 		m_nTimer11 = SetTimer(201, 3*1000, NULL);
 	}else if (nIDEvent == m_nPTSetModTimer){
 		KillTimer(m_nPTSetModTimer);
-
+		
 		CString str;
 		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+		PT_ZONE zone;
 		CString sFlag = _T("-2");
 		CString sRecords;
-		int nDZModState = pApp->GetPTSetModState(PT_ZONE(), sRecords, sFlag);
+		int nDZModState = pApp->GetPTSetModState(zone, sRecords, sFlag);
 		CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
 		CString sOperUserID = pApp->GetUserIDByState(2, sRecords);
+
+		if (nDZModState != 0 && zone.PT_ID == m_pObj->m_sID){
+			m_pObj->m_nRunStatu = 5;
+		}
 		
 		BOOL bShow = FALSE;
-
+		
 		// 所有用户都可以查看挂牌进度
-		bShow = (5 == m_pObj->m_nRunStatu);
+		bShow = (nDZModState != 0 && zone.PT_ID == m_pObj->m_sID);
 		m_btnPTSModProgView.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
 
-		if (5 == m_pObj->m_nRunStatu){
+		// 操作员和超级用户，开放权限： 定值（区）修改
+		bShow = ((5 == m_pObj->m_nRunStatu) && (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
+				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)));
+		m_btnModifySetting.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+		m_btnModifyZone.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+		/*if (5 == m_pObj->m_nRunStatu){
 			// 操作员和超级用户，开放权限： 定值（区）修改
 			BOOL bShow = (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
 				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER));
@@ -6060,7 +6109,7 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 				m_btnModifySetting.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
 				m_btnModifyZone.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
 			}
-		}
+		}*/
 
 		// 控制按钮是否可用： 定值（区）修改
 		BOOL bEnable = FALSE;
@@ -6074,10 +6123,19 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
 			if (4 == nDZModState && 0 == m_nCurrentDetailStatus){	
 				m_nCurrentDetailStatus = 1;
+
 				AfxMessageBox("运行人员已验证定值单内容，定值修改内容将下发到子站，单击确定将执行定值修改"
 					, MB_OK|MB_ICONINFORMATION);
-				
-				ExcutePTSet();
+
+				nDZModState = pApp->GetPTSetModState(PT_ZONE());
+				if (0 == nDZModState){
+					AfxMessageBox("运行人员已经取消了定值修改，装置已经取消了挂牌！");
+					RevertModifyValue();
+					m_nCurrentDetailStatus = 0;
+				}else{
+					pApp->SetRevertModifyValueFlag(2);	// 不允许此时取消挂牌操作
+					ExcutePTSet();
+				}
 			}
 
 			if (sFlag == _T("1")){
@@ -6388,7 +6446,7 @@ void CPTSetting::SetSettingValue( CString ID, CString VALUE, int iCol )
 		   Param2
 **************************************************************/
 //##ModelId=49B87B8D0280
-void CPTSetting::RevertModifyValue(int nType)
+void CPTSetting::RevertModifyValue(int nType, int nFlag)
 {
 	if(nType == 1)
 	{
@@ -6406,7 +6464,8 @@ void CPTSetting::RevertModifyValue(int nType)
 
 		// 还原数据库位置
 		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
-		pApp->RevertPTSetModState(1);
+		if (0 == nFlag)
+			pApp->RevertPTSetModState(1);
 		m_nCurrentDetailStatus = 0;
 	}
 	else if(nType == 2)

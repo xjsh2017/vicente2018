@@ -642,6 +642,26 @@ SOURCE=.\PushMsgProcess.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\stores\core\qbytearray.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qbytearraymatcher.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qcardbase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qglobal.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qptsetcard.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\RemindObj.cpp
 # End Source File
 # Begin Source File
@@ -931,315 +951,19 @@ SOURCE=..\..\common\XJLock.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\stores\XJPTSetStore.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJRootStore.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\common\XJString.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\ui_common\button\XPStyleButtonST.cpp
-# End Source File
-# End Group
-# Begin Group "Resource Files"
-
-# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=.\res\ack.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\BACK.BMP
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bk.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_bkgnd.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_bkgnd2.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_bkgnd3.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_checkbox.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_def_head.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_def_sort.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_def_tree.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bm_lockbox.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\bmp00001.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\control.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cur00001.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cur_button.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cur_checkbox.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cur_cross.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\CUR_DROP.CUR
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\CUR_HORZ.CUR
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cur_lockbox.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\CUR_SIZE.CUR
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cur_split.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\CUR_STOP.CUR
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\CUR_VERT.CUR
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\cursor1.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\draw_wait.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\event.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\fiswaveA.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\gcvA.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\greenlight.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\guowang.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\ico00001.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\icon1.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\icon2.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDB_BITMAP_TREE.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDB_BITMAP_TREE1.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDB_BITMAP_TREE2.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDB_BUTTON_IMAGES.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDC_HSPLITBAR.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDC_MAPTOOL_PAN.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDC_VSPLITBAR.cur
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\IDR_GIF_WAIT.gif
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\key.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\key1.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\login.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\login2.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\mainfram.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\modify.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\nan.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\nan_logo.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\nanwang.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\print.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\redlight.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\refresh.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\Search1.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\start.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\statuslight.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\Suntech.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\tick.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\tool1_g.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\tool1_nor.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\Toolbar.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\toolbar_.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\toolBmp.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\toolBmp2.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\viewlog.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\wndbtn.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\xj.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\XJBrowser.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\XJBrowser.rc2
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\XJBrowserDoc.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\zoom_g.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\zoom_n.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=".\res\另存.ico"
-# End Source File
-# Begin Source File
-
-SOURCE=".\res\中国南方电网.jpg"
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -1815,6 +1539,26 @@ SOURCE=.\PushMsgProcess.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\stores\core\qbytearray.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qbytearraymatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qcardbase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qglobal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qptsetcard.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\RemindObj.h
 # End Source File
 # Begin Source File
@@ -2099,11 +1843,323 @@ SOURCE=..\..\common\XJLock.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\stores\XJPTSetStore.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJRootStore.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\common\XJString.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\ui_common\button\XPStyleButtonST.h
+# End Source File
+# End Group
+# Begin Group "Resource Files"
+
+# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\res\ack.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\BACK.BMP
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bk.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_bkgnd.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_bkgnd2.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_bkgnd3.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_checkbox.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_def_head.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_def_sort.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_def_tree.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bm_lockbox.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\bmp00001.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\control.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cur00001.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cur_button.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cur_checkbox.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cur_cross.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\CUR_DROP.CUR
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\CUR_HORZ.CUR
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cur_lockbox.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\CUR_SIZE.CUR
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cur_split.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\CUR_STOP.CUR
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\CUR_VERT.CUR
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\cursor1.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\draw_wait.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\event.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\fiswaveA.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\gcvA.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\greenlight.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\guowang.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\ico00001.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\icon1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\icon2.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDB_BITMAP_TREE.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDB_BITMAP_TREE1.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDB_BITMAP_TREE2.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDB_BUTTON_IMAGES.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDC_HSPLITBAR.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDC_MAPTOOL_PAN.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDC_VSPLITBAR.cur
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\IDR_GIF_WAIT.gif
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\key.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\key1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\login.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\login2.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\mainfram.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\modify.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\nan.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\nan_logo.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\nanwang.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\print.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\redlight.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\refresh.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\Search1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\start.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\statuslight.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\Suntech.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\tick.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\tool1_g.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\tool1_nor.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\Toolbar.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\toolbar_.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\toolBmp.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\toolBmp2.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\viewlog.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\wndbtn.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\xj.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\XJBrowser.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\XJBrowser.rc2
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\XJBrowserDoc.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\zoom_g.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\zoom_n.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=".\res\另存.ico"
+# End Source File
+# Begin Source File
+
+SOURCE=".\res\中国南方电网.jpg"
 # End Source File
 # End Group
 # Begin Source File
@@ -2128,12 +2184,12 @@ SOURCE=.\xjbrowser.Manifest
 # End Source File
 # End Target
 # End Project
-# Section XJBrowser : {62274DEE-B5BF-48F8-910F-4F797CCBCD96}
-# 	2:21:DefaultSinkHeaderFile:ddvue.h
-# 	2:16:DefaultSinkClass:CDDVue
-# End Section
 # Section XJBrowser : {A1919AAD-5EF2-48E5-A8E1-2822EF1FA1F5}
 # 	2:5:Class:CDDVue
 # 	2:10:HeaderFile:ddvue.h
 # 	2:8:ImplFile:ddvue.cpp
+# End Section
+# Section XJBrowser : {62274DEE-B5BF-48F8-910F-4F797CCBCD96}
+# 	2:21:DefaultSinkHeaderFile:ddvue.h
+# 	2:16:DefaultSinkClass:CDDVue
 # End Section

@@ -421,7 +421,7 @@ private:
  *  @return 	void 
  */
 	//##ModelId=49B87B8D0280
-	void RevertModifyValue(int nType = 1);
+	void RevertModifyValue(int nType = 1, int nFlag = 0);
 
 /*
  *  @brief   	IsVaild20069	 判断收到的20069是否自己的

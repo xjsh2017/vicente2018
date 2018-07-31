@@ -520,8 +520,11 @@ void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 			CDeviceView *pView = pFrame->m_pDeviceView;
 			if (pObj){
 				pView->LocateObjInTree(pObj);
+
+				CXJBrowserDoc * pDoc = pApp->GetCurDocument();
+				pDoc->ShowSecPropPage(pObj, (ID_PT_SETTING_NEW - ID_PT_GENERAL_NEW));
 				
-				CXJBrowserView* pSvgView = pApp->GetSVGView();
+				/*CXJBrowserView* pSvgView = pApp->GetSVGView();
 				if(pSvgView == NULL)
 					return;
 				if(pObj->m_pStation && pObj->m_pStation->m_sID != pSvgView->m_sStationID || pSvgView->m_nSvgType != 1)
@@ -536,7 +539,7 @@ void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 				{
 					//把视图推到前面
 					pSvgView->GetParentFrame()->ActivateFrame(SW_SHOWMAXIMIZED);
-				}
+				}*/
 			}
 		}
 	}

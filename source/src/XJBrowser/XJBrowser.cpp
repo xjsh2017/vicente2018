@@ -5206,7 +5206,7 @@ BOOL CXJBrowserApp::RevertPTSetModState(int nRevertStateID, int nFlag)
 	int nCurrentState = GetPTSetModState(zone, sRecords);
 
 	if (nCurrentState < nRevertStateID){
-		AfxMessageBox("Cannot Revert PTSet Modification State to this State.");
+		//AfxMessageBox("Cannot Revert PTSet Modification State to this State.");
 		return FALSE;
 	}else if (nCurrentState == nRevertStateID){
 		return TRUE;

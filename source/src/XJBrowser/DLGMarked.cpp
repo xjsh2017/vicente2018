@@ -58,7 +58,7 @@ void DLGMarked::OnBtnMark()
 	//更新数据库的挂牌表
 	if (InsertDBMark())
 	{
-		AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS));
+		AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
 		SetDeviceState();
 	}else{
 		AfxMessageBox("请选择或输入挂牌原因.");
@@ -74,21 +74,50 @@ void DLGMarked::OnBtnUnmark()
 	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
 	PT_ZONE zone;
 	CString sRecords;
-	int nState = pApp->GetPTSetModState(zone, sRecords);
+	CString sFlag;
+	int nState = pApp->GetPTSetModState(zone, sRecords, sFlag);
 	CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
 
+	if (0 == nState){
+		CString str;
+		str.Format("该装置未挂牌！", sRunnerUserID);
+		AfxMessageBox(str);
+		
+		return;
+	}
+	
 	if (sRunnerUserID != pApp->m_User.m_strUSER_ID){
 		CString str;
 		str.Format("该装置已授权给用户 [%s]，您无法进行取消操作！", sRunnerUserID);
 		AfxMessageBox(str);
-
+		
 		return;
+	}
+
+	if (4 == nState){
+		CString str;
+
+		if (sFlag == "2"){ 
+			str.Format("该装置：操作员正在下发定值修改，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
+			AfxMessageBox(str, MB_OK | MB_ICONWARNING);
+
+			return;
+		}else{
+			/*str.Format("该装置：操作人员还未下发定值修改，您确定要取消挂牌吗？", sRunnerUserID);
+			int n = AfxMessageBox(str, MB_YESNO | MB_ICONQUESTION);
+			if (n == IDYES){
+				//AfxMessageBox("yes");
+			}else{
+				
+				return;
+			}*/
+		}
 	}
 	
 	//更新数据库的挂牌表
 	if (InsertDBMark())
 	{
-		AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS));
+		AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
 		SetDeviceState();
 		
 	}
@@ -393,6 +422,7 @@ BOOL DLGMarked::InsertDBMark()
 	
 	PT_ZONE zone;
 	pApp->GetPTSetModState(zone, CString());
+	zone.PT_ID = m_pObj->m_sID;
 	if (!m_bMark){
 		pApp->RevertTempPTSetToDB(zone);
 	}
