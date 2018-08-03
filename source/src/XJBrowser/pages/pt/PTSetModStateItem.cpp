@@ -1,6 +1,7 @@
 #include "PTSetModStateItem.h"
 #include "xjbrowser.h"
 
+#include "XJPTSetStore.h"
 
 /****************************************************
 Date:2013/10/9  Author:LYH
@@ -34,13 +35,15 @@ Date:2013/10/9  Author:LYH
 ¹¦ÄÜ¸ÅÒª: 
 *****************************************************/
 int CPTSetModStateItem::s_nTypeNameWidth = 120;
-CPTSetModStateItem::CPTSetModStateItem(CString sTypeName, int nIndex)
-	: m_nIndex(nIndex), m_nIndexActive(-1)
+CPTSetModStateItem::CPTSetModStateItem(CString sTypeName, int nPTSetStateID)
+	: m_nPTSetStateID(nPTSetStateID), m_nCurPTSetState(-1)
 {
 	m_sContent = "";	
 	m_sTypeName = sTypeName; 
 
 	m_bActive = FALSE;
+	m_bMarked = FALSE;
+	m_bVisible = FALSE;
 
 	m_rcBound.SetRectEmpty();
 	m_nTypeNameWidth = s_nTypeNameWidth;//180;
@@ -114,7 +117,7 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 	sDisplay.Format("  %s", m_sTypeName);
 	CSize s = pDC->GetTextExtent(sDisplay);
 	s_nTypeNameWidth = max(s_nTypeNameWidth, s.cx);
-	if (m_nIndex != 999)
+	if (m_nPTSetStateID != 999)
 		m_nTypeNameWidth = s_nTypeNameWidth + 10;
 		
 
@@ -131,11 +134,16 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 	
 	CRect rcTypeName = m_rcBound;
 	rcTypeName.right = rcTypeName.left+m_nTypeNameWidth;
-	if (m_nIndexActive >= m_nIndex)
+
+ 	QPTSetCard &card = *(CXJPTSetStore::GetInstance()->GetCard());
+ 	int nCurPTSetState = card.GetStateID();
+	
+	if (m_bMarked && nCurPTSetState > XJ_OPER_UNHANGOUT)
 		m_colTypeName = RGB(0,232,0);
 	else
 		m_colTypeName = RGB(192,192,192);
-	if (m_nIndex == 999)
+	
+	if (m_nPTSetStateID == 999)
 		m_colTypeName = RGB(230,173,0);
 
 	CBrush typebrush(m_colTypeName);
@@ -144,7 +152,7 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 
 	pDC->SetBkMode(TRANSPARENT);
 
-	if (m_nIndex != 999)
+	if (m_nPTSetStateID != 999)
 		pDC->DrawText(sDisplay, &rcTypeName, DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 	else
 		pDC->DrawText(sDisplay, &rcTypeName, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
@@ -152,15 +160,15 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 	CRect rcContent = m_rcBound;
 	rcContent.left = rcTypeName.left+m_nTypeNameWidth;
 
-	if (m_nIndex != 999)
+	if (m_nPTSetStateID != 999)
 		pDC->DrawText(m_sContent, &rcContent, DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 	else
 		pDC->DrawText(m_sContent, &rcContent, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
 }
 
-void CPTSetModStateItem::SetCurIndex(int nIndex)
+void CPTSetModStateItem::SetCurPTSetState(int nState)
 {
-	m_nIndexActive = nIndex;
+	m_nCurPTSetState = nState;
 	Update(100);
 }
 

@@ -6,7 +6,6 @@
 #include "HangoutWnd.h"
 
 #include "XJPTSetStore.h"
-#include "qptsetcard.h"
 
 #include "MainFrm.h"
 
@@ -392,8 +391,12 @@ void CHangoutWnd::OnTimer(UINT nIDEvent)
 		//¹Ø±Õ¶¨Ê±Æ÷
 		//KillTimer(m_nTimer);
 
-		if (NULL != m_pStation)
-			SetStation(m_pStation);
+		if (NULL != m_pStation){
+			KillTimer(m_nTimer);
+			//SetStation(m_pStation);
+			RefreshData();
+			m_nTimer = SetTimer(801, 3*1000, NULL);
+		}
 	}
 }
 
@@ -596,7 +599,7 @@ void CHangoutWnd::SetStation( CStationObj* pStation )
 	m_pStation = pStation;
 	KillTimer(m_nTimer);
 	m_nTimer = SetTimer(801, 3*1000, NULL);
-	RefreshData();
+	//RefreshData();
 }
 
 void CHangoutWnd::RefreshData()
@@ -622,15 +625,15 @@ void CHangoutWnd::RefreshData()
 			if(p != NULL)
 			{
 				CXJPTSetStore *store = CXJPTSetStore::GetInstance();
-				QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
-				QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
+				QPTSetCard &card = *(store->GetCard());
+				QLogTable &log = *(store->GetLog());
 
-				int nState = card.GetStateID();
+				int nPTSetState = card.GetStateID();
 				
 				CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
 				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
 				BOOL bHangout = FALSE;
-				if (pObj && pObj->m_pStation && pObj->m_pStation == m_pStation && nState != 0)
+				if (pObj && pObj->m_pStation && pObj->m_pStation == m_pStation && nPTSetState != XJ_OPER_UNHANGOUT)
 					bHangout = TRUE;
 				else
 					bHangout = FALSE;

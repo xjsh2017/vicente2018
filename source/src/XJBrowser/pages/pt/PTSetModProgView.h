@@ -4,6 +4,9 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+
+#include "qbytearray.h"
+
 // PTSetModProgView.h : header file
 //
 
@@ -11,6 +14,7 @@ class CPTSetModStateItem;
 /////////////////////////////////////////////////////////////////////////////
 // CPTSetModProgView view
 
+typedef CTypedPtrArray<CPtrArray, CPTSetModStateItem*>			CPTSetModStateItemList;
 class CPTSetModProgView : public CScrollView
 {
 protected:
@@ -20,9 +24,7 @@ protected:
 // Attributes
 private:
 	CPTSetModStateItem*		m_pHeadItem;
-	CPTSetModStateItem*		m_pItems[5];
-	CString					m_arrUserGroups[4];
-	CString					m_arrTypeNames[5];
+	CPTSetModStateItemList	m_items;
 
 	/** @brief           锁*/
 	CRITICAL_SECTION m_CriticalSection;
@@ -43,8 +45,6 @@ private:
 	void StartThread();
 
 	void ResetObjSize();
-	
-	void GetTypeNames();
 
 	/*
  *  @brief   	DocToClient	 逻辑坐标转设备坐标 

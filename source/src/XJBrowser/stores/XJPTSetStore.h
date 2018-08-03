@@ -2,7 +2,7 @@
 #define _XJPTSETSTORE_H
 
 #include "XJRootStore.h"
-#include "qbytearray.h"
+#include "qptsetcard.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CXJPTSetStore
@@ -27,6 +27,15 @@
 
 #define PT_ID_LEN 20
 
+// 用户组
+/** @brief			装置取消挂牌*/
+int const XJ_USERGROUP_RUNNER = 101;
+/** @brief			装置取消挂牌*/
+int const XJ_USERGROUP_OPERATOR = 102;
+/** @brief			装置取消挂牌*/
+int const XJ_USERGROUP_MONITOR = 103;
+
+// 功能组
 /** @brief			装置取消挂牌*/
 int const XJ_OPER_UNHANGOUT = 101;
 /** @brief			装置挂牌*/
@@ -146,6 +155,10 @@ public:
 	BOOL	SaveModifyToDB(CString &sPTID, MODIFY_LIST &arrModifyList);
 	BOOL	RevertModify();
 
+	QMatrixByteArray& GetWorkFlow();
+
+	QMatrixByteArray GetDefaultWorkFlow();
+
 	/*
 	 *  @brief   	AddManOperator	 添加人工操作日志 
 	 *  @param 		[In]a param of Type  CString  FunID  功能模块ID
@@ -156,7 +169,8 @@ public:
 		, CString sUserID, int nOperType, int nOperResult  = 0, int num  = -1);
 	void AddNewManOperator(int nStateID, const char* szTime, CString sUserID);
 
-	CString		GetUserGroupNameByID(CString sUserGroupID);
+	CString		GetUserTypeName(CString sUserGroupID);
+	CString		GetUserTypeName(int nUserType);
 	BOOL		SetUserLoginFlag(const CString &sUserID, const CString &sUserGroupID, CString &sFlag = CString(""));
 
 	CString		GetFuncID(int nStateID);
@@ -167,5 +181,7 @@ public:
 	// Generated message map functions
 protected:
 };
+
+extern const char* PTSET_KEYNAME;
 
 #endif // !defined(_XJPTSETSTORE_H)

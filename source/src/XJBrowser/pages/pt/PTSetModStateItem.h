@@ -32,7 +32,7 @@ public:
 class CPTSetModStateItem
 {
 public:
-	CPTSetModStateItem(CString sTypeName, int nIndex = -1);
+	CPTSetModStateItem(CString sTypeName, int nPTSetStateID = -1);
 	~CPTSetModStateItem();
 private:
 
@@ -65,8 +65,14 @@ private:
 	/** @brief			是否激活*/
 	BOOL	m_bActive;
 
-	int		m_nIndex;
-	int		m_nIndexActive;
+	/** @brief			是否标记*/
+	BOOL	m_bMarked;
+
+	/** @brief			是否可见*/
+	BOOL	m_bVisible;
+
+	int		m_nCurPTSetState;
+	int		m_nPTSetStateID;
 	
 public:
 	CString GetContent() const { return m_sContent; };	
@@ -77,7 +83,11 @@ public:
 	CRect GetBound(){ return m_rcBound; };
 	BOOL GetActive() const { return m_bActive; };	
 	void SetActive(BOOL Active) { m_bActive = Active; };
-	void SetCurIndex(int nIndex);
+	void SetCurPTSetState(int nState);
+	void SetVisible(int visible) { m_bVisible = visible; }
+	void SetMarked(BOOL bMarked) { m_bMarked = bMarked; }
+
+	int GetPTSetState()  { return m_nPTSetStateID; }
 
 	void SetTypeNameLength(int nLen) { m_nTypeNameWidth = nLen; };
 
@@ -94,6 +104,8 @@ public:
 	* @return   BOOL	在对象图形范围内返回TRUE,否则返回FALSE
 	*/
 	BOOL IsMouseOn(CPoint pt){return m_rcBound.PtInRect(pt);};
+
+	int IsVisble() { return m_bVisible; }
 
 private:
 	BOOL IsChinese(CString str);

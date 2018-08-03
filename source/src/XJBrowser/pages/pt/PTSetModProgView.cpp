@@ -7,7 +7,6 @@
 #include "PTSetModStateItem.h"
 
 #include "XJPTSetStore.h"
-#include "qptsetcard.h"
 
 #include "MainFrm.h"
 
@@ -57,11 +56,22 @@ IMPLEMENT_DYNCREATE(CPTSetModProgView, CScrollView)
 
 CPTSetModProgView::CPTSetModProgView()
 {
-	GetTypeNames();
+	//GetTypeNames();
 
 	m_pHeadItem = new CPTSetModStateItem("装置名称", 999);
-	for (int i = 0; i < _countof(m_arrTypeNames); i++){
-		m_pItems[i] = new CPTSetModStateItem(m_arrTypeNames[i], i);
+
+	QMatrixByteArray &flow = CXJPTSetStore::GetInstance()->GetWorkFlow();
+	//AfxMessageBox(flow.constData());
+	for (int i = 1; i <= flow.GetRows(); i++){
+		int nPTSetStateID = flow.GetFiled(i, 1).toInt();
+		int nVisible = flow.GetFiled(i, 2).toInt();
+		int nUserType = flow.GetFiled(i, 3).toInt();
+		int nUserID = flow.GetFiled(i, 4).toInt();
+		CString typeName = CXJPTSetStore::GetInstance()->GetFuncID(nPTSetStateID);
+		CPTSetModStateItem *item = new CPTSetModStateItem(typeName, nPTSetStateID);
+		item->SetVisible(nVisible);
+
+		m_items.Add(item);
 	}
 
 	m_bThreadExit = FALSE;
@@ -73,13 +83,12 @@ CPTSetModProgView::CPTSetModProgView()
 CPTSetModProgView::~CPTSetModProgView()
 {
 	DeleteCriticalSection(&m_CriticalSection);
-	for (int i = 0; i < _countof(m_pItems); i++){
-		delete m_pItems[i];
-		m_pItems[i] = NULL;
+	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetModStateItem *item = m_items.GetAt(i);
+		DELETE_POINTER(item);
 	}
-
-	delete m_pHeadItem;
-	m_pHeadItem = NULL;
+	m_items.RemoveAll();
+	DELETE_POINTER(m_pHeadItem);
 }
 
 
@@ -121,7 +130,7 @@ void CPTSetModProgView::OnDraw(CDC* pDC)
 	CBitmap bitmap;
 	CBitmap* pOldBitmap = NULL;
 	
-	int cy = 30 * (_countof(m_pItems) + 1) + 80;
+	int cy = 30 * (m_items.GetSize() + 1) + 80;
 	CSize sizeTotal;
 	sizeTotal.cx = 90;
 	sizeTotal.cy = cy;
@@ -165,9 +174,10 @@ void CPTSetModProgView::OnDraw(CDC* pDC)
 	if (m_pHeadItem){
 		m_pHeadItem->Draw(pDrawDC);
 	}
-	for (int i = 0; i < _countof(m_pItems); i++){
-		if(m_pItems[i]){
-			m_pItems[i]->Draw(pDrawDC);
+	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetModStateItem *item = m_items.GetAt(i);
+		if(item){
+			item->Draw(pDrawDC);
 		}
 	}
 	LeaveCriticalSection(&m_CriticalSection);
@@ -226,12 +236,14 @@ void CPTSetModProgView::ResetObjSize()
 	if(m_pHeadItem){
 		m_pHeadItem->SetBound(10, 10, w, 30);
 	}
-	for (int i = 0; i < _countof(m_pItems); i++){
-		if(m_pItems[i]){
-			m_pItems[i]->SetBound(10, 50 + i*40, w, 30);
+	int j = 0;
+	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetModStateItem *item = m_items.GetAt(i);
+		if(item && item->IsVisble()){
+			item->SetBound(10, 50 + j*40, w, 30);
+			j++;
 		}
 	}
-
 }
 
 void CPTSetModProgView::OnWindowPosChanged(WINDOWPOS FAR* lpwndpos) 
@@ -240,36 +252,6 @@ void CPTSetModProgView::OnWindowPosChanged(WINDOWPOS FAR* lpwndpos)
 	
 	// TODO: Add your message handler code here
 	ResetObjSize();
-}
-
-void CPTSetModProgView::GetTypeNames()
-{
-	CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
-	m_arrUserGroups[0] = pApp->GetUserGroupNameByID(StringFromID(IDS_USERGROUP_RUNNER));
-	m_arrUserGroups[1] = pApp->GetUserGroupNameByID(StringFromID(IDS_USERGROUP_OPERATOR));
-	m_arrUserGroups[2] = pApp->GetUserGroupNameByID(StringFromID(IDS_USERGROUP_MONITOR));
-
-	CString c_dz_mod_state[] = {
-		StringFromID(IDS_DZ_MOD_STATE_1),
-			StringFromID(IDS_DZ_MOD_STATE_2),
-			StringFromID(IDS_DZ_MOD_STATE_3),
-			StringFromID(IDS_DZ_MOD_STATE_4),
-			StringFromID(IDS_DZ_MOD_STATE_5)
-			//, StringFromID(IDS_DZ_MOD_STATE_0)
-	};
-
-	int i;
-	CString str;
-	int arrGroups[5] = {0, 1, 2, 0, 1};
-	CString arrTypeNames[5];
-	for (i = 0; i < _countof(arrTypeNames); i++){
-		str.Format("%s: %s", m_arrUserGroups[arrGroups[i]], c_dz_mod_state[i]);
-		m_arrTypeNames[i] = str;
-		//AfxMessageBox(str);
-		//if (m_pItems[i]){
-		//	m_pItems[i]->SetTypeName(str);
-		//}
-	}
 }
 
 void CPTSetModProgView::OnTimer(UINT nIDEvent) 
@@ -287,25 +269,54 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 		CXJPTSetStore *store = CXJPTSetStore::GetInstance();
 		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
 		QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
+		QMatrixByteArray &flow = store->GetWorkFlow();
 		
-		int nCurState = card.GetStateID();
-		if (nCurState < 0 || card.GetPTID().isEmpty())
+// 		KillTimer(m_nTimer);
+// 		AfxMessageBox(flow.constData());
+// 		m_nTimer = SetTimer(501, 3*1000, 0);
+
+		int nPTSetState = card.GetStateID();
+		if (nPTSetState < 0 || card.GetPTID().isEmpty())
 			return;
 		
-		int i;
-		for (i = 0; i < _countof(m_pItems); i++){
-			if (m_pItems[i] && nCurState > 0){
-				m_pItems[i]->SetCurIndex(nCurState - 1);
+		int i, j;
+		
+//		KillTimer(m_nTimer);
+		bool bResize = false;
+		for (i = 0; i < m_items.GetSize(); i++){
+			CPTSetModStateItem *item = m_items.GetAt(i);
+			if (!item)
+				continue;
+
+			item->SetCurPTSetState(nPTSetState);
+
+			int nItemState = item->GetPTSetState();
+			for (int j = 1; j <= flow.GetRows(); j++){
+				int nFlowState = flow.GetFiled(j, 1).toInt();
+				if (nItemState != nFlowState)
+					continue;
+
+				if (!flow.GetFiled(j, 2).isEmpty()){
+					int nVisible = flow.GetFiled(j, 2).toInt();
+					
+					if (item->IsVisble() != nVisible){
+						item->SetVisible(nVisible);
+						bResize = true;
+					}
+				}
+				break;
 			}
 		}
-		
-		if (log.isEmpty())
-			return;
-		
+//		m_nTimer = SetTimer(501, 3*1000, 0);
+
+		if (bResize)
+			ResetObjSize();
+
 		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
 		if (NULL == pObj)
 			return;
-
+		
+		KillTimer(m_nTimer);
 		if (m_pHeadItem){
 			if (pObj->m_pStation){
 				str.Format(" [ %s ][ %s ]", pObj->m_pStation->m_sName, pObj->m_sName);
@@ -315,22 +326,33 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 			m_pHeadItem->SetContent(str);
 		}
 
-		KillTimer(m_nTimer);
-
 		int nCount = log.GetRecordCount();
-		int nRows = _countof(m_pItems);
-		for (i = 0; i < nRows; i++){
-			CString sContent;
-			if (i > nCount - 1){
-				sContent = "";
-			}else{
-				sContent.Format(" 执行时间：[ %s ]：执行用户：[ %s ]"
-					, log.GetFiled(i + 1, 1).constData()
-					, log.GetFiled(i + 1, 2).constData());
+		for (i = 0; i < m_items.GetSize(); i++){
+			CPTSetModStateItem *item = m_items.GetAt(i);
+			if (!item){
+				continue;
 			}
+			
+			item->SetContent("");
+			item->SetMarked(FALSE);
 
-			if (m_pItems[i]){
-				m_pItems[i]->SetContent(sContent);
+			CString sContent;
+			int nItemState = item->GetPTSetState();
+			int nLogState = -1;
+			for (j = 1; j <= nCount; j++){
+				nLogState = log.GetFiled(j, 3).toInt();
+				if (nLogState != nItemState)
+					continue;
+
+				item->SetMarked(TRUE);
+				
+				sContent.Format(" 执行时间：[ %s ]：执行用户：[ %s ]"
+					, log.GetFiled(j, 1).constData()
+					, log.GetFiled(j, 2).constData());
+
+				item->SetContent(sContent);
+				
+				break;
 			}
 		}
 		
@@ -358,9 +380,10 @@ Date:2013/10/9  Author:LYH
 void CPTSetModProgView::UpdateAllObj()
 {
 	EnterCriticalSection(&m_CriticalSection);
-	for (int i = 0; i < _countof(m_pItems); i++){
-		if(m_pItems[i]){
-			m_pItems[i]->Update(100);
+	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetModStateItem *item = m_items.GetAt(i);
+		if (item && item->IsVisble()){
+			item->Update(100);
 		}
 	}
 	LeaveCriticalSection(&m_CriticalSection);
@@ -457,12 +480,13 @@ void CPTSetModProgView::OnAddRemind( WPARAM wParam, LPARAM lParam )
 
 void CPTSetModProgView::UpdateActive( CPoint pt )
 {
- 	for (int i = 0; i < _countof(m_pItems); i++){
- 		if(m_pItems[i]){
-			if(m_pItems[i]->IsMouseOn(pt))
-				m_pItems[i]->SetActive(TRUE);
+ 	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetModStateItem *item = m_items.GetAt(i);
+ 		if(item){
+			if(item->IsMouseOn(pt))
+				item->SetActive(TRUE);
 			else
-				m_pItems[i]->SetActive(FALSE);
+				item->SetActive(FALSE);
  		}
  	}
 }
@@ -540,10 +564,11 @@ CPTSetModStateItem* CPTSetModProgView::MouseOnObj( CPoint pt )
 
 	if (m_pHeadItem && m_pHeadItem->IsMouseOn(pt))
 		pReturn = m_pHeadItem;
-	for (int i = 0; i < _countof(m_pItems); i++){
-		if(m_pItems[i]){
-			if(m_pItems[i] && m_pItems[i]->IsMouseOn(pt))
-				pReturn = m_pItems[i];
+	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetModStateItem* item = m_items.GetAt(i);
+		if(item){
+			if(item && item->IsMouseOn(pt))
+				pReturn = item;
 		}
  	}
 

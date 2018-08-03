@@ -81,11 +81,11 @@ void DLGMarked::OnBtnMark()
 		sprintf(szLog, "%s,%s,%d"
 			, curTime.constData()
 			, sUserID.GetBuffer(0)
-			, 1);
+			, XJ_OPER_HANGOUT);
 		log.FRead(szLog);
 		store->Save();
 
-		CXJPTSetStore::GetInstance()->AddNewManOperator(1, curTime.constData(), sUserID);
+		CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_HANGOUT, curTime.constData(), sUserID);
 
 		AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
 		SetDeviceState();
@@ -108,9 +108,9 @@ void DLGMarked::OnBtnUnmark()
 	CString sRunnerUserID = log.GetFiled(1, 2).constData();
 	int nFlag = card.GetFlags();
 	
-	int nState = card.GetStateID();
+	int nPTSetState = card.GetStateID();
 
-	if (0 == nState || CString(card.GetPTID().constData()) != m_pObj->m_sID){
+	if (XJ_OPER_UNHANGOUT == nPTSetState || CString(card.GetPTID().constData()) != m_pObj->m_sID){
 		CString str;
 		str.Format("该装置未挂牌！");
 		AfxMessageBox(str);
@@ -126,7 +126,7 @@ void DLGMarked::OnBtnUnmark()
 		return;
 	}
 
-	if (4 == nState){
+	if (XJ_OPER_PTSET_STATE_4 == nPTSetState){
 		CString str;
 
 		if (nFlag == 2){ 
@@ -157,10 +157,17 @@ void DLGMarked::OnBtnUnmark()
 		store->RevertModify();	// 数据库恢复原值
 		store->Save();
 
-
+		char szLog[256] = {0};
 		QByteArray curTime = GetTime();
 		CString sUserID = pApp->m_User.m_strUSER_ID;
-		CXJPTSetStore::GetInstance()->AddNewManOperator(0, curTime.constData(), sUserID);
+		sprintf(szLog, "%s,%s,%d"
+			, curTime.constData()
+			, sUserID.GetBuffer(0)
+			, XJ_OPER_UNHANGOUT);
+		log.Insert(szLog);
+		store->Save();
+
+		CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_UNHANGOUT, curTime.constData(), sUserID);
 
 		AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
 		SetDeviceState();
@@ -178,9 +185,9 @@ BOOL DLGMarked::CheckMarkedDeviceFromState()
 	QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
 	QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
 
-	int nState = card.GetStateID();
+	int nPTSetState = card.GetStateID();
 
-	if (0 == nState)
+	if (XJ_OPER_UNHANGOUT == nPTSetState)
 		return FALSE;
 
 	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);

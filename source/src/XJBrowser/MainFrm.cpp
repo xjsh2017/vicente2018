@@ -93,6 +93,7 @@ UINT RefreshPTSetState(LPVOID pParam)
 
 		CXJPTSetStore *p = CXJPTSetStore::GetInstance();
 		p->ReLoad();
+		p->Save();
 
 		//pView->UpdateAllObj();
 		//pView->PostMessage(THREAD_FILL_DATA, 0, 0);

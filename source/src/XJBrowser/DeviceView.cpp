@@ -3307,16 +3307,18 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(p->GetCard()));
 		QLogTable &log = *(reinterpret_cast<QLogTable *>(p->GetLog()));
 		
-		int nState = card.GetStateID();
+		int nPTSetState = card.GetStateID();
 		if (-1 == m_nLastPTSetStateID){
-			m_nLastPTSetStateID = nState;
+			m_nLastPTSetStateID = nPTSetState;
 		}
 
+		int n1 = m_nLastPTSetStateID - XJ_OPER_UNHANGOUT;
+		int n2 = nPTSetState - XJ_OPER_UNHANGOUT;
 		// 刷新（状态 1 -> 5 之间变化不刷新，其余刷新）
 		//if (nState != m_nLastPTSetStateID && (0 == nState || 1 == nState))
-		if ((m_nLastPTSetStateID - XJ_OPER_UNHANGOUT) * (nState - XJ_OPER_UNHANGOUT) == 0)
+		if (n1 * n2 == 0 && n1 + n2 > 0)
 		{
-			m_nLastPTSetStateID = nState;
+			m_nLastPTSetStateID = nPTSetState;
 
 			if(pApp->GetDataEngine() != NULL)
 			{
