@@ -175,6 +175,9 @@ public:
 
 	CString		GetFuncID(int nStateID);
 
+	void Next_0();
+	void Next_1(const char *pt_id);
+
 // Implementation
 public:
 

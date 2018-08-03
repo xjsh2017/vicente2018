@@ -52,10 +52,16 @@ public:
 	BOOL InsertDBMark();
 
 	/*
-	*  @brief   	CheckMarkedDeviceFromState	 从状态机检查是否已存在挂牌装置 
+	*  @brief   	CheckStateBeforeMark	 从状态机检查是否已存在挂牌装置 
 	*  @return 	BOOL 存在返回TRUE, 否则返回FALSE
 	*/
-	BOOL CheckMarkedDeviceFromState();
+	BOOL CheckStateBeforeMark();
+
+	/*
+	*  @brief   	CheckStateBeforeUnMark	 取消挂牌前检查状态机 
+	*  @return 	BOOL 存在返回TRUE, 否则返回FALSE
+	*/
+	BOOL CheckStateBeforeUnMark();
 
 	DLGMarked(CWnd* pParent = NULL);   // standard constructor
 

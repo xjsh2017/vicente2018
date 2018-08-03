@@ -1204,3 +1204,59 @@ CString CXJPTSetStore::GetUserTypeName(CString sUserGroupID)
     
 	return sReturn;
 }
+
+void CXJPTSetStore::Next_0()
+{
+	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
+	QPTSetCard &card = *(GetCard());
+	QLogTable &log = *(GetLog());
+
+	card.SetType(0);
+	card.SetStateID(XJ_OPER_UNHANGOUT);
+	card.SetCPUID(0);
+	card.SetZoneID(0);
+	card.SetFlags(1);	// 通知相应操作员的界面恢复原值
+	RevertModify();	 // 数据库恢复原值
+	
+	char szLog[256] = {0};
+	QByteArray curTime = GetTime();
+	CString sUserID = pApp->m_User.m_strUSER_ID;
+	sprintf(szLog, "%s,%s,%d"
+		, curTime.constData()
+		, sUserID.GetBuffer(0)
+		, XJ_OPER_UNHANGOUT);
+	log.Insert(szLog);
+	Save();
+	
+	AddNewManOperator(XJ_OPER_UNHANGOUT, curTime.constData(), sUserID);
+}
+
+void CXJPTSetStore::Next_1(const char *pt_id)
+{
+	if (NULL == pt_id)
+		return;
+
+	CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
+	//store->ReLoad();
+	QPTSetCard &card = *(GetCard());
+	QLogTable &log = *(GetLog());
+
+	card.SetType(0);
+	card.SetStateID(XJ_OPER_HANGOUT);
+	card.SetPTID(pt_id);
+	card.SetCPUID(0);
+	card.SetZoneID(0);
+	card.SetFlags(0);
+	
+	char szLog[256] = {0};
+	QByteArray curTime = GetTime();
+	CString sUserID = pApp->m_User.m_strUSER_ID;
+	sprintf(szLog, "%s,%s,%d"
+		, curTime.constData()
+		, sUserID.GetBuffer(0)
+		, XJ_OPER_HANGOUT);
+	log.FRead(szLog);
+	Save();
+	
+	AddNewManOperator(XJ_OPER_HANGOUT, curTime.constData(), sUserID);
+}

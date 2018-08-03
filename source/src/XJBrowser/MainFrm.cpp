@@ -3182,11 +3182,11 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 			CString sRunnerUserID = log.GetFiled(1, 2).data();
 			// 运行人员或者超级用户
 			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
-				if (3 == nCurPTSetModState){
+				if (XJ_OPER_PTSET_STATE_3 == nCurPTSetModState){
 					KillTimer(m_nMsgTimer);
 					DoPtsetVerify0();
 					m_oper = 0;
-				}else if (5 == nCurPTSetModState && 0 == m_oper){
+				}else if (XJ_OPER_PTSET_STATE_5 == nCurPTSetModState && 0 == m_oper){
 					KillTimer(m_nMsgTimer);
 					AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
 					m_oper = 1;
