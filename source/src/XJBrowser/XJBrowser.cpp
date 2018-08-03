@@ -71,6 +71,8 @@
 #include "CustomStyleSetting.h"
 #include "MtVerify.h"
 #include "PushMsgProcess.h"
+
+#include "stores/XJRootStore.h"
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -7576,6 +7578,7 @@ int CXJBrowserApp::ExitInstance()
 	// TODO: Add your specialized code here and/or call the base class
 // 	CString str= "";
 // 	m_DBEngine.XJCloseSession(str);
+	CXJRootStore::Release();
 	return CWinApp::ExitInstance();
 }
 

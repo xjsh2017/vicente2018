@@ -2,12 +2,12 @@
 //
 
 #include "stdafx.h"
-#include "xjbrowser.h"
-#include "DlgCheckPro.h"
+#include "DlgOperHis.h"
 
+#include "xjbrowser.h"
+#include "DeviceObj.h"
 #include "stores/XJPTSetStore.h"
 
-#pragma   warning   (disable   :   4786)
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,25 +16,26 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CDlgCheckPro dialog
+// CDlgOperHis dialog
 
 
 //##ModelId=49B87BA402E1
-CDlgCheckPro::CDlgCheckPro(CWnd* pParent /*=NULL*/, int nType)
-	: CDialog(CDlgCheckPro::IDD, pParent), m_sCPU(""), m_sZone("")
+CDlgOperHis::CDlgOperHis(CWnd* pParent /*=NULL*/, int nType)
+	: CDialog(CDlgOperHis::IDD, pParent), m_sCPU(""), m_sZone("")
 {
-	//{{AFX_DATA_INIT(CDlgCheckPro)
+	//{{AFX_DATA_INIT(CDlgOperHis)
 	m_strModify = _T("");
 	m_nType = nType;
+	m_pObj = NULL;
 	//}}AFX_DATA_INIT
 }
 
 
 //##ModelId=49B87BA402E4
-void CDlgCheckPro::DoDataExchange(CDataExchange* pDX)
+void CDlgOperHis::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CDlgCheckPro)
+	//{{AFX_DATA_MAP(CDlgOperHis)
 	DDX_Text(pDX, IDC_EDIT_CHECK, m_strModify);
 	DDX_Text(pDX, IDC_STATIC_DESC, m_strDESC);
 	DDX_Control(pDX, IDC_LIST_PTSET, m_List);
@@ -42,13 +43,13 @@ void CDlgCheckPro::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CDlgCheckPro, CDialog)
-	//{{AFX_MSG_MAP(CDlgCheckPro)
+BEGIN_MESSAGE_MAP(CDlgOperHis, CDialog)
+	//{{AFX_MSG_MAP(CDlgOperHis)
 	//}}AFX_MSG_MAP
     ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_PTSET, OnCustomdrawList)
 END_MESSAGE_MAP()
 
-void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
+void CDlgOperHis::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( pNMHDR );
 	
@@ -111,10 +112,10 @@ void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CDlgCheckPro message handlers
+// CDlgOperHis message handlers
 
 /*
-BOOL CDlgCheckPro::OnInitDialog() 
+BOOL CDlgOperHis::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
 	InitListStyle();
@@ -151,7 +152,7 @@ BOOL CDlgCheckPro::OnInitDialog()
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 */
-BOOL CDlgCheckPro::OnInitDialog() 
+BOOL CDlgOperHis::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
 	InitListStyle();
@@ -161,19 +162,19 @@ BOOL CDlgCheckPro::OnInitDialog()
 	// TODO: Add extra initialization here
 	if (m_nType ==0)
 	{
-		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
+		SetWindowText("操作历史记录");
 	}
 	else if (m_nType ==1)
 	{
-		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
+		SetWindowText("操作历史记录：定值（区）修改");
 	}
 	else if (m_nType ==2)
 	{
-		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
+		SetWindowText("操作历史记录：软压板投退");
 	}
 	else
 	{
-		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
+		SetWindowText("操作历史记录");
 	}
 
 	FillData();
@@ -182,39 +183,20 @@ BOOL CDlgCheckPro::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CDlgCheckPro::UpdateLabels()
+void CDlgOperHis::UpdateLabels()
 {
+	if (m_pObj == NULL)
+		return;
+
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CString str;
 
-	PT_ZONE data;
-	CString sRecords;
-	int nState = pApp->GetPTSetModState(data, sRecords);
-	str.Format("%d, %d", data.cpu, data.code);
-	//AfxMessageBox(str);
-	CString sCPU = m_sCPU, sZone = m_sZone;
-	m_sCPU.TrimLeft();
-	m_sCPU.TrimRight();
-	m_sZone.TrimLeft();
-	m_sZone.TrimRight();
-	if (m_sCPU.IsEmpty()){
-		sCPU.Format("%d", data.cpu);
-		m_sCPU = sCPU;
-	}
-	if (m_sZone.IsEmpty()){
-		sZone.Format("%d", data.code);
-		m_sZone = sZone;
-	}
-	
-	
-	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(data.PT_ID, TYPE_SEC);
-	m_strDESC.Format("装置[%s]在[%s]号CPU[%s]号定值区上的定值将做如下更改："
-		, pObj->m_sName, sCPU, sZone);
-	//AfxMessageBox(m_strDESC);
+	m_strDESC.Format("装置：[ %s ] [ %s ] [ %s ]"
+		, m_pObj->m_pStation->m_sName, m_pObj->m_sID, m_pObj->m_sName);
 	UpdateData(FALSE);
 }
 
-int CDlgCheckPro::InitListStyle()
+int CDlgOperHis::InitListStyle()
 {
 	//空图形列表, 用来调整行高
 	CImageList   m_l;   
@@ -230,7 +212,7 @@ int CDlgCheckPro::InitListStyle()
 		//载入配置失败
 		//char* arColumn[11]={"序号","定值名称", "定值代码", "单位", "基准值", "组号", "条目号","步长", "最小值/最大值", "精度", "数据类型"};
 		//分配列宽,最小需求
-		for (int nCol=0; nCol < 13 ; nCol++)
+		for (int nCol=0; nCol < 10 ; nCol++)
 		{
 			lvCol.iSubItem=nCol;
 			CString colName = "";
@@ -241,57 +223,41 @@ int CDlgCheckPro::InitListStyle()
 				colName = StringFromID(IDS_COMMON_NO);
 				break;
 			case 1://
-				lvCol.cx = 140; // 定值名称
-				colName = StringFromID(IDS_COMMON_NAME);
+				lvCol.cx = 50; // 人工操作历史ID
+				colName = "ID";
 				break;
 			case 2://
-				lvCol.cx = 140; // 定值代码
-				colName = StringFromID(IDS_COMMON_CODE);
+				lvCol.cx = 140; // 操作时间
+				colName = "操作时间";
 				break;
 			case 3:
-				lvCol.cx = 80; //单位
-				colName = StringFromID(IDS_COMMON_UNIT);
+				lvCol.cx = 140; // 用户操作
+				colName = "用户操作";
 				break;
 			case 4:
-				lvCol.cx = 80; //基准值
-				colName = StringFromID(IDS_SETTING_ORDER);
+				lvCol.cx = 60; // 操作类型
+				colName = "操作类型";
 				break;
 			case 5:
-				lvCol.cx = 60; //组号
-				colName = StringFromID(IDS_POINT_GROUP);
+				lvCol.cx = 60; // 用户名
+				colName = "用户名";
 				break;
 			case 6:
-				lvCol.cx = 60; //条目号
-				colName = StringFromID(IDS_POINT_ITEM);
+				lvCol.cx = 80; // 操作对象
+				colName = "操作对象";
 				break;
-			case 7:
-				lvCol.cx = 60; //步长
-				colName = StringFromID(IDS_POINT_STEP);
+			case 7://
+				lvCol.cx = 250; // 操作信息
+				colName = "人工操作信息";
 				break;
 			case 8:
-				lvCol.cx = 80; //最小值/最大值
-				colName = StringFromID(IDS_POINT_MAXMIN);
+				lvCol.cx = 80; // 计算机名
+				colName = "计算机名";
 				break;
 			case 9:
-				lvCol.cx = 60; //精度
-				colName = StringFromID(IDS_POINT_PRECISION);
+				lvCol.cx = 60; // 操作结果
+				colName = "操作结果";
 				break;
-			case 10:
-				lvCol.cx = 80; //数据类型
-				colName = StringFromID(IDS_POINT_DATATYPE);
-				break;
-			case 11:
-				lvCol.cx = 80; //原值
-				colName = StringFromID(IDS_COLUMN_VALUE_0);
-				break;
-			case 12:
-				lvCol.cx = 80; //更改值
-				colName = StringFromID(IDS_COLUMN_VALUE_1);
-				break;
-			/*case 13:
-				lvCol.cx = 80; //定值
-				colName = StringFromID(IDS_COLUMN_VALUE_2);
-				break;*/
 			default:
 				lvCol.cx = 100;
 				break;
@@ -300,119 +266,121 @@ int CDlgCheckPro::InitListStyle()
 			int result = m_List.InsertColumn(nCol,&lvCol);
 		}
 		//默认隐藏第一列(序号)
-		//m_List.SetColumnHide(0, TRUE);
-		//默认隐藏第3列(定值代码)
-		m_List.SetColumnHide(2, TRUE);
-		//默认隐藏第5列(基准值)
+		m_List.SetColumnHide(1, TRUE);
 		m_List.SetColumnHide(4, TRUE);
-		//if(!g_PTControl)
-		{
-			m_List.SetColumnHide(3, TRUE);
-			m_List.SetColumnHide(5, TRUE);
-			m_List.SetColumnHide(6, TRUE);
-			m_List.SetColumnHide(7, TRUE);
-			m_List.SetColumnHide(8, TRUE);
-			m_List.SetColumnHide(9, TRUE);
-			m_List.SetColumnHide(10, TRUE);
-			/*if (0 == m_nType){
-				m_List.SetColumnHide(11, TRUE);
-				m_List.SetColumnHide(12, TRUE);
-			}else{
-				m_List.SetColumnHide(13, TRUE);
-			}*/
-		}
+		m_List.SetColumnHide(6, TRUE);
+		m_List.SetColumnHide(8, TRUE);
 	}
 	//设置风格
 	m_List.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
 	return 0;
 }
 
-void CDlgCheckPro::FillData()
+void CDlgOperHis::FillData()
 {
-	CXJPTSetStore::GetInstance()->ReLoadStore();
-	//WriteLog("CDlgCheckPro::FillData, 开始", XJ_LOG_LV3);
+	WriteLog("CDlgOperHis::FillData, 开始", XJ_LOG_LV3);
 	
 	//填充数据时禁止刷新
 	m_List.SetRedraw(FALSE);
 	//EnterCriticalSection(&m_CriticalOper);  
 	//int nGroupCount = m_arrGroup.GetSize();
-	PT_SETTING *pts = NULL;
-	PT_SETTING_DATA *data = NULL;
-	int nIndex = 0;
-	for(int i = 0; i < m_arrPTSet.GetSize(); i ++)
-	{
-		data = (PT_SETTING_DATA*)m_arrPTSet.GetAt(i);
-		if (NULL == data)
-			continue;
-		pts = data->pts;
-		if (NULL == pts)
-			continue;
 
-		CString sID = pts->ID;
-		if(1 == g_PTIndexType)
-		{
-			sID.Format("%d", nIndex+1);
-		}
-		m_List.InsertItem(nIndex, sID); //ID
-		CString strName;
-		int z = pts->Name.Find(",", 0);
-		if (z != -1)
-		{
-			strName = pts->Name.Left(z);
-		}
-		else
-		{
-			strName = pts->Name;
-		}
-		m_List.SetItemText(nIndex, 1, strName); //名称
-		m_List.SetItemText(nIndex, 2, pts->CodeName); //代码
-		m_List.SetItemText(nIndex, 3, pts->Unit); //单位
-		m_List.SetItemText(nIndex, 4, pts->OrderValue); //基准值
-		CString str;
-		str.Format("%d", pts->Group);
-		m_List.SetItemText(nIndex, 5, str);
-		str.Format("%d", pts->Item);
-		m_List.SetItemText(nIndex,6, str);
-		str.Format("%s", pts->stepValue);
-		m_List.SetItemText(nIndex, 7, str);
-		
-		str.Format("%s/%s", pts->minValue, pts->maxValue);
-		m_List.SetItemText(nIndex, 8, str);
-		m_List.SetItemText(nIndex, 9, pts->Precision);
-		switch (pts->DataType)
-		{
-			//0-浮点 1-整型 2-控制字(十六进制) 3-字符串 4-控制字(二进制)
-		case 0:
-			str = StringFromID(IDS_DATATYPE_FLOAT);
-			break;
-		case 1:
-			str = StringFromID(IDS_DATATYPE_INT);
-			break;
-		case 2:
-			str = StringFromID(IDS_DATATYPE_CONTROL16);
-			break;
-		case 3:
-			str = StringFromID(IDS_DATATYPE_STRING);
-			break;
-		case 4:
-			str = StringFromID(IDS_DATATYPE_STRING);
-			break;
-		default:
-			str = _T("");
-			break;
-		}
-		m_List.SetItemText(nIndex, 10, str);
-		m_List.SetItemText(nIndex, 11, data->reserve1);
-		m_List.SetItemText(nIndex, 12, data->reserve2);
-		m_List.SetItemData(nIndex, (DWORD)data);
-		
-		
-		nIndex++;
+	CString str;
+	CXJBrowserApp*  pApp = (CXJBrowserApp*)AfxGetApp();
+	CDBEngine&		dbEngine = pApp->m_DBEngine;
+	
+	char * sError = NULL;
+	sError = new char[MAXMSGLEN];
+	memset(sError, '\0', MAXMSGLEN);
+
+	CMemSet	mem;
+	int nResult;
+	
+	CString strSQL;
+	strSQL.Format("SELECT 1,id,time,func,opertype,username,act,msg,computer,operresult "
+		" FROM tb_operation WHERE ACT IN ('%s') AND opertype > 100 AND opertype < 200 "
+		" ORDER BY time DESC"
+		, m_pObj->m_sID);
+	
+	WriteLog(strSQL);
+	//AfxMessageBox(strSQL);
+	
+	//进行查询
+	MutiSQL_DATA MutiSql;
+	bzero(&MutiSql, sizeof(MutiSQL_DATA));
+	MutiSql.Funtype = EX_STTP_FUN_TYPE_FULL;
+	strncpy(MutiSql.SQL_BODY_Content, strSQL, strSQL.GetLength());
+	memset(sError, '\0', MAXMSGLEN);
+	
+	try
+	{
+		nResult = dbEngine.XJExecuteSql(MutiSql, sError, &mem);
 	}
+	catch (...)
+	{
+		str.Format("CDlgOperHis::FillData, 查询失败");
+		WriteLog(str);
+
+		DELETE_POINTERS(sError);
+		//AfxMessageBox(str);
+		
+		return;
+	}
+	
+	if(nResult == 1)
+	{	
+		mem.MoveFirst();
+		int nCount = mem.GetMemRowNum();
+
+		CString str;
+		str.Format("CDlgOperHis::FillData, 查询到%d条记录", nCount);
+		WriteLog(str, XJ_LOG_LV3);
+		//AfxMessageBox(str);
+		
+		//EnterCriticalSection(&m_CriticalOper);
+		int nIndex = 0;
+		for(int i = 0; i < nCount; i++)
+		{
+			CString str;
+
+			str.Format("%d", nCount - nIndex);
+			m_List.InsertItem(nIndex, str);
+
+			for (int j = 0; j < 10; j++){
+				if (0 == j){
+					str.Format("%d", nCount - nIndex);
+				}else if (9 == j){
+					str = mem.GetValue((UINT)j);
+					if (atoi(str) == 0){
+						str = "成功";
+					}else{
+						str = "失败";
+					}
+				}else{
+					str = mem.GetValue((UINT)j);
+				}
+
+				m_List.SetItemText(nIndex, j, str);
+			}
+			
+			nIndex++;
+			
+			mem.MoveNext();
+		}
+	}
+	else
+	{
+		str.Format("CDlgOperHis::FillData, 查询失败, 原因为%s", sError);
+		WriteLog(str);
+		//AfxMessageBox(str);
+	}
+	DELETE_POINTERS(sError);
+	
+	mem.FreeData(true);
+
 	//恢复刷新
 	//LeaveCriticalSection(&m_CriticalOper);
 	m_List.SetRedraw(TRUE);
 	
-	
-	WriteLog("CDlgCheckPro::FillListData, 结束", XJ_LOG_LV3);
+	WriteLog("CDlgOperHis::FillData, 结束", XJ_LOG_LV3);
 }

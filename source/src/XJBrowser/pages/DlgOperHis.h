@@ -1,26 +1,25 @@
-#if !defined(AFX_DLGCHECK_PRO_H__48F5010D_E549_4A81_82D4_5621C482EE91__INCLUDED_)
-#define AFX_DLGCHECK_PRO_H__48F5010D_E549_4A81_82D4_5621C482EE91__INCLUDED_
+#ifndef _DLG_OPER_HIS_H
+#define _DLG_OPER_HIS_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// DlgCheck.h : header file
+#include "../resource.h"
+// DlgOperHis.h : header file
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// CDlgCheckPro dialog
+// CDlgOperHis dialog
 
 //##ModelId=49B87BA402DF
-class CDlgCheckPro : public CDialog
+class CSecObj;
+class CDlgOperHis : public CDialog
 {
 // Construction
 public:
 	//##ModelId=49B87BA402E1
-	CDlgCheckPro(CWnd* pParent = NULL, int nType = 1);   // standard constructor
+	CDlgOperHis(CWnd* pParent = NULL, int nType = 1);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CDlgCheckPro)
-	enum { IDD = IDD_CHECK_PRO };
+	//{{AFX_DATA(CDlgOperHis)
+	enum { IDD = IDD_OPER_HIS };
 	//##ModelId=49B87BA402E3
 	CString	m_strModify;
 	CListCtrlEx	m_List;
@@ -31,13 +30,11 @@ public:
 	CString m_sZone;
 	int	m_nType;
 
-	MODIFY_LIST	m_arrModifyList;
-	CTypedPtrArray<CPtrArray, void*> m_arrPTSet;
-
+	CSecObj* m_pObj;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CDlgCheckPro)
+	//{{AFX_VIRTUAL(CDlgOperHis)
 	protected:
 	//##ModelId=49B87BA402E4
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -58,7 +55,7 @@ private:
 protected:
 
 	// Generated message map functions
-	//{{AFX_MSG(CDlgCheckPro)
+	//{{AFX_MSG(CDlgOperHis)
 	virtual BOOL OnInitDialog();
     afx_msg void OnCustomdrawList(NMHDR*, LRESULT*);
 	//}}AFX_MSG

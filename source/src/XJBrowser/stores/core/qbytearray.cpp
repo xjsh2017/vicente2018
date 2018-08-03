@@ -2,14 +2,14 @@
 #include "qbytearray.h"
 
 #include "qbytearraymatcher.h"
-/*
-#include "qtools_p.h"
-#include "qstring.h"
-#include "qlist.h"
-#include "qlocale.h"
-#include "qlocale_p.h"
-#include "qunicodetables_p.h"
-#ifndef QT_NO_DATASTREAM
+
+//#include "qtools_p.h"
+//#include "qstring.h"
+//#include "qlist.h"
+//#include "qlocale.h"
+//#include "qlocale_p.h"
+//#include "qunicodetables_p.h"
+/*#ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
 #endif
 
@@ -19,6 +19,127 @@
 #include <ctype.h>
 #include <limits.h>
 #include <string.h>
+
+namespace qf {
+
+#ifndef LLONG_MAX
+#   define LLONG_MAX Q_INT64_C(0x7fffffffffffffff)
+#endif
+#ifndef LLONG_MIN
+#   define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
+#endif
+#ifndef ULLONG_MAX
+#   define ULLONG_MAX Q_UINT64_C(0xffffffffffffffff)
+#endif
+
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
+{
+    register const char *s;
+    register qulonglong acc;
+    register unsigned char c;
+    register qulonglong qbase, cutoff;
+    register int neg, any, cutlim;
+
+    if (ok != 0)
+        *ok = true;
+
+    /*
+     * Skip white space and pick up leading +/- sign if any.
+     * If base is 0, allow 0x for hex and 0 for octal, else
+     * assume decimal; if base is already 16, allow 0x.
+     */
+    s = nptr;
+    do {
+        c = *s++;
+    } while (isspace(c));
+    if (c == '-') {
+        neg = 1;
+        c = *s++;
+    } else {
+        neg = 0;
+        if (c == '+')
+            c = *s++;
+    }
+    if ((base == 0 || base == 16) &&
+        c == '0' && (*s == 'x' || *s == 'X')) {
+        c = s[1];
+        s += 2;
+        base = 16;
+    }
+    if (base == 0)
+        base = c == '0' ? 8 : 10;
+
+    /*
+     * Compute the cutoff value between legal numbers and illegal
+     * numbers.  That is the largest legal value, divided by the
+     * base.  An input number that is greater than this value, if
+     * followed by a legal input character, is too big.  One that
+     * is equal to this value may be valid or not; the limit
+     * between valid and invalid numbers is then based on the last
+     * digit.  For instance, if the range for quads is
+     * [-9223372036854775808..9223372036854775807] and the input base
+     * is 10, cutoff will be set to 922337203685477580 and cutlim to
+     * either 7 (neg==0) or 8 (neg==1), meaning that if we have
+     * accumulated a value > 922337203685477580, or equal but the
+     * next digit is > 7 (or 8), the number is too big, and we will
+     * return a range error.
+     *
+     * Set any if any `digits' consumed; make it negative to indicate
+     * overflow.
+     */
+    qbase = unsigned(base);
+    cutoff = neg ? qulonglong(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX : LLONG_MAX;
+    cutlim = cutoff % qbase;
+    cutoff /= qbase;
+    for (acc = 0, any = 0;; c = *s++) {
+        if (!isascii(c))
+            break;
+        if (isdigit(c))
+            c -= '0';
+        else if (isalpha(c))
+            c -= isupper(c) ? 'A' - 10 : 'a' - 10;
+        else
+            break;
+        if (c >= base)
+            break;
+        if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
+            any = -1;
+        else {
+            any = 1;
+            acc *= qbase;
+            acc += c;
+        }
+    }
+    if (any < 0) {
+        acc = neg ? LLONG_MIN : LLONG_MAX;
+        if (ok != 0)
+            *ok = false;
+    } else if (neg) {
+        acc = (~acc) + 1;
+    }
+    if (endptr != 0)
+        *endptr = (any ? s - 1 : nptr);
+    return acc;
+}
+
+qlonglong bytearrayToLongLong(const char *num, int base, bool *ok)
+{
+    bool _ok;
+    const char *endptr;
+    qlonglong l = qstrtoll(num, &endptr, base, &_ok);
+	
+    if (!_ok || *endptr != '\0') {
+        if (ok != 0)
+            *ok = false;
+        return 0;
+    }
+	
+    if (ok != 0)
+        *ok = true;
+    return l;
+}
+
+}
 
 int qAllocMore(int alloc, int extra)
 {
@@ -2597,9 +2718,10 @@ qlonglong QByteArray::toLongLong(bool *ok, int base) const
     }
 #endif
 
-	return qlonglong();
+	//return qlonglong();
 
     //return QLocalePrivate::bytearrayToLongLong(constData(), base, ok);
+	return qf::bytearrayToLongLong(constData(), base, ok);
 }
 
 /*!
@@ -2998,7 +3120,10 @@ QByteArray &QByteArray::setNum(double n, char f, int prec)
 QByteArray QByteArray::number(int n, int base)
 {
     QByteArray s;
-    s.setNum(n, base);
+    //s.setNum(n, base);
+	char szLine[10] = {0};
+	sprintf(szLine, "%d", n);
+	s.append(szLine);
     return s;
 }
 
@@ -3010,7 +3135,10 @@ QByteArray QByteArray::number(int n, int base)
 QByteArray QByteArray::number(uint n, int base)
 {
     QByteArray s;
-    s.setNum(n, base);
+    //s.setNum(n, base);
+	char szLine[10] = {0};
+	sprintf(szLine, "%d", n);
+	s.append(szLine);
     return s;
 }
 
@@ -3022,7 +3150,10 @@ QByteArray QByteArray::number(uint n, int base)
 QByteArray QByteArray::number(qlonglong n, int base)
 {
     QByteArray s;
-    s.setNum(n, base);
+    //s.setNum(n, base);
+	char szLine[10] = {0};
+	sprintf(szLine, "%ld", n);
+	s.append(szLine);
     return s;
 }
 
@@ -3034,7 +3165,10 @@ QByteArray QByteArray::number(qlonglong n, int base)
 QByteArray QByteArray::number(qulonglong n, int base)
 {
     QByteArray s;
-    s.setNum(n, base);
+    //s.setNum(n, base);
+	char szLine[10] = {0};
+	sprintf(szLine, "%ld", n);
+	s.append(szLine);
     return s;
 }
 

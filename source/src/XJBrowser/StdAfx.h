@@ -36,6 +36,7 @@
 #import <msxml6.dll>
 #include <afxole.h>
 #pragma warning(disable:4700)
+#pragma warning(disable:4786)
 
 #define DELETE_POINTER(p)	{if (NULL != p) {delete p; p = NULL;}}
 #define DELETE_POINTERS(p)	{if (NULL != p) {delete[] p; p = NULL;}}

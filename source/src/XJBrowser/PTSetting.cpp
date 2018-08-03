@@ -13,6 +13,11 @@
 
 #include "MainFrm.h"
 
+#include "pages/DlgOperHis.h"
+
+#include "stores/XJPTSetStore.h"
+#include "stores/core/qptsetcard.h"
+
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -119,7 +124,8 @@ void CPTSetting::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_PTSET_VERIFY2, m_btnVerify2);
 	DDX_Control(pDX, IDC_BTN_PTSET_VERIFY1, m_btnVerify1);
 	DDX_Control(pDX, IDC_GIF_PTSET, m_gif);
-	DDX_Control(pDX, IDC_BTN_PTSET_MODIFY_VIEWPROG, m_btnPTSModProgView);
+	DDX_Control(pDX, IDC_BTN_PTSET_MODIFY_VIEWPROG, m_btnViewPTSetProg);
+	DDX_Control(pDX, IDC_BTN_PTSET_MODIFY_VIEW_HIS, m_btnViewPTSetHis);
 	DDX_Control(pDX, IDC_BTN_PTSET_ZONE_MODIFY, m_btnModifyZone);
 	DDX_Control(pDX, IDC_BTN_PTSET_STYLE, m_btnStyle);
 	DDX_Control(pDX, IDC_BTN_PTSET_PRINT, m_btnPrint);
@@ -142,7 +148,8 @@ BEGIN_MESSAGE_MAP(CPTSetting, CViewBase)
 	ON_BN_CLICKED(IDC_BTN_PTSET_CALLZONE, OnBtnPtsetCallzone)
 	ON_BN_CLICKED(IDC_BTN_PTSET_MODIFY, OnBtnPtsetModify)
 	ON_BN_CLICKED(IDC_BTN_PTSET_ZONE_MODIFY, OnBtnPtsetZoneModify)
-	ON_BN_CLICKED(IDC_BTN_PTSET_MODIFY_VIEWPROG, OnBtnPTSetModProgView)
+	ON_BN_CLICKED(IDC_BTN_PTSET_MODIFY_VIEWPROG, OnBtnViewPTSetModProg)
+	ON_BN_CLICKED(IDC_BTN_PTSET_MODIFY_VIEW_HIS, OnBtnViewPTSetHis)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_PTSET, OnSelchangeTabPtset)
 	ON_CBN_SELCHANGE(IDC_CMB_PTSET_CPU, OnSelchangeCmbPtsetCpu)
 	ON_CBN_SELCHANGE(IDC_CMB_PTSET_SRC, OnSelchangeCmbPtsetSrc)
@@ -2061,6 +2068,9 @@ void CPTSetting::OnSTTP20016( WPARAM wParam,LPARAM lParam )
 		strMsg.Format("%d,%d,%s,%s", OPER_SUCCESS, XJ_OPER_CALL_SETTING, m_sCPU, m_sZone);
 		
 		pApp->AddNewManOperator(FUNC_QUY_CALLSETTING, m_pObj->m_sID, strMsg, XJ_OPER_CALL_SETTING, OPER_SUCCESS);
+
+		// 保持最新一次定值到 定义表
+		CXJPTSetStore::GetInstance()->SaveRecallToDB(m_sCPU, m_pObj->m_sID, m_arrSetting);
 	}
 	else if(pSttpData->sttp_head.uMsgType >= 2)
 	{
@@ -2155,10 +2165,6 @@ BOOL CPTSetting::LoadDataFromSTTP( STTP_FULL_DATA * sttpData )
 			Value = ComplexExchange(Value);
 			AddSettingValue(id, Value, Index);
 		}
-
-		// 保持最新一次定值到 定义表
-		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-		pApp->SaveNewPTSetToDB(m_sCPU, m_pObj->m_sID, m_arrSetting);
 	}
 	catch (...)
 	{
@@ -3511,18 +3517,12 @@ void CPTSetting::OnBtnPtsetModify2()
 
 					str.Format("用户%s以操作员身份验证成功:修改定值", m_sOperUser);
 					WriteLog(str);
-					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sOperUser, -1, OPER_SUCCESS,m_nOperationNum);
+					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sOperUser, -1, OPER_SUCCESS, m_nOperationNum);
 					
-					str.Format("m_arrModifyList.size = %d", m_arrModifyList.GetSize());
-					//AfxMessageBox(str);
 					// 保存临时修改结果到点表
-					pApp->SaveTempPTSetToDB(m_pObj->m_sID, m_arrModifyList);
+					CXJPTSetStore::GetInstance()->SaveModifyToDB(m_pObj->m_sID, m_arrModifyList);
 					// 操作人员核对后修改状态机
-					PT_ZONE zone;
-					zone.PT_ID = m_pObj->m_sID;
-					zone.code = atoi(m_sZone);
-					zone.cpu = atoi(m_sCPU);
-					pApp->NextPTSetModState(2, zone, m_sOperUser);
+					CXJPTSetStore::GetInstance()->Next(2, atoi(m_sCPU), atoi(m_sZone), m_sOperUser);
 				}
 				else
 				{
@@ -3662,7 +3662,7 @@ BOOL CPTSetting::ExcutePTSet()
 	BOOL bReturn = TRUE;
 
 	if (NULL == m_pObj){
-		m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 		m_nCurrentDetailStatus = 0;
 		return FALSE;
 	}
@@ -3708,7 +3708,7 @@ BOOL CPTSetting::ExcutePTSet()
 
 		pApp->RevertPTSetModState(1);
 		m_nCurrentDetailStatus = 0;
-		m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 
 		bReturn = FALSE;
 	}
@@ -3739,45 +3739,58 @@ BOOL CPTSetting::ExcutePTSet()
 }
 
 /*************************************************************
- 函 数 OnBtnPTSetModProgView()
+ 函 数 OnBtnViewPTSetModProg()
  功能概要：定值修改进度查看
  返 回 值: void
 **************************************************************/
 //##ModelId=49B87B8E0271
-void CPTSetting::OnBtnPTSetModProgView() 
+void CPTSetting::OnBtnViewPTSetModProg() 
 {
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
 	CCJTabCtrlBar &bar = pMainFrame->m_wndGlobalMsgBar;
 	
-	LONG w = 600;
-	LONG h = 220;
+	CRect rcRect;
+	GetWindowRect(&rcRect);
 	
-	BOOL bView = (bar.IsVisible());
-	//pMainFrame->ShowControlBar(&bar, !bView, FALSE);
 	if (m_bAlreadyShowOnce){
-		CRect rcRect2;
-		bar.GetWindowRect(rcRect2);
-		m_pointPTSetModView.x = rcRect2.left;
-		m_pointPTSetModView.y = rcRect2.top;
-		bar.ShowWindow(bView ? SW_HIDE : SW_SHOW);
-		pMainFrame->FloatControlBar(&bar, m_pointPTSetModView, CBRS_ALIGN_LEFT);
-		return;
+		bar.GetWindowRect(rcRect);
+		m_pointPTSetModView.x = rcRect.left - 2;
+		m_pointPTSetModView.y = rcRect.top - 18;
+
+	}else{
+		LONG w = 600;
+		LONG h = 220;
+
+		m_pointPTSetModView.x = rcRect.right - w;
+		m_pointPTSetModView.y = rcRect.bottom - h;
+		m_bAlreadyShowOnce = true;
 	}
 	
-	CRect rcRect;
-	CRect rcRect2;
-	GetWindowRect(&rcRect);
-	bar.GetWindowRect(rcRect2);
-	m_pointPTSetModView.x = rcRect.right - w;
-	m_pointPTSetModView.y = rcRect.bottom - h;
+	bar.ShowWindow(bar.IsVisible() ? SW_HIDE : SW_SHOW);
+	pMainFrame->FloatControlBar(&bar, m_pointPTSetModView, CBRS_ALIGN_LEFT);
+
+	
+	CString str;
+	str.Format("x: %d; y: %d", m_pointPTSetModView.x, m_pointPTSetModView.y);
 	//AfxMessageBox(str);
 
-	bar.ShowWindow(bView ? SW_HIDE : SW_SHOW);
-	pMainFrame->FloatControlBar(&bar, m_pointPTSetModView, CBRS_ALIGN_LEFT);
-	//bar.MoveWindow(point.x, point.y, w, h);
-	m_bAlreadyShowOnce = true;
+}
+
+/*************************************************************
+ 函 数 OnBtnViewPTSetHis()
+ 功能概要：定值修改历史查看
+ 返 回 值: void
+**************************************************************/
+//##ModelId=49B87B8E0271
+void CPTSetting::OnBtnViewPTSetHis() 
+{
+	// TODO: Add your control notification handler code here
+	CDlgOperHis dlg;
+	dlg.m_nType = 1;
+	dlg.m_pObj = m_pObj;
+	dlg.DoModal();
 }
 
 /*************************************************************
@@ -4098,9 +4111,9 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 				AfxMessageBox(StringFromID(IDS_CALL_SENDMSG_FAIL));
 				
 				// 重启定时
-				KillTimer(m_nPTSetModTimer);
+				KillTimer(m_nPTSetTimer);
 				m_nCurrentDetailStatus = 0;
-				m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+				m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 
 				return;
 			}
@@ -4120,8 +4133,8 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 			RevertModifyValue();
 
 			// 重启定时
-			KillTimer(m_nPTSetModTimer);
-			m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+			KillTimer(m_nPTSetTimer);
+			m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 		}*/
 	}
 	else
@@ -4144,8 +4157,8 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 		m_nCurrentDetailStatus = 0;
 
 		// 重启定时
-		KillTimer(m_nPTSetModTimer);
-		m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+		KillTimer(m_nPTSetTimer);
+		m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 	}
 
 	m_bChecking = FALSE;
@@ -4316,9 +4329,8 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		m_btnModifySetting.EnableWindow(FALSE);
 		m_btnModifyZone.EnableWindow(FALSE);
 
-		// 保持最新一次定值到 定义表
-		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-		pApp->SaveNewPTSetToDB(m_sCPU, m_pObj->m_sID, m_arrSetting);
+		// 保持修改后的一次定值到 定义表
+		CXJPTSetStore::GetInstance()->SaveRecallToDB(m_sCPU, m_pObj->m_sID, m_arrSetting);
 	}
 	else
 	{
@@ -4334,7 +4346,7 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		m_nCurrentDetailStatus = 0;
 	}
 
-	m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+	m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 }
 
 /*************************************************************
@@ -5235,8 +5247,22 @@ void CPTSetting::OnPTFrameOpen( WPARAM wParam, LPARAM lParam )
 		m_btnModifyZone.ShowWindow(SW_HIDE);
 	}
 
-	//m_nTimer11 = SetTimer(201, 3*1000, NULL);
-	m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+	m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
+	
+	CRect rcRect;
+	m_btnVerify2.GetWindowRect(rcRect);
+	ScreenToClient(&rcRect);
+
+	m_btnViewPTSetHis.ShowWindow(SW_SHOW);
+	GetDlgItem(IDC_BTN_PTSET_MODIFY_VIEW_HIS)->SetWindowPos(NULL
+		, rcRect.left, rcRect.top, rcRect.Width(), rcRect.Height()
+		,SWP_NOZORDER/* | SWP_NOSIZE*/ );
+
+	m_btnVerify1.GetWindowRect(rcRect);
+	ScreenToClient(&rcRect);
+	GetDlgItem(IDC_BTN_PTSET_MODIFY_VIEWPROG)->SetWindowPos(NULL
+		, rcRect.left, rcRect.top, rcRect.Width(), rcRect.Height()
+		,SWP_NOZORDER/* | SWP_NOSIZE*/ );
 
 	//m_List.ShowWindow(false);
 	//m_ListZone.ShowWindow(true);
@@ -6062,100 +6088,81 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		//回复修改前的值
 		RevertModifyValue(2);
 		AfxMessageBox(str);
-	}else if (nIDEvent == m_nTimer11){
-		//关闭定时器
-// 		KillTimer(m_nTimer11);
-// 
-// 		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
-// 		int nCurPTSetModState = pApp->GetPTSetModState(PT_ZONE(), CString());
-// 		
-// 		BOOL bShow = (0 != nCurPTSetModState && 5 == m_pObj->m_nRunStatu);
-// 		m_btnPTSModProgView.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
-// 		
-// 		// 启动定时器
-// 		m_nTimer11 = SetTimer(201, 3*1000, NULL);
-	}else if (nIDEvent == m_nPTSetModTimer){
-		KillTimer(m_nPTSetModTimer);
+	}
+	
+	if (nIDEvent == m_nPTSetTimer){
+		KillTimer(m_nPTSetTimer);
 		
 		CString str;
-		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
-		PT_ZONE zone;
-		CString sFlag = _T("-2");
-		CString sRecords;
-		int nDZModState = pApp->GetPTSetModState(zone, sRecords, sFlag);
-		CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
-		CString sOperUserID = pApp->GetUserIDByState(2, sRecords);
+		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
 
-		if (nDZModState != 0 && zone.PT_ID == m_pObj->m_sID){
-			m_pObj->m_nRunStatu = 5;
-		}
+		CXJPTSetStore *store = CXJPTSetStore::GetInstance();
+		QPTSetCard &card = *(store->GetCard());
+		QLogTable &log = *(store->GetLog());
 		
-		BOOL bShow = FALSE;
+		int nPTSetState = card.GetStateID();
+
+		CString sRunnerUserID = log.GetFiled(1, 2).constData();
+		CString sOperUserID = log.GetFiled(2, 2).constData();
 		
-		// 所有用户都可以查看挂牌进度
-		bShow = (nDZModState != 0 && zone.PT_ID == m_pObj->m_sID);
-		m_btnPTSModProgView.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
-
-		// 操作员和超级用户，开放权限： 定值（区）修改
-		bShow = ((5 == m_pObj->m_nRunStatu) && (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
-				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)));
-		m_btnModifySetting.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
-		m_btnModifyZone.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
-		/*if (5 == m_pObj->m_nRunStatu){
-			// 操作员和超级用户，开放权限： 定值（区）修改
-			BOOL bShow = (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
-				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER));
-			{
-				m_btnModifySetting.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
-				m_btnModifyZone.ShowWindow(bShow ? SW_SHOW : SW_HIDE);
-			}
-		}*/
-
 		// 控制按钮是否可用： 定值（区）修改
-		BOOL bEnable = FALSE;
-		if (1 == nDZModState && (sOperUserID.IsEmpty() || !sOperUserID.IsEmpty() && pApp->m_User.m_strUSER_ID == sOperUserID))
-			bEnable = TRUE;
-		else
-			bEnable = FALSE;
-		m_btnModifySetting.EnableWindow(bEnable);
-		m_btnModifyZone.EnableWindow(bEnable);
+		if (1 == nPTSetState && (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){
+			m_btnModifySetting.EnableWindow(TRUE);
+			m_btnModifyZone.EnableWindow(TRUE);
+		}else{
+			m_btnModifySetting.EnableWindow(FALSE);
+			m_btnModifyZone.EnableWindow(FALSE);
+		}
+
+		if (nPTSetState != 0 && CString(card.GetPTID().constData()) == m_pObj->m_sID){
+			m_pObj->m_nRunStatu = 5;
+			
+			// 所有用户都可以对挂牌装置查看挂牌进度
+			m_btnViewPTSetProg.ShowWindow(SW_SHOW);
+			
+			// 操作员和超级用户，开放定值（区）修改权限
+			if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
+				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)){
+				m_btnModifySetting.ShowWindow(SW_SHOW);
+				m_btnModifyZone.ShowWindow(SW_SHOW);
+			}
+		}else{
+			m_btnViewPTSetProg.ShowWindow(SW_HIDE);
+			m_btnModifySetting.ShowWindow(SW_HIDE);
+			m_btnModifyZone.ShowWindow(SW_HIDE);
+		}
 
 		if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
-			if (4 == nDZModState && 0 == m_nCurrentDetailStatus){	
+			if (4 == nPTSetState && 0 == m_nCurrentDetailStatus){	
 				m_nCurrentDetailStatus = 1;
 
-				AfxMessageBox("运行人员已验证定值单内容，定值修改内容将下发到子站，单击确定将执行定值修改"
+				AfxMessageBox("运行人员已验证定值单内容，定值修改内容将下发到子站，单击<确定>将执行定值修改"
 					, MB_OK|MB_ICONINFORMATION);
 
-				nDZModState = pApp->GetPTSetModState(PT_ZONE());
-				if (0 == nDZModState){
-					AfxMessageBox("运行人员已经取消了定值修改，装置已经取消了挂牌！");
+				store->ReLoad();
+				nPTSetState = card.GetStateID();
+				if (0 == nPTSetState){
+					AfxMessageBox("运行人员已经取消了相应装置的挂牌，此次定值修改取消！");
 					RevertModifyValue();
+					store->RevertModify();
 					m_nCurrentDetailStatus = 0;
 				}else{
 					pApp->SetRevertModifyValueFlag(2);	// 不允许此时取消挂牌操作
 					ExcutePTSet();
 				}
 			}
-
-			if (sFlag == _T("1")){
-				RevertModifyValue();
-				pApp->SetRevertModifyValueFlag(0);
-			}
 		}
-
-		if (5 == m_pObj->m_nRunStatu){
-			
-			if (sFlag == _T("1")){
-				RevertModifyValue();
-				pApp->SetRevertModifyValueFlag(0);
-			}
-
+		
+		if (card.GetFlags() == 1 && CString(card.GetPTID().constData()) == m_pObj->m_sID){
+			RevertModifyValue();
+			store->GetCard()->SetFlags(0);
+			store->Save();
 		}
 		
 		// 启用定时器
-		m_nPTSetModTimer = SetTimer(202, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(202, 3*1000, NULL);
 	}
+
 	if(nIDEvent == m_nRecordTimer)
 	{
 		//改变持续时间显示

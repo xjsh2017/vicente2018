@@ -136,7 +136,10 @@ public:
 	CDialogBar m_wndDialogBar;
 	int      m_oper;
 	int	m_nIdleTimer;
-	int		m_nMsgTimer;
+	int		m_nMsgTimer;	
+	
+	/** @brief			线程退出标志*/
+	BOOL m_bThreadExit;
 	
 private:
 	/** @brief           事件属性窗口指针*/
@@ -149,6 +152,7 @@ private:
 	int       m_TitleDrawHeight;   //标题栏实际的绘制高度
 	CRect m_TitleRc;
 	HBITMAP createBitmap;
+	CWinThread*	m_pThread;
 // Operations
 public:
 /*
@@ -218,6 +222,8 @@ private:
 	BOOL ReportStationInitResult(CString sStationID, int nInitType, int nResult);
 	
 	void DoPtsetVerify0();
+	void StartThread();
+	void EndThread();
 
 // Overrides
 	// ClassWizard generated virtual function overrides

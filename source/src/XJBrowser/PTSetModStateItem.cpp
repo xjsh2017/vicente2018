@@ -152,8 +152,10 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 	CRect rcContent = m_rcBound;
 	rcContent.left = rcTypeName.left+m_nTypeNameWidth;
 
-	pDC->DrawText(m_sContent, 
-		&rcContent, DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+	if (m_nIndex != 999)
+		pDC->DrawText(m_sContent, &rcContent, DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+	else
+		pDC->DrawText(m_sContent, &rcContent, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
 }
 
 void CPTSetModStateItem::SetCurIndex(int nIndex)

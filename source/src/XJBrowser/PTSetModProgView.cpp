@@ -6,6 +6,9 @@
 #include "PTSetModProgView.h"
 #include "PTSetModStateItem.h"
 
+#include "stores/XJPTSetStore.h"
+#include "stores/core/qptsetcard.h"
+
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -281,41 +284,31 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 		//关闭定时器
 		//KillTimer(m_nTimer);
 		
-		PT_ZONE zone;
-		CString sRecords;
-		int nCurState = pApp->GetPTSetModState(zone, sRecords);
-		if (nCurState < 0 || zone.PT_ID.IsEmpty())
+		CXJPTSetStore *store = CXJPTSetStore::GetInstance();
+		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
+		QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
+		
+		int nCurState = card.GetStateID();
+		if (nCurState < 0 || card.GetPTID().isEmpty())
 			return;
 		
-		CString c_dz_mod_state[] = {
-				StringFromID(IDS_DZ_MOD_STATE_1),
-				StringFromID(IDS_DZ_MOD_STATE_2),
-				StringFromID(IDS_DZ_MOD_STATE_3),
-				StringFromID(IDS_DZ_MOD_STATE_4),
-				StringFromID(IDS_DZ_MOD_STATE_5)
-				//, StringFromID(IDS_DZ_MOD_STATE_0)
-		};
-
 		int i;
 		for (i = 0; i < _countof(m_pItems); i++){
 			if (m_pItems[i] && nCurState > 0){
 				m_pItems[i]->SetCurIndex(nCurState - 1);
 			}
 		}
-
-		str.Format("nCurState = %d", nCurState);
-		//AfxMessageBox(str);
 		
-		if (sRecords.IsEmpty())
+		if (log.isEmpty())
 			return;
 		
-		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(zone.PT_ID, TYPE_SEC);
+		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
 		if (NULL == pObj)
 			return;
 
 		if (m_pHeadItem){
 			if (pObj->m_pStation){
-				str.Format("  [%s]%s", pObj->m_pStation->m_sName, pObj->m_sName);
+				str.Format(" [ %s ][ %s ]", pObj->m_pStation->m_sName, pObj->m_sName);
 			}else
 				str.Format("  %s", pObj->m_sName);
 
@@ -324,22 +317,16 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 
 		KillTimer(m_nTimer);
 
-		vector<CString> arrRecords = pApp->SplitCString(sRecords, ';');
-		int nCount = arrRecords.size();
+		int nCount = log.GetRecordCount();
 		int nRows = _countof(m_pItems);
-		str.Format("records = %s, nCount = %d, rows = %d", sRecords, nCount, nRows);
-		//AfxMessageBox(str);
 		for (i = 0; i < nRows; i++){
 			CString sContent;
 			if (i > nCount - 1){
 				sContent = "";
 			}else{
-				vector<CString> arrItems = pApp->SplitCString(arrRecords[i], ',');
-
-				if (arrItems.size() != 3)
-					continue;
-				sContent.Format(" 执行时间：[%s]：执行用户：[%s]", arrItems[0], arrItems[1]);
-				//CPTSetModStateContent * pRC = new CPTSetModStateContent(c_dz_mod_state[i], sContent);
+				sContent.Format(" 执行时间：[ %s ]：执行用户：[ %s ]"
+					, log.GetFiled(i + 1, 1).constData()
+					, log.GetFiled(i + 1, 2).constData());
 			}
 
 			if (m_pItems[i]){

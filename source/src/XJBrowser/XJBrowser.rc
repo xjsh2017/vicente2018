@@ -1148,7 +1148,7 @@ BEGIN
                     ES_READONLY
     PUSHBUTTON      "投入运行",IDC_BTN_PTSET_ZONE_RUN,362,92,58,18,NOT 
                     WS_VISIBLE
-    PUSHBUTTON      "操作员验证",IDC_BTN_PTSET_VERIFY1,235,25,58,18,NOT 
+    PUSHBUTTON      "操作员验证",IDC_BTN_PTSET_VERIFY1,236,25,58,18,NOT 
                     WS_VISIBLE
     PUSHBUTTON      "监护人验证",IDC_BTN_PTSET_VERIFY2,296,25,58,18,NOT 
                     WS_VISIBLE
@@ -1157,7 +1157,9 @@ BEGIN
     CTEXT           "\n提示\n\n-----------------------------------\n\n数据载入中，请稍候!\n\n您可以先查看其它信息.\n\n载入完成后此提示框将自动消失\n\n",
                     IDC_STATIC_PTSETTING_LOADING,221,125,145,94,WS_BORDER
     PUSHBUTTON      "导出",IDC_BTN_PTSET_EXCEL,486,27,58,18
-    PUSHBUTTON      "定值修改进度",IDC_BTN_PTSET_MODIFY_VIEWPROG,235,25,58,
+    PUSHBUTTON      "定值修改进度",IDC_BTN_PTSET_MODIFY_VIEWPROG,391,127,58,
+                    18,NOT WS_VISIBLE
+    PUSHBUTTON      "查看操作历史",IDC_BTN_PTSET_MODIFY_VIEW_HIS,452,127,58,
                     18,NOT WS_VISIBLE
 END
 
@@ -2454,6 +2456,21 @@ BEGIN
                     LVS_SINGLESEL | WS_BORDER | WS_TABSTOP,7,30,345,145
 END
 
+IDD_OPER_HIS DIALOG DISCARDABLE  0, 0, 358, 221
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "操作历史记录"
+FONT 9, "宋体"
+BEGIN
+    PUSHBUTTON      "关闭",IDCANCEL,302,196,50,18,NOT WS_VISIBLE
+    LTEXT           "装置：",IDC_STATIC_DESC,7,7,347,18
+    EDITTEXT        IDC_EDIT_CHECK,128,65,93,47,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_HSCROLL
+    LTEXT           "是否同意以上修改:",IDC_STATIC,7,180,79,8,NOT WS_VISIBLE
+    CONTROL         "List1",IDC_LIST_PTSET,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | WS_BORDER | WS_TABSTOP,7,30,345,184
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -3168,6 +3185,14 @@ BEGIN
     END
 
     IDD_CHECK_PRO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 352
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+
+    IDD_OPER_HIS, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 352
@@ -4465,7 +4490,7 @@ BEGIN
     IDS_PTS_MOD_PROGRESS    "定值修改进度"
     IDS_WINDOW_MSG          "定值修改监视窗口"
     IDS_FUNC_HANGOUTSTATUS  "挂牌状态"
-    IDS_HANGOUT_STATUS      "挂牌"
+    IDS_HANGOUT_STATUS      "状态"
     IDS_HANGOUTING_STATUS   "挂牌中"
     IDS_HANGOUTNONE_STATUS  "未挂牌"
     IDS_VALIDATE_USERALREADYLOGIN_ERROR "用户已登录！"

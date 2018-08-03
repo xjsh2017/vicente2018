@@ -162,6 +162,7 @@
 #define IDD_PT_NOTE                     342
 #define IDD_DLG_PTNOTE                  343
 #define IDD_CHECK_PRO                   344
+#define IDD_OPER_HIS                    345
 #define IDC_BUTTON1                     1000
 #define IDC_BTN_FAULT_QUERY             1000
 #define IDC_BTN_PTOSC_RF                1000
@@ -742,6 +743,7 @@
 #define IDC_LIST_NOTES                  1423
 #define IDC_EDIT_CONTENT                1425
 #define IDC_BTN_PTSET_MODIFY_VIEWPROG   1426
+#define IDC_BTN_PTSET_MODIFY_VIEW_HIS   1427
 #define IDC_STATIC_DESC                 1428
 #define IDC_BTN_RUN_HANGOUT_COLOR       1429
 #define IDB_TREELIST_BITMAP             8000
@@ -1682,7 +1684,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        347
 #define _APS_NEXT_COMMAND_VALUE         32982
-#define _APS_NEXT_CONTROL_VALUE         1430
+#define _APS_NEXT_CONTROL_VALUE         1431
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

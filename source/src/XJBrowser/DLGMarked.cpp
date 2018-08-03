@@ -5,6 +5,10 @@
 #include "xjbrowser.h"
 #include "DLGMarked.h"
 #include "MainFrm.h"
+
+#include "stores/XJPTSetStore.h"
+#include "stores/core/qptsetcard.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -58,6 +62,31 @@ void DLGMarked::OnBtnMark()
 	//更新数据库的挂牌表
 	if (InsertDBMark())
 	{
+		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
+		CXJPTSetStore *store = CXJPTSetStore::GetInstance();
+		//store->ReLoad();
+		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
+		QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
+
+		card.SetType(0);
+		card.SetStateID(1);
+		card.SetPTID(m_pObj->m_sID.GetBuffer(0));
+		card.SetCPUID(0);
+		card.SetZoneID(0);
+		card.SetFlags(0);
+		
+		char szLog[256] = {0};
+		QByteArray curTime = GetTime();
+		CString sUserID = pApp->m_User.m_strUSER_ID;
+		sprintf(szLog, "%s,%s,%d"
+			, curTime.constData()
+			, sUserID.GetBuffer(0)
+			, 1);
+		log.FRead(szLog);
+		store->Save();
+
+		CXJPTSetStore::GetInstance()->AddNewManOperator(1, curTime.constData(), sUserID);
+
 		AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
 		SetDeviceState();
 	}else{
@@ -72,15 +101,18 @@ void DLGMarked::OnBtnUnmark()
 	m_bMark = FALSE;
 
 	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
-	PT_ZONE zone;
-	CString sRecords;
-	CString sFlag;
-	int nState = pApp->GetPTSetModState(zone, sRecords, sFlag);
-	CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
+	CXJPTSetStore *store = CXJPTSetStore::GetInstance();
+	store->ReLoad();
+	QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
+	QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
+	CString sRunnerUserID = log.GetFiled(1, 2).constData();
+	int nFlag = card.GetFlags();
+	
+	int nState = card.GetStateID();
 
-	if (0 == nState){
+	if (0 == nState || CString(card.GetPTID().constData()) != m_pObj->m_sID){
 		CString str;
-		str.Format("该装置未挂牌！", sRunnerUserID);
+		str.Format("该装置未挂牌！");
 		AfxMessageBox(str);
 		
 		return;
@@ -97,7 +129,7 @@ void DLGMarked::OnBtnUnmark()
 	if (4 == nState){
 		CString str;
 
-		if (sFlag == "2"){ 
+		if (nFlag == 2){ 
 			str.Format("该装置：操作员正在下发定值修改，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
 			AfxMessageBox(str, MB_OK | MB_ICONWARNING);
 
@@ -117,45 +149,56 @@ void DLGMarked::OnBtnUnmark()
 	//更新数据库的挂牌表
 	if (InsertDBMark())
 	{
+		card.SetType(0);
+		card.SetStateID(0);
+		card.SetCPUID(0);
+		card.SetZoneID(0);
+		card.SetFlags(1);	// 通知相应操作员的界面恢复原值
+		store->RevertModify();	// 数据库恢复原值
+		store->Save();
+
+
+		QByteArray curTime = GetTime();
+		CString sUserID = pApp->m_User.m_strUSER_ID;
+		CXJPTSetStore::GetInstance()->AddNewManOperator(0, curTime.constData(), sUserID);
+
 		AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
 		SetDeviceState();
-		
 	}
 }
 
 BOOL DLGMarked::CheckMarkedDeviceFromState()
 {
 	BOOL bReturn = TRUE;
+
     CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 
-	CString str;
-	PT_ZONE zone;
-	CString sRecords;
-	CSecObj *pObj = NULL;
+	CXJPTSetStore *store = CXJPTSetStore::GetInstance();
+	store->ReLoad();
+	QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
+	QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
 
-	int nCurPTSetModSate = pApp->GetPTSetModState(zone, sRecords);
-	if (0 == nCurPTSetModSate)
+	int nState = card.GetStateID();
+
+	if (0 == nState)
 		return FALSE;
 
-	pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(zone.PT_ID, TYPE_SEC);
+	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
 	if (NULL == pObj)
 		return FALSE;
 
-	CString sUserID;
-	CString sTime;
-	vector<CString> v = pApp->SplitCString(sRecords, ";");
-	if (v.size() > 0){
-		vector<CString> v2 = pApp->SplitCString(v[0], ",");
-		sUserID = v2[1];
-		sTime = v2[0];
-	}
+	CString str;
 
-	str.Format("您当前存在未完成定值修改的保护装置： \n\n挂牌装置：[%s] %s \n\n挂牌时间：%s \n\n执行用户：%s"
+	if (pObj == m_pObj){
+		str.Format("装置已挂牌！");
+	}else{
+		str.Format("当前已存在挂牌的保护装置： \n\n挂牌装置：[ %s ] [ %s ] \n\n挂牌时间：%s \n\n执行用户：%s"
 			, pObj->m_pStation ? pObj->m_pStation->m_sName : ""
 			, pObj->m_sName
-			, sTime
-			, sUserID);
-	AfxMessageBox(str, MB_ICONINFORMATION);
+			, log.GetFiled(1, 1).constData()
+			, log.GetFiled(1, 2).constData());
+	}
+	AfxMessageBox(str, MB_ICONWARNING);
 
 	return bReturn;
 }
@@ -361,7 +404,7 @@ BOOL DLGMarked::InsertDBMark()
 		}
 	}
 	
-	//更新挂牌状态表
+	//更新装置设备表
 	//组建查询条件
 	SQL_DATA sql;
 	sql.Conditionlist.clear();
@@ -420,19 +463,11 @@ BOOL DLGMarked::InsertDBMark()
 	delete[] sError;
 	sError = NULL;
 	
-	PT_ZONE zone;
-	pApp->GetPTSetModState(zone, CString());
-	zone.PT_ID = m_pObj->m_sID;
-	if (!m_bMark){
-		pApp->RevertTempPTSetToDB(zone);
-	}
 
-	if (m_bMark){
-		zone.cpu = 0;
-		zone.code = 0;
-	}
 
-	pApp->NextPTSetModState(m_bMark ? 1 : 0, zone, pApp->m_User.m_strUSER_ID);
+	//store->Next(1, pApp->m_User.m_strUSER_ID);
+
+	//pApp->NextPTSetModState(m_bMark ? 1 : 0, zone, pApp->m_User.m_strUSER_ID);
 	
  	return bReturn;
 }

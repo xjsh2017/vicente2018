@@ -31,7 +31,8 @@ public:
 	CButtonST	m_btnVerify2;
 	CButtonST	m_btnVerify1;
 	CPictureEx			m_gif;
-	CButton	m_btnPTSModProgView;
+	CButton	m_btnViewPTSetProg;
+	CButton	m_btnViewPTSetHis;
 	CButton	m_btnModifyZone;
 	CButton	m_btnStyle;
 	CXPStyleButtonST	m_btnPrint;
@@ -111,10 +112,8 @@ private:
 	int			m_nRecordTimer;
 	/** @brief           操作用时*/
 	int			m_nOPTime;
-	/** @brief           定值修改用时*/
-	int			m_nPTSetModTimer;
-	/** @brief           定时*/
-	int			m_nTimer11;
+	/** @brief           定值（区）修改、软压板修改定时*/
+	int			m_nPTSetTimer;
 	/** @brief           是否能按组显示*/
 	//##ModelId=49B87B8B03C8
 	BOOL		m_bCanGroup;
@@ -613,7 +612,8 @@ protected:
 	afx_msg void OnBtnPtsetCallzone();
 	afx_msg void OnBtnPtsetModify();
 	afx_msg void OnBtnPtsetZoneModify();
-	afx_msg void OnBtnPTSetModProgView();
+	afx_msg void OnBtnViewPTSetModProg();
+	afx_msg void OnBtnViewPTSetHis();
 	afx_msg void OnSelchangeTabPtset(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnSelchangeCmbPtsetCpu();
 	afx_msg void OnSelchangeCmbPtsetSrc();

@@ -49,6 +49,11 @@
 #include "DlgCheckPro.h"
 #include "DlgValidateID.h"
 
+#include "stores/XJPTSetStore.h"
+#include "stores/core/qptsetcard.h"
+
+
+#define PTSET_REFRESHTIME	3000
 
 UINT CreateGeoThread(LPVOID pParam)
 {
@@ -61,6 +66,42 @@ UINT CreateGeoThread(LPVOID pParam)
 	return 0;
 }
 
+UINT RefreshPTSetState(LPVOID pParam)
+{
+	if(!pParam)
+	{
+		WriteLog("启动定值修改状态机刷新线程失败!", XJ_LOG_LV3);
+		return -1;
+	}
+	WriteLog("启动定值修改状态机刷新线程成功!", XJ_LOG_LV3);
+
+	CMainFrame * pFrame = (CMainFrame*)pParam;
+	while(1)
+	{
+		if(pFrame->m_bThreadExit)
+			break;
+		int ntemptime = 0;
+		while( ntemptime < PTSET_REFRESHTIME )
+		{
+			Sleep(10);
+			ntemptime+=10;
+			if(pFrame->m_bThreadExit)
+				break;
+		}
+		if(pFrame->m_bThreadExit)
+			break;
+
+		CXJPTSetStore *p = CXJPTSetStore::GetInstance();
+		p->ReLoad();
+
+		//pView->UpdateAllObj();
+		//pView->PostMessage(THREAD_FILL_DATA, 0, 0);
+	}
+
+	WriteLog("退出定值修改状态机刷新线程成功!", XJ_LOG_LV3);
+
+	return 0;
+}
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -283,6 +324,8 @@ CMainFrame::CMainFrame()
 	pTempDoc = NULL;
 	::InitializeCriticalSection(&m_criSection);
 	m_oper = 0;
+	m_pThread = NULL;
+	m_bThreadExit = FALSE;
 
 	m_nIdleTimer = -1;
 }
@@ -290,6 +333,8 @@ CMainFrame::CMainFrame()
 //##ModelId=49B87B9702FD
 CMainFrame::~CMainFrame()
 {
+	EndThread();
+
 	if(m_pDlgEventProp != NULL)
 		delete m_pDlgEventProp;
 	TRACE("CMainFrame::~CMainFrame \n");
@@ -572,7 +617,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 设置寻找标记 
 	::SetProp(m_hWnd, "XJBrowser", (HANDLE)1); 
 
+	// 启动定值修改状态机刷新线程
 	m_nMsgTimer = SetTimer(201, 3*1000, NULL);
+	StartThread();
 	
 	//	DrawMenuBar();
 	/*
@@ -3122,32 +3169,69 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		}
 	}
 	if (nIDEvent == m_nMsgTimer){
+		CXJPTSetStore *p = CXJPTSetStore::GetInstance();
+		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(p->GetCard()));
+		QLogTable &log = *(reinterpret_cast<QLogTable *>(p->GetLog()));
+		
 		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
-			PT_ZONE zone;
-			CString sRecords;
-			int nCurPTSetModState = pApp->GetPTSetModState(zone, sRecords);
-			CString sRunnerUserID = pApp->GetUserIDByState(1, sRecords);
+			
+			int nCurPTSetModState = card.GetStateID();
+			CString sRunnerUserID = log.GetFiled(1, 2).data();
 			// 运行人员或者超级用户
 			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
-			if (3 == nCurPTSetModState){
-				KillTimer(m_nMsgTimer);
-				DoPtsetVerify0();
-				m_oper = 0;
-			}else if (5 == nCurPTSetModState && 0 == m_oper){
-				KillTimer(m_nMsgTimer);
-				AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
-				m_oper = 1;
-				m_nMsgTimer = SetTimer(201, 3*1000, NULL);
-			}
+				if (3 == nCurPTSetModState){
+					KillTimer(m_nMsgTimer);
+					DoPtsetVerify0();
+					m_oper = 0;
+				}else if (5 == nCurPTSetModState && 0 == m_oper){
+					KillTimer(m_nMsgTimer);
+					AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
+					m_oper = 1;
+					m_nMsgTimer = SetTimer(201, 3*1000, NULL);
+				}
 		}
-		
-		//m_wndGlobalMsgBar.GetDockingFrame()->ShowControlBar(&m_wndGlobalMsgBar,0 != nCurPTSetModState ? TRUE : FALSE,FALSE);
-		//m_wndGlobalMsgBar.EnableDocking(FALSE);
 	}
 
 	CMDIFrameWnd::OnTimer(nIDEvent);
+}
+
+void CMainFrame::StartThread()
+{
+	if (m_pThread == NULL)
+	{
+		m_bThreadExit = FALSE;
+		//启动清理二次设备配置线程
+		m_pThread = AfxBeginThread(RefreshPTSetState, this, THREAD_PRIORITY_BELOW_NORMAL, 0, CREATE_SUSPENDED);
+		if(m_pThread != NULL)
+		{
+			m_pThread->m_bAutoDelete = FALSE;
+			m_pThread->ResumeThread();
+		}
+	}
+}
+
+void CMainFrame::EndThread()
+{
+	if(m_pThread != NULL)
+	{
+		WriteLog("开始退出定值修改状态机刷新线程", XJ_LOG_LV3);
+		//线程还没退出去
+		m_bThreadExit = TRUE;	//设置退出标志
+		DWORD dw = WaitForSingleObject(m_pThread->m_hThread, INFINITE);
+		switch(dw)
+		{
+		case WAIT_TIMEOUT:
+		case WAIT_FAILED:
+			TerminateThread(m_pThread->m_hThread,NULL);
+			WriteLog("定值修改状态机刷新线程无法正常退出,强制结束", XJ_LOG_LV3);
+			break;
+		}
+		delete m_pThread;
+		m_pThread = NULL;
+		WriteLog("退出定值修改状态机刷新线程完毕", XJ_LOG_LV3);
+	}
 }
 
 void CMainFrame::DoPtsetVerify0() 

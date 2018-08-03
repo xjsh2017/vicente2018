@@ -4,11 +4,43 @@
 #include "stdafx.h"
 #include "qptsetcard.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+#include <time.h> 
+
+QByteArray GetTime(int nType)
+{
+	time_t tt = time(NULL);
+	struct tm *local;  
+	local=localtime(&tt);  //获取当前系统时间  
+	
+	char szLine[256] = {0};
+	char *pxq[]={"日","一","二","三","四","五","六"};
+
+	if (nType == 0){
+		sprintf(szLine, "%4d-%02d-%02d %02d:%02d:%02d"
+			, local->tm_year + 1900
+			, local->tm_mon + 1
+			, local->tm_mday
+			, local->tm_hour
+			, local->tm_min
+			, local->tm_sec);
+	}else if (1 == nType){
+		sprintf(szLine, "%4d-%02d-%02d"
+			, local->tm_year + 1900
+			, local->tm_mon + 1
+			, local->tm_mday);
+	}else{
+		sprintf(szLine, "%4d-%02d-%02d %02d:%02d:%02d 星期%s"
+			, local->tm_year + 1900
+			, local->tm_mon + 1
+			, local->tm_mday
+			, local->tm_hour
+			, local->tm_min
+			, local->tm_sec
+			, pxq[local->tm_wday]);
+	}
+
+	return QByteArray(szLine);
+}
 
 void CPTSetCard::reset() 
 {
@@ -36,7 +68,12 @@ int CPTSetCard::FRead(char *pszLine, size_t s)
 
 const char* CPTSetCard::GetValue() const 
 { 
-	return m_szType; 
+	return (char*)&m_szType; 
+}
+
+const char* CPTSetCard::data() const 
+{ 
+	return (char*)&m_szType; 
 }
 
 int CPTSetCard::GetType() const
@@ -311,105 +348,297 @@ void CLogCard::Print()
 	cout << endl;
 }
 
-CMemTable::CMemTable()
-	: m_delim_row(';'), m_delim_col(',')
+
+/////////////////////////////////////////////////////////////
+// QMatrixByteArray
+//
+QMatrixByteArray::QMatrixByteArray()
+	: m_delim_row(";"), m_delim_col(",")
 {
 
 }
 
-CMemTable::CMemTable(const char *pszIn)
-	: QByteArray(pszIn), m_delim_row(';'), m_delim_col(',')
+QMatrixByteArray::QMatrixByteArray(const char *pszIn)
+	: QByteArray(pszIn), m_delim_row(";"), m_delim_col(",")
 {
 
 }
 
-CMemTable::CMemTable(const char *pszIn, const char *delim_row, const char *delim_col)
-	: QByteArray(pszIn), m_delim_row(*delim_row), m_delim_col(*delim_col)
+QMatrixByteArray::QMatrixByteArray(const char *pszIn, const char *delim_row, const char *delim_col)
+	: QByteArray(pszIn), m_delim_row(delim_row), m_delim_col(delim_col)
 {
 
 }
 
-int CMemTable::GetRecordCount()
-{
-	return GetRows();
-}
-
-int CMemTable::GetRows()
+int QMatrixByteArray::GetRows()
 {
 	return this->count(m_delim_row) + 1;
 }
 
-int CMemTable::GetFieldCount()
+int QMatrixByteArray::GetCols()
 {
-	return GetCols();
-}
+	if (isEmpty())
+		return 1;
 
-int CMemTable::GetCols()
-{
 	int index = this->indexOf(m_delim_row);
+	if (index == -1)
+		index = count() - 1;
 	return this->left(index).count(m_delim_col) + 1;
 }
 
-QByteArray	CMemTable::GetRecord(int iRow)
+QMatrixByteArray QMatrixByteArray::GetRow(int iRow)
+{
+	QByteArray row_data = GetRowData(iRow);
+
+	return QMatrixByteArray(row_data.constData(), m_delim_row.constData(), m_delim_col.constData());
+}
+
+QByteArray	QMatrixByteArray::GetRowData(int iRow)
 {
 	int from = 0;
 	int end = 0;
-
-	int rows = GetRecordCount();
+	
+	int rows = GetRows();
 	
 	if (iRow < 1 || iRow > rows)
 		return QByteArray();
-
+	
 	for (int i = 1; i <= iRow; i++){
 		end = indexOf(m_delim_row, from);
-
+		
 		if (i != iRow)
 			from = end + 1;
 	}
-
-	if (iRow == this->GetRecordCount()){
+	
+	if (iRow == rows){
 		from = lastIndexOf(m_delim_row) + 1;
 		end = this->count();
 	}
-
+	
 	if (end < from)
 		return QByteArray();
-
+	
 	return this->mid(from, end - from);
 }
 
 
-QByteArray	CMemTable::GetFiled(int iRow, int iCol)
+QByteArray	QMatrixByteArray::GetFiled(int iRow, int iCol)
 {
-	int from = 0;
-	int end = 0;
+	m_from = 0;
+	m_end = 0;
 	
-	int rows = GetRecordCount();
-	int cols = GetFieldCount();
+	int rows = GetRows();
+	int cols = GetCols();
 
 	if (iRow < 1 || iCol < 1 || iRow > rows || iCol > cols)
 		return QByteArray();
 
-	QByteArray record = GetRecord(iRow);
+	QByteArray record = GetRowData(iRow);
 	for (int i = 1; i <= iCol; i++){
-		end = record.indexOf(m_delim_col,from);
+		m_end = record.indexOf(m_delim_col, m_from);
 		
 		if (i != iCol)
-			from = end + 1;
+			m_from = m_end + 1;
 	}
 
 	if (iCol == record.count(m_delim_col) + 1){
-		from = record.lastIndexOf(m_delim_col) + 1;
-		end = record.count();
+		m_from = record.lastIndexOf(m_delim_col) + 1;
+		m_end = record.count();
 	}
 	
-	if (end < from)
+	if (m_end < m_from)
 		return QByteArray();
 	
-	return record.mid(from, end - from);
+	return record.mid(m_from, m_end - m_from);
 }
 
-QByteArray& CMemTable::Revert(int iRow)
+void QMatrixByteArray::SetFiled(int iRow, int iCol, const char *val)
+{
+	GetFiled(iRow, iCol);
+	replace(m_from, m_end - m_from, val);
+}
+
+void QMatrixByteArray::SetFiled(int iRow, int iCol, const QByteArray &s)
+{
+	GetFiled(iRow, iCol);
+	replace(m_from, m_end - m_from, s);
+}
+
+///////////////////////////////////////////////////////////////////
+//  QPTSetCard
+// 
+QPTSetCard::QPTSetCard()
+: QMatrixByteArray("", ";", ",")
+{
+	
+}
+
+QPTSetCard::QPTSetCard(const char *pszIn)
+: QMatrixByteArray(pszIn, ";", ",")
+{
+	
+}
+
+QPTSetCard::QPTSetCard(const char *pszIn, const char *delim_row, const char *delim_col)
+: QMatrixByteArray(pszIn, delim_row, delim_col)
+{
+	
+}
+
+int QPTSetCard::FWrite(int nType, const char *pszFilePath)
+{
+	if (nType == 0){
+		cout << "[ " << GetTime().data() << " ]" << endl;
+		cout << "----------------------------" << endl;
+		cout << "| Value    | [" << GetValue() << "]" << endl;
+		cout << "| Len      |  " << count() << endl;
+		cout << "----------------------------" << endl;
+		cout << "| Type     | " << GetType() << endl;
+		cout << "| State ID | " << GetStateID() << endl;
+		cout << "| PT    ID | " << GetPTID().data() << endl;
+		cout << "| CPU   ID | " << GetCPUID() << endl;
+		cout << "| Zone  ID | " << GetZoneID() << endl;
+		cout << "| Flags    | " << GetFlags() << endl;
+		cout << "----------------------------" << endl;
+		
+		cout << endl;
+	}else if (nType == 1){
+		if (NULL == pszFilePath)
+			return -1;
+
+		fstream fs;
+		fs.open(pszFilePath, std::fstream::out/* | std::fstream::app*/);
+		//FWrite(fs);
+
+		QByteArray out;
+
+		char szLine[256] = {0};
+		sprintf(szLine, "[ %s ] : [%s]\n", GetTime().data(), data());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%d]\n", "Len", count());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%d]\n", "Type", GetType());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%d]\n", "State ID", GetStateID());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%s]\n", "PT ID", GetPTID().data());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%d]\n", "CPU ID", GetCPUID());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%d]\n", "Zone ID", GetZoneID());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+		sprintf(szLine, "| %20s |  [%d]\n", "Flags", GetFlags());
+		out.append(szLine);
+		memset(szLine, 0, sizeof(szLine));
+
+
+		fs.write(out.data(), out.count());
+	}
+
+	return 0;
+}
+
+
+int	QPTSetCard::GetType()
+{
+	return GetFiled(1, 1).toInt();
+}
+
+void QPTSetCard::SetType(int nType)
+{
+	SetFiled(1, 1, QByteArray::number(nType));
+}
+
+int	QPTSetCard::GetStateID()
+{
+	return GetFiled(1, 2).toInt();
+}
+
+void QPTSetCard::SetStateID(int nID)
+{
+	SetFiled(1, 2, QByteArray::number(nID));
+}
+
+QByteArray QPTSetCard::GetPTID()
+{
+	return GetFiled(1, 3);
+}
+
+void QPTSetCard::SetPTID(const char *pt_id)
+{
+	SetFiled(1, 3, QByteArray(pt_id));
+}
+
+int QPTSetCard::GetCPUID()
+{
+	return GetFiled(1, 4).toInt();
+}
+
+void QPTSetCard::SetCPUID(int nCPUID)
+{
+	SetFiled(1, 4, QByteArray::number(nCPUID));
+}
+
+int QPTSetCard::GetZoneID()
+{
+	return GetFiled(1, 5).toInt();
+}
+
+void QPTSetCard::SetZoneID(int nZoneID)
+{
+	SetFiled(1, 5, QByteArray::number(nZoneID));
+}
+
+int QPTSetCard::GetFlags()
+{
+	return GetFiled(1, 6).toInt();
+}
+
+void QPTSetCard::SetFlags(int nFlags)
+{
+	SetFiled(1, 6, QByteArray::number(nFlags));
+}
+
+
+/////////////////////////////////////////////////////////////
+// QLogTable
+//
+QLogTable::QLogTable()
+	: QMatrixByteArray("", ";", ",")
+{
+
+}
+
+QLogTable::QLogTable(const char *pszIn)
+	: QMatrixByteArray(pszIn, ";", ",")
+{
+
+}
+
+QLogTable::QLogTable(const char *pszIn, const char *delim_row, const char *delim_col)
+	: QMatrixByteArray(pszIn, delim_row, delim_col)
+{
+
+}
+
+int QLogTable::GetRecordCount()
+{
+	return GetRows();
+}
+
+QByteArray	QLogTable::GetRecord(int iRow)
+{
+	return GetRowData(iRow);
+}
+
+QByteArray& QLogTable::Revert(int iRow)
 {
 	int from = 0;
 	int end = count();
@@ -420,7 +649,7 @@ QByteArray& CMemTable::Revert(int iRow)
 		return *this;
 	
 	for (int i = 1; i <= iRow; i++){
-		from = indexOf(m_delim_row, from);
+		from = indexOf(GetDelimRow(), from);
 		
 		if (i != iRow)
 			from = from + 1;
@@ -429,13 +658,54 @@ QByteArray& CMemTable::Revert(int iRow)
 	return remove(from, end - from);
 }
 
-QByteArray& CMemTable::Insert(char *pszRecord, int iLen)
+QByteArray& QLogTable::Insert(char *pszRecord, int iLen)
 {
-	QByteArray byte(";");
+	QByteArray byte(GetDelimRow());
 	byte += pszRecord;
 	return append(byte);
 }
 
+int QLogTable::FWrite(int nType, const char *pszFilePath)
+{
+	if (nType == 0){
+		cout << "[ " << GetTime().data() << " ]" << endl;
+		cout << "----------------------------" << endl;
+		cout << "| Value    | [" << GetValue() << "]" << endl;
+		cout << "| Len      |  " << count() << endl;
+		cout << "----------------------------" << endl;
+		cout << "| Record Count     | " << GetRecordCount() << endl;
+		cout << "| Field Count      | " << GetFieldCount() << endl;
+		cout << "----------------------------" << endl;
+
+		for (int i = 1; i <= GetRecordCount(); i++){
+			for (int j = 1; j <= GetFieldCount(); j++){
+				if (j == 1)
+					cout << "| ";
+				cout << GetFiled(i,j).data() << " | ";
+			}
+			cout << endl;
+		}
+		
+		cout << endl;
+	}else if (nType == 1){
+		if (NULL == pszFilePath)
+			return -1;
+		
+		fstream fs;
+		fs.open(pszFilePath, std::fstream::out/* | std::fstream::app*/);
+		//FWrite(fs);
+		
+		QByteArray out;
+		
+		char szLine[256] = {0};
+		sprintf(szLine, "[ %s ] : [%s]\n", GetTime().data(), data());
+		out.append(szLine);
+		
+		fs.write(out.data(), out.count());
+	}
+	
+	return 0;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CXJPTSetStore

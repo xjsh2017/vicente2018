@@ -20,6 +20,7 @@ public:
 	virtual void	FPrint();
 
 	const char* GetValue() const;
+	const char* data() const;
 
 	int		GetType() const;
 	void	SetType(int nType);
@@ -102,37 +103,88 @@ public:
 	char m_cEnd;
 };
 
-class CMemTable : public QByteArray
+class QMatrixByteArray : public QByteArray
 {
 public:
-	CMemTable();
-	CMemTable(const char *);
-	CMemTable(const char *, const char *delim_row, const char *delim_col);
-
-	virtual int FRead(char *pszLine, size_t s)
+	QMatrixByteArray();
+	QMatrixByteArray(const char *);
+	QMatrixByteArray(const char *, const char *delim_row, const char *delim_col);
+	
+	virtual int FRead(char *pszLine, size_t s = -1)
 	{
+		clear();
 		this->append(pszLine);
 		
 		return 0;
 	}
-
+	virtual int	FWrite(fstream &fs){ fs.write(data(), strlen(data())); return 0; }
+	virtual int FWrite(int nType = 0, const char* pszFilePath = NULL) { return 0; }
+	
 	const char * GetValue() const { return constData(); }
 	
-	int		GetRecordCount();
-	int		GetFieldCount();
 	int		GetRows();
 	int		GetCols();
+	int		GetFieldCount() { return GetCols(); }
+	
+	QMatrixByteArray	GetRow(int iRow);
+	QMatrixByteArray	GetCol(int iCol);
+	QByteArray	GetRowData(int iRow);
+	QByteArray	GetColData(int iCol);
 
-	QByteArray	GetRecord(int iRow);
 	QByteArray	GetFiled(int iRow, int iCol);
+	void		SetFiled(int iRow, int iCol, const char *val);
+	void		SetFiled(int iRow, int iCol, const QByteArray &s);
+	
+	const QByteArray& GetDelimRow() const { return m_delim_row; }
+	const QByteArray& GetDelimCol() const { return m_delim_col; }
+
+private:
+	QByteArray	m_delim_row;
+	QByteArray	m_delim_col;
+	int			m_from;
+	int			m_end;
+};
+
+class QPTSetCard : public QMatrixByteArray
+{
+public:
+	QPTSetCard();
+	QPTSetCard(const char *);
+	QPTSetCard(const char *, const char *delim_row, const char *delim_col);
+	
+	virtual int FWrite(int nType = 0, const char* pszFilePath = NULL);
+
+	int		GetType();
+	void	SetType(int nType);
+	int		GetStateID();
+	void	SetStateID(int nID);
+	QByteArray	GetPTID();
+	void	SetPTID(const char *pt_id);
+	int		GetCPUID();
+	void	SetCPUID(int nCPUID);
+	int		GetZoneID();
+	void	SetZoneID(int nZoneID);
+	int		GetFlags();
+	void	SetFlags(int nFlags);
+};
+
+class QLogTable : public QMatrixByteArray
+{
+public:
+	QLogTable();
+	QLogTable(const char *);
+	QLogTable(const char *, const char *delim_row, const char *delim_col);
+	
+	virtual int FWrite(int nType = 0, const char* pszFilePath = NULL);
+	
+	int		GetRecordCount();
+	QByteArray	GetRecord(int iRow);
 	
 	QByteArray& Revert(int iRow);
 	QByteArray& Insert(char *pszRecord, int iLen = -1);
 
-private:
-	char	m_delim_row;
-	char	m_delim_col;
 };
 
+extern QByteArray GetTime(int nType = 0);
 
 #endif // QPTSETCARD_H

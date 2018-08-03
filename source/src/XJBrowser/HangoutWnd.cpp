@@ -6,6 +6,9 @@
 #include "HangoutWnd.h"
 #include "DlgChannelStatus.h"
 
+#include "stores/XJPTSetStore.h"
+#include "stores/core/qptsetcard.h"
+
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -553,30 +556,33 @@ void CHangoutWnd::ShowChannelDetail( int nChannel )
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
-	CCJTabCtrlBar &pane = pMainFrame->m_wndGlobalMsgBar;
-	
-	LONG w = 600;
-	LONG h = 220;
-	
-	CRect rcRect;
-	
-	BOOL bView = (pane.IsVisible());
-	pane.ShowWindow(bView ? SW_HIDE : SW_SHOW);
+	CCJTabCtrlBar &bar = pMainFrame->m_wndGlobalMsgBar;
+	CXJBrowserView * pView = pApp->GetSVGView();
 
-	//pMainFrame->ShowControlBar(&bar, !bView, FALSE);
+	CRect rcRect;
+	pView->GetWindowRect(&rcRect);
+	
 	if (m_bAlreadyShowOnce){
-		pane.GetWindowRect(rcRect);
-		m_pointPTSetModView.x = rcRect.left;
-		m_pointPTSetModView.y = rcRect.top;
+		bar.GetWindowRect(rcRect);
+		m_pointPTSetModView.x = rcRect.left - 2;
+		m_pointPTSetModView.y = rcRect.top - 18;
+
 	}else{
-		//pMainFrame->m_wndOutputBar.GetWindowRect(&rcRect);
-		m_pointPTSetModView.x = 200;//rcRect.right - w;
-		m_pointPTSetModView.y = 300;//rcRect.top - h;
-		//AfxMessageBox(str);
+		LONG w = 600;
+		LONG h = 220;
+
+		m_pointPTSetModView.x = rcRect.right - w;
+		m_pointPTSetModView.y = rcRect.bottom - h;
 		m_bAlreadyShowOnce = true;
 	}
+	
+	bar.ShowWindow(bar.IsVisible() ? SW_HIDE : SW_SHOW);
+	pMainFrame->FloatControlBar(&bar, m_pointPTSetModView, CBRS_ALIGN_LEFT);
 
-	pMainFrame->FloatControlBar(&pane, m_pointPTSetModView, CBRS_ALIGN_LEFT);
+	
+	CString str;
+	str.Format("x: %d; y: %d", m_pointPTSetModView.x, m_pointPTSetModView.y);
+	//AfxMessageBox(str);
 }
 
 /****************************************************
@@ -616,11 +622,14 @@ void CHangoutWnd::RefreshData()
 			CHangoutWndPane* p = (CHangoutWndPane*)m_arrPane.GetAt(i);
 			if(p != NULL)
 			{
-				PT_ZONE zone;
-				CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
-				int nState = pApp->GetPTSetModState(zone);
+				CXJPTSetStore *store = CXJPTSetStore::GetInstance();
+				QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
+				QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
 
-				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(zone.PT_ID, TYPE_SEC);
+				int nState = card.GetStateID();
+				
+				CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
+				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
 				BOOL bHangout = FALSE;
 				if (pObj && pObj->m_pStation && pObj->m_pStation == m_pStation && nState != 0)
 					bHangout = TRUE;

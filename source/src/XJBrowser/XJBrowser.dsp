@@ -334,6 +334,10 @@ SOURCE=.\DlgOCSet.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\pages\DlgOperHis.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DlgPtnote.cpp
 # End Source File
 # Begin Source File
@@ -1216,6 +1220,10 @@ SOURCE=.\DLGMarked.h
 # Begin Source File
 
 SOURCE=.\DlgOCSet.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\DlgOperHis.h
 # End Source File
 # Begin Source File
 
@@ -2184,12 +2192,12 @@ SOURCE=.\xjbrowser.Manifest
 # End Source File
 # End Target
 # End Project
+# Section XJBrowser : {62274DEE-B5BF-48F8-910F-4F797CCBCD96}
+# 	2:21:DefaultSinkHeaderFile:ddvue.h
+# 	2:16:DefaultSinkClass:CDDVue
+# End Section
 # Section XJBrowser : {A1919AAD-5EF2-48E5-A8E1-2822EF1FA1F5}
 # 	2:5:Class:CDDVue
 # 	2:10:HeaderFile:ddvue.h
 # 	2:8:ImplFile:ddvue.cpp
-# End Section
-# Section XJBrowser : {62274DEE-B5BF-48F8-910F-4F797CCBCD96}
-# 	2:21:DefaultSinkHeaderFile:ddvue.h
-# 	2:16:DefaultSinkClass:CDDVue
 # End Section

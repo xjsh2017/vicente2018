@@ -522,6 +522,12 @@ void CCommWnd::MiniWnd( BOOL bMini )
 	m_pTitlePane->SetMini(bMini);
 	Invalidate(FALSE);
 	Show();
+
+	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJBrowserView * pView = pApp->GetSVGView();
+	if (pView){
+		pView->RePositionCommWnd();
+	}
 }
 
 void CCommWnd::ShowChannelDetail( int nChannel )
