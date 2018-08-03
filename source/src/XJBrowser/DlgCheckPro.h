@@ -32,7 +32,6 @@ public:
 	int	m_nType;
 
 	MODIFY_LIST	m_arrModifyList;
-	CTypedPtrArray<CPtrArray, void*> m_arrPTSet;
 
 
 // Overrides

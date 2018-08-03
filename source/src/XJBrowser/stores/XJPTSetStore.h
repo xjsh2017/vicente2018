@@ -134,7 +134,9 @@ public:
 	QPTSetCard*	GetCard();
 	/* 日志 */
 	QLogTable*	GetLog();
-	
+	/* 存储 */
+	PT_SETTING_DATA_LIST& GetStoreData();
+
 	BOOL	Next(const char *card_data, const char *log_data);
 	BOOL	Next(int nNextStateID, const char* szUserID, int nFlag = 0);
 	BOOL	Next(int nNextStateID, const char* szUserID, const char* szPTID, int nFlag = 0);
@@ -143,8 +145,6 @@ public:
 	BOOL	SaveRecallToDB(CString &sCPU, CString &sPTID, CTypedPtrArray<CPtrArray, PT_SETTING*> &arrSetting);
 	BOOL	SaveModifyToDB(CString &sPTID, MODIFY_LIST &arrModifyList);
 	BOOL	RevertModify();
-
-	BOOL	SetCardFlags(int nFlag);
 
 	/*
 	 *  @brief   	AddManOperator	 添加人工操作日志 

@@ -697,6 +697,13 @@ QLogTable* CXJPTSetStore::GetLog()
 	return &(d_ptr->m_log);
 }
 
+PT_SETTING_DATA_LIST& CXJPTSetStore::GetStoreData()
+{
+	assert (NULL != d_ptr);
+
+	return d_ptr->m_arrPTSet;
+}
+
 BOOL CXJPTSetStore::Next(int nNextStateID, const char* szUserID, int nFlag)
 {
 	ReLoad();

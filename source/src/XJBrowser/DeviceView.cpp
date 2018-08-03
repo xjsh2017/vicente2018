@@ -3312,8 +3312,10 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 			m_nDZ_MOD_State = nState;
 		}
 
-		// 只在挂牌和取消挂牌时刷新
-		if (nState != m_nDZ_MOD_State && (0 == nState || 1 == nState)){
+		// 刷新（状态 1 -> 5 之间变化不刷新，其余刷新）
+		//if (nState != m_nDZ_MOD_State && (0 == nState || 1 == nState))
+		if (m_nDZ_MOD_State * nState == 0)
+		{
 			m_nDZ_MOD_State = nState;
 
 			if(pApp->GetDataEngine() != NULL)

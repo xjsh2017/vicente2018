@@ -6,8 +6,7 @@
 #include "DlgCheckPro.h"
 
 #include "stores/XJPTSetStore.h"
-
-#pragma   warning   (disable   :   4786)
+#include "stores/core/qptsetcard.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -187,29 +186,19 @@ void CDlgCheckPro::UpdateLabels()
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CString str;
 
-	PT_ZONE data;
-	CString sRecords;
-	int nState = pApp->GetPTSetModState(data, sRecords);
-	str.Format("%d, %d", data.cpu, data.code);
-	//AfxMessageBox(str);
-	CString sCPU = m_sCPU, sZone = m_sZone;
-	m_sCPU.TrimLeft();
-	m_sCPU.TrimRight();
-	m_sZone.TrimLeft();
-	m_sZone.TrimRight();
-	if (m_sCPU.IsEmpty()){
-		sCPU.Format("%d", data.cpu);
-		m_sCPU = sCPU;
-	}
-	if (m_sZone.IsEmpty()){
-		sZone.Format("%d", data.code);
-		m_sZone = sZone;
+	CXJPTSetStore::GetInstance()->ReLoad();
+	QPTSetCard &card = *(CXJPTSetStore::GetInstance()->GetCard());
+	
+	int nStateID = card.GetStateID();
+
+	if (nStateID != 0){
+		m_sCPU = QByteArray::number(card.GetCPUID()).constData();
+		m_sZone = QByteArray::number(card.GetZoneID()).constData();
 	}
 	
-	
-	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(data.PT_ID, TYPE_SEC);
+	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
 	m_strDESC.Format("装置[%s]在[%s]号CPU[%s]号定值区上的定值将做如下更改："
-		, pObj->m_sName, sCPU, sZone);
+		, pObj->m_sName, m_sCPU, m_sZone);
 	//AfxMessageBox(m_strDESC);
 	UpdateData(FALSE);
 }
@@ -330,7 +319,7 @@ int CDlgCheckPro::InitListStyle()
 void CDlgCheckPro::FillData()
 {
 	CXJPTSetStore::GetInstance()->ReLoadStore();
-	//WriteLog("CDlgCheckPro::FillData, 开始", XJ_LOG_LV3);
+	PT_SETTING_DATA_LIST &arrPTSet = CXJPTSetStore::GetInstance()->GetStoreData();
 	
 	//填充数据时禁止刷新
 	m_List.SetRedraw(FALSE);
@@ -339,9 +328,9 @@ void CDlgCheckPro::FillData()
 	PT_SETTING *pts = NULL;
 	PT_SETTING_DATA *data = NULL;
 	int nIndex = 0;
-	for(int i = 0; i < m_arrPTSet.GetSize(); i ++)
+	for(int i = 0; i < arrPTSet.GetSize(); i ++)
 	{
-		data = (PT_SETTING_DATA*)m_arrPTSet.GetAt(i);
+		data = (PT_SETTING_DATA*)arrPTSet.GetAt(i);
 		if (NULL == data)
 			continue;
 		pts = data->pts;
@@ -403,7 +392,7 @@ void CDlgCheckPro::FillData()
 		}
 		m_List.SetItemText(nIndex, 10, str);
 		m_List.SetItemText(nIndex, 11, data->reserve1);
-		m_List.SetItemText(nIndex, 12, data->reserve2);
+		m_List.SetItemText(nIndex, 12, data->reserve3);
 		m_List.SetItemData(nIndex, (DWORD)data);
 		
 		
@@ -414,5 +403,5 @@ void CDlgCheckPro::FillData()
 	m_List.SetRedraw(TRUE);
 	
 	
-	WriteLog("CDlgCheckPro::FillListData, 结束", XJ_LOG_LV3);
+	//WriteLog("CDlgCheckPro::FillListData, 结束", XJ_LOG_LV3);
 }
