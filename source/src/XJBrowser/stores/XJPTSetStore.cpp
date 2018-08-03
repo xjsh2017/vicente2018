@@ -1,12 +1,11 @@
-// dbEngine.cpp : implementation file
+// XJPTSetStore.cpp : implementation file
 //
 
 #include "stdafx.h"
+#include "XJPTSetStore.h"
 
 #include "XJBrowser.h"
-
-#include "XJPTSetStore.h"
-#include "core/qptsetcard.h"
+#include "qptsetcard.h"
 
 const char* PTSET_KEYNAME = "PTSET_STATE";
 

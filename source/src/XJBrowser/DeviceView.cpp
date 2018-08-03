@@ -14,8 +14,8 @@
 #include "DLGMarked.h"
 #include "MainFrm.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -38,7 +38,7 @@ CDeviceView::CDeviceView()
 	htCurrent = NULL;
 	m_nListType = 0;
 	m_pSelObj = NULL;
-	m_nDZ_MOD_State = -1;
+	m_nLastPTSetStateID = -1;
 }
 
 CDeviceView::~CDeviceView()
@@ -3308,15 +3308,15 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 		QLogTable &log = *(reinterpret_cast<QLogTable *>(p->GetLog()));
 		
 		int nState = card.GetStateID();
-		if (-1 == m_nDZ_MOD_State){
-			m_nDZ_MOD_State = nState;
+		if (-1 == m_nLastPTSetStateID){
+			m_nLastPTSetStateID = nState;
 		}
 
 		// 刷新（状态 1 -> 5 之间变化不刷新，其余刷新）
-		//if (nState != m_nDZ_MOD_State && (0 == nState || 1 == nState))
-		if (m_nDZ_MOD_State * nState == 0)
+		//if (nState != m_nLastPTSetStateID && (0 == nState || 1 == nState))
+		if ((m_nLastPTSetStateID - XJ_OPER_UNHANGOUT) * (nState - XJ_OPER_UNHANGOUT) == 0)
 		{
-			m_nDZ_MOD_State = nState;
+			m_nLastPTSetStateID = nState;
 
 			if(pApp->GetDataEngine() != NULL)
 			{

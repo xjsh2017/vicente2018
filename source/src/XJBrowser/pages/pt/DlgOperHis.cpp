@@ -6,7 +6,7 @@
 
 #include "xjbrowser.h"
 #include "DeviceObj.h"
-#include "stores/XJPTSetStore.h"
+#include "XJPTSetStore.h"
 
 
 #ifdef _DEBUG

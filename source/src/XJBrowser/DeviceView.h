@@ -74,7 +74,7 @@ private:
 	int m_nQueryTimer;	
 	/** @brief           */
 	int	m_nTimer;
-	int m_nDZ_MOD_State;
+	int m_nLastPTSetStateID;
 	/** @brief           召唤列表*/
 	CTypedPtrArray<CPtrArray, StationStauts_Call*> m_arrCall;
 	/** @brief           召唤结果*/

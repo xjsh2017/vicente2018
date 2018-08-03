@@ -13,7 +13,7 @@
 #include "..\..\ui_common\Interface\SvgViewerInterface.h"
 
 #include "CommWnd.h"
-#include "HangoutWnd.h"
+#include "pages/pt/HangoutWnd.h"
 #include "ToolTipWnd.h"
 
 //##ModelId=49B87B7C0261

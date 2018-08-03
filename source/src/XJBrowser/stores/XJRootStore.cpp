@@ -1,3 +1,6 @@
+// XJRootStore.cpp : implementation file
+//
+
 #include "StdAfx.h"
 #include "XJRootStore.h"
 

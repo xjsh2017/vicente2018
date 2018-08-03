@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../XJBrowser" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "OS_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../XJBrowser" /I "./pages" /I "./pages/pt" /I "./stores" /I "./stores/core" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "OS_WINDOWS" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "NDEBUG" /d "_AFXDLL"
@@ -89,9 +89,94 @@ LINK32=link.exe
 
 # Name "XJBrowser - Win32 Release"
 # Name "XJBrowser - Win32 Debug"
-# Begin Group "Source Files"
+# Begin Group "Sources"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Group "pages"
+
+# PROP Default_Filter ""
+# Begin Group "pt"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\DlgCheckPro.cpp
+
+!IF  "$(CFG)" == "XJBrowser - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "XJBrowser - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\DlgOperHis.cpp
+
+!IF  "$(CFG)" == "XJBrowser - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "XJBrowser - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\HangoutWnd.cpp
+
+!IF  "$(CFG)" == "XJBrowser - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "XJBrowser - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\PTSetModProgView.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\PTSetModStateItem.cpp
+# End Source File
+# End Group
+# End Group
+# Begin Group "stores"
+
+# PROP Default_Filter ""
+# Begin Group "core"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\stores\core\qbytearray.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qbytearraymatcher.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qcardbase.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qglobal.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qptsetcard.cpp
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=.\stores\XJPTSetStore.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJRootStore.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\AboutDlgEx.cpp
@@ -294,10 +379,6 @@ SOURCE=.\DlgCheck.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DlgCheckPro.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\DlgDetailStatus.cpp
 # End Source File
 # Begin Source File
@@ -331,10 +412,6 @@ SOURCE=.\DLGMarked.cpp
 # Begin Source File
 
 SOURCE=.\DlgOCSet.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\pages\DlgOperHis.cpp
 # End Source File
 # Begin Source File
 
@@ -443,10 +520,6 @@ SOURCE=.\GeoView.cpp
 # Begin Source File
 
 SOURCE=..\..\common\globalfun.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\HangoutWnd.cpp
 # End Source File
 # Begin Source File
 
@@ -622,14 +695,6 @@ SOURCE=.\PTOSCList.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PTSetModProgView.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PTSetModStateItem.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\PTSetting.cpp
 # End Source File
 # Begin Source File
@@ -643,26 +708,6 @@ SOURCE=.\PTSoftBoard.cpp
 # Begin Source File
 
 SOURCE=.\PushMsgProcess.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qbytearray.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qbytearraymatcher.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qcardbase.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qglobal.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qptsetcard.cpp
 # End Source File
 # Begin Source File
 
@@ -955,14 +1000,6 @@ SOURCE=..\..\common\XJLock.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\stores\XJPTSetStore.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\XJRootStore.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\common\XJString.cpp
 # End Source File
 # Begin Source File
@@ -970,9 +1007,73 @@ SOURCE=..\..\common\XJString.cpp
 SOURCE=..\..\ui_common\button\XPStyleButtonST.cpp
 # End Source File
 # End Group
-# Begin Group "Header Files"
+# Begin Group "Headers"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Group "pages "
+
+# PROP Default_Filter ".h"
+# Begin Group "pt "
+
+# PROP Default_Filter ".h"
+# Begin Source File
+
+SOURCE=.\DlgCheckPro.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\DlgOperHis.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\HangoutWnd.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\PTSetModProgView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\PTSetModStateItem.h
+# End Source File
+# End Group
+# End Group
+# Begin Group "stores "
+
+# PROP Default_Filter ""
+# Begin Group "core "
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\stores\core\qbytearray.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qbytearraymatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qcardbase.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qglobal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\core\qptsetcard.h
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=.\stores\XJPTSetStore.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJRootStore.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\AboutDlgEx.h
@@ -1183,10 +1284,6 @@ SOURCE=.\DlgCheck.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DlgCheckPro.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\DlgDetailStatus.h
 # End Source File
 # Begin Source File
@@ -1332,10 +1429,6 @@ SOURCE=.\GeoView.h
 # Begin Source File
 
 SOURCE=.\GlobalFunc.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\HangoutWnd.h
 # End Source File
 # Begin Source File
 
@@ -1523,14 +1616,6 @@ SOURCE=.\PTOSCList.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\PTSetModProgView.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PTSetModStateItem.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\PTSetting.h
 # End Source File
 # Begin Source File
@@ -1544,26 +1629,6 @@ SOURCE=.\PTSoftBoard.h
 # Begin Source File
 
 SOURCE=.\PushMsgProcess.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qbytearray.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qbytearraymatcher.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qcardbase.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qglobal.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qptsetcard.h
 # End Source File
 # Begin Source File
 
@@ -1851,14 +1916,6 @@ SOURCE=..\..\common\XJLock.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\stores\XJPTSetStore.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\stores\XJRootStore.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\common\XJString.h
 # End Source File
 # Begin Source File
@@ -1866,7 +1923,7 @@ SOURCE=..\..\common\XJString.h
 SOURCE=..\..\ui_common\button\XPStyleButtonST.h
 # End Source File
 # End Group
-# Begin Group "Resource Files"
+# Begin Group "Resources"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File

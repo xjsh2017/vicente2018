@@ -4,10 +4,9 @@
 #include "stdafx.h"
 #include "xjbrowser.h"
 #include "HangoutWnd.h"
-#include "DlgChannelStatus.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 #include "MainFrm.h"
 

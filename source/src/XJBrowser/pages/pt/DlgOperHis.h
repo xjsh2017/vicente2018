@@ -1,7 +1,7 @@
 #ifndef _DLG_OPER_HIS_H
 #define _DLG_OPER_HIS_H
 
-#include "../resource.h"
+#include "resource.h"
 // DlgOperHis.h : header file
 //
 

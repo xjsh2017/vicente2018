@@ -72,7 +72,8 @@
 #include "MtVerify.h"
 #include "PushMsgProcess.h"
 
-#include "stores/XJRootStore.h"
+#include "XJRootStore.h"
+
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE

@@ -2,7 +2,7 @@
 #define _XJPTSETSTORE_H
 
 #include "XJRootStore.h"
-#include "core/qbytearray.h"
+#include "qbytearray.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CXJPTSetStore
@@ -27,10 +27,10 @@
 
 #define PT_ID_LEN 20
 
-/** @brief			装置挂牌*/
-int const XJ_OPER_HANGOUT = 101;
 /** @brief			装置取消挂牌*/
-int const XJ_OPER_UNHANGOUT = 102;
+int const XJ_OPER_UNHANGOUT = 101;
+/** @brief			装置挂牌*/
+int const XJ_OPER_HANGOUT = 102;
 
 /** @brief			定值修改*/
 int const XJ_OPER_PTSET = 201;

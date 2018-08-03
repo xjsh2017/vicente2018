@@ -6,8 +6,8 @@
 #include "PTSetModProgView.h"
 #include "PTSetModStateItem.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 #include "MainFrm.h"
 

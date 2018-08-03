@@ -6,8 +6,8 @@
 #include "DLGMarked.h"
 #include "MainFrm.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -69,7 +69,7 @@ void DLGMarked::OnBtnMark()
 		QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
 
 		card.SetType(0);
-		card.SetStateID(1);
+		card.SetStateID(XJ_OPER_HANGOUT);
 		card.SetPTID(m_pObj->m_sID.GetBuffer(0));
 		card.SetCPUID(0);
 		card.SetZoneID(0);
@@ -150,7 +150,7 @@ void DLGMarked::OnBtnUnmark()
 	if (InsertDBMark())
 	{
 		card.SetType(0);
-		card.SetStateID(0);
+		card.SetStateID(XJ_OPER_UNHANGOUT);
 		card.SetCPUID(0);
 		card.SetZoneID(0);
 		card.SetFlags(1);	// 通知相应操作员的界面恢复原值

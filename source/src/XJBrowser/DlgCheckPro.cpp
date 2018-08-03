@@ -5,8 +5,8 @@
 #include "xjbrowser.h"
 #include "DlgCheckPro.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

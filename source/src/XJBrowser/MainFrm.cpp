@@ -49,8 +49,8 @@
 #include "DlgCheckPro.h"
 #include "DlgValidateID.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 
 #define PTSET_REFRESHTIME	3000

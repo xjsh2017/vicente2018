@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "xjbrowser.h"
 #include "PTSetting.h"
+
 #include "DlgCheck.h"
 #include "DlgCheckPro.h"
 #include "DlgValidateID.h"
@@ -13,10 +14,10 @@
 
 #include "MainFrm.h"
 
-#include "pages/DlgOperHis.h"
+#include "DlgOperHis.h"
 
-#include "stores/XJPTSetStore.h"
-#include "stores/core/qptsetcard.h"
+#include "XJPTSetStore.h"
+#include "qptsetcard.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
