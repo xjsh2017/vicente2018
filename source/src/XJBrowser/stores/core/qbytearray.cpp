@@ -350,6 +350,8 @@ int qstrnicmp(const char *str1, const char *str2, uint len)
     register const uchar *s2 = reinterpret_cast<const uchar *>(str2);
     int res;
     uchar c;
+	Q_UNUSED(res);
+	Q_UNUSED(c);
     if (!s1 || !s2)
         return s1 ? 1 : (s2 ? -1 : 0);
 //     for (; len--; s1++, s2++) {
@@ -469,6 +471,7 @@ QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel)
     ulong len = nbytes + nbytes / 100 + 13;
     QByteArray bazip;
     int res;
+	Q_UNUSED(res);
     /*do {
         bazip.resize(len + 4);
         res = ::compress2((uchar*)bazip.data()+4, &len, (uchar*)data, nbytes, compressionLevel);
@@ -536,6 +539,7 @@ QByteArray qUncompress(const uchar* data, int nbytes)
     ulong len = qMax(expectedSize, 1ul);
     QByteArray baunzip;
     int res;
+	Q_UNUSED(res);
     /*do {
         baunzip.resize(len);
         res = ::uncompress((uchar*)baunzip.data(), &len,

@@ -25,51 +25,6 @@
  */
 /** @} */ //OVER
 
-#define PT_ID_LEN 20
-
-// 用户组
-/** @brief			装置取消挂牌*/
-int const XJ_USERGROUP_RUNNER = 101;
-/** @brief			装置取消挂牌*/
-int const XJ_USERGROUP_OPERATOR = 102;
-/** @brief			装置取消挂牌*/
-int const XJ_USERGROUP_MONITOR = 103;
-
-// 功能组
-/** @brief			装置取消挂牌*/
-int const XJ_OPER_UNHANGOUT = 101;
-/** @brief			装置挂牌*/
-int const XJ_OPER_HANGOUT = 102;
-
-/** @brief			定值修改*/
-int const XJ_OPER_PTSET = 201;
-/** @brief			定值修改预校*/
-int const XJ_OPER_PTSET_PRECORRECTION = 202;
-/** @brief			定值修改执行*/
-int const XJ_OPER_PTSET_EXECUTE = 203;
-/** @brief			定值修改:修改核对*/
-int const XJ_OPER_PTSET_STATE_2 = 204;
-/** @brief			定值修改:监视*/
-int const XJ_OPER_PTSET_STATE_3 = 205;
-/** @brief			定值修改:验证*/
-int const XJ_OPER_PTSET_STATE_4 = 206;
-/** @brief			定值修改:修改完成*/
-int const XJ_OPER_PTSET_STATE_5 = 207;
-
-/** @brief			定值区修改*/
-int const XJ_OPER_PTZONESET = 301;
-/** @brief			定值区修改预校*/
-int const XJ_OPER_PTZONESET_PRECORRECTION = 302;
-/** @brief			定值区修改执行*/
-int const XJ_OPER_PTZONESET_EXECUTE = 303;
-
-/** @brief			软压板修改*/
-int const XJ_OPER_PTSOFTSET = 401;
-/** @brief			软压板投退预校*/
-int const XJ_OPER_PTSOFTSET_PRECORRECTION = 402;
-/** @brief			软压板投退执行*/
-int const XJ_OPER_PTSOFTSET_EXECUTE = 403;
-
 struct PT_SETTING_DATA{
 	PT_SETTING* pts;
 	QByteArray reserve1;	// 原值
@@ -145,6 +100,8 @@ public:
 	QLogTable*	GetLog();
 	/* 存储 */
 	PT_SETTING_DATA_LIST& GetStoreData();
+	/* 工作流程 */
+	QByteArrayMatrix& GetWorkFlow();
 
 	BOOL	Next(const char *card_data, const char *log_data);
 	BOOL	Next(int nNextStateID, const char* szUserID, int nFlag = 0);
@@ -152,12 +109,10 @@ public:
 	BOOL	Next(int nNextStateID, int nCPUID, int nZoneID, const char* szUserID, int nFlag = 0);
 	
 	BOOL	SaveRecallToDB(CString &sCPU, CString &sPTID, CTypedPtrArray<CPtrArray, PT_SETTING*> &arrSetting);
-	BOOL	SaveModifyToDB(CString &sPTID, MODIFY_LIST &arrModifyList);
+	BOOL	SaveModifyToDB(CString &sPTID, const MODIFY_LIST &arrModifyList);
 	BOOL	RevertModify();
 
-	QMatrixByteArray& GetWorkFlow();
-
-	QMatrixByteArray GetDefaultWorkFlow();
+	QByteArrayMatrix GetDefaultWorkFlow();
 
 	/*
 	 *  @brief   	AddManOperator	 添加人工操作日志 
@@ -175,8 +130,16 @@ public:
 
 	CString		GetFuncID(int nStateID);
 
-	void Next_0();
-	void Next_1(const char *pt_id);
+	void		Next_0();
+	void		Next_1(const char *pt_id);
+
+//private:
+	void		Next_PTSet_State_2(int nCPU, int nZone, const char *szUserID
+									, const MODIFY_LIST &arrModifyList
+									, const PT_SETTING_LIST &arrSetting);
+	void		Next_PTSet_State_3();
+	void		Next_PTSet_State_4();
+	void		Next_PTSet_State_5();
 
 // Implementation
 public:

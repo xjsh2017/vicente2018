@@ -3503,12 +3503,18 @@ void CPTSetting::OnBtnPtsetModify2()
 					m_sOperUser = dlgID.m_strUser;
 					
 					CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-					CString str;
 					
+					CXJPTSetStore::GetInstance()->ReLoad();
+					QPTSetCard &card = *(CXJPTSetStore::GetInstance()->GetCard());
+					QLogTable &log = *(CXJPTSetStore::GetInstance()->GetLog());
+
+					int nPTSetState = card.GetStateID();
+
+					CString str;
 					CString sRecords;
 					int nState = pApp->GetPTSetModState(PT_ZONE(), sRecords);
-					if (1 != nState){
-						CString sCurUserID = pApp->GetUserIDByState(2, sRecords);
+					if (XJ_OPER_HANGOUT != nPTSetState){
+						CString sCurUserID = log.GetFieldValue(2, 2).constData();
 						str.Format("用户[%s]正在对该装置进行定值修改操作作业 或者 该装置已取消了挂牌，请稍后再试", sCurUserID);
 						AfxMessageBox(str, MB_OK | MB_ICONWARNING);
 
@@ -3516,14 +3522,8 @@ void CPTSetting::OnBtnPtsetModify2()
 						return;
 					}
 
-					str.Format("用户%s以操作员身份验证成功:修改定值", m_sOperUser);
-					WriteLog(str);
-					pApp->AddNewManOperator("用户验证", m_pObj->m_sID, str, m_sOperUser, -1, OPER_SUCCESS, m_nOperationNum);
-					
-					// 保存临时修改结果到点表
-					CXJPTSetStore::GetInstance()->SaveModifyToDB(m_pObj->m_sID, m_arrModifyList);
-					// 操作人员核对后修改状态机
-					CXJPTSetStore::GetInstance()->Next(2, atoi(m_sCPU), atoi(m_sZone), m_sOperUser);
+					CXJPTSetStore::GetInstance()->Next_PTSet_State_2(atoi(m_sCPU), atoi(m_sZone)
+						, m_sOperUser.GetBuffer(0), m_arrModifyList, m_arrSetting);
 				}
 				else
 				{
@@ -6103,8 +6103,8 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		
 		int nPTSetState = card.GetStateID();
 
-		CString sRunnerUserID = log.GetFiled(1, 2).constData();
-		CString sOperUserID = log.GetFiled(2, 2).constData();
+		CString sRunnerUserID = log.GetFieldValue(1, 2).constData();
+		CString sOperUserID = log.GetFieldValue(2, 2).constData();
 		
 		// 控制按钮是否可用： 定值（区）修改
 		if (1 == nPTSetState && (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){

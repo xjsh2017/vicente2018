@@ -60,13 +60,13 @@ CPTSetModProgView::CPTSetModProgView()
 
 	m_pHeadItem = new CPTSetModStateItem("装置名称", 999);
 
-	QMatrixByteArray &flow = CXJPTSetStore::GetInstance()->GetWorkFlow();
+	QByteArrayMatrix &flow = CXJPTSetStore::GetInstance()->GetWorkFlow();
 	//AfxMessageBox(flow.constData());
 	for (int i = 1; i <= flow.GetRows(); i++){
-		int nPTSetStateID = flow.GetFiled(i, 1).toInt();
-		int nVisible = flow.GetFiled(i, 2).toInt();
-		int nUserType = flow.GetFiled(i, 3).toInt();
-		int nUserID = flow.GetFiled(i, 4).toInt();
+		int nPTSetStateID = flow.GetFieldValue(i, 1).toInt();
+		int nVisible = flow.GetFieldValue(i, 2).toInt();
+		int nUserType = flow.GetFieldValue(i, 3).toInt();
+		int nUserID = flow.GetFieldValue(i, 4).toInt();
 		CString typeName = CXJPTSetStore::GetInstance()->GetFuncID(nPTSetStateID);
 		CPTSetModStateItem *item = new CPTSetModStateItem(typeName, nPTSetStateID);
 		item->SetVisible(nVisible);
@@ -269,7 +269,7 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 		CXJPTSetStore *store = CXJPTSetStore::GetInstance();
 		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
 		QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
-		QMatrixByteArray &flow = store->GetWorkFlow();
+		QByteArrayMatrix &flow = store->GetWorkFlow();
 		
 // 		KillTimer(m_nTimer);
 // 		AfxMessageBox(flow.constData());
@@ -292,12 +292,12 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 
 			int nItemState = item->GetPTSetState();
 			for (int j = 1; j <= flow.GetRows(); j++){
-				int nFlowState = flow.GetFiled(j, 1).toInt();
+				int nFlowState = flow.GetFieldValue(j, 1).toInt();
 				if (nItemState != nFlowState)
 					continue;
 
-				if (!flow.GetFiled(j, 2).isEmpty()){
-					int nVisible = flow.GetFiled(j, 2).toInt();
+				if (!flow.GetFieldValue(j, 2).isEmpty()){
+					int nVisible = flow.GetFieldValue(j, 2).toInt();
 					
 					if (item->IsVisble() != nVisible){
 						item->SetVisible(nVisible);
@@ -340,15 +340,15 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 			int nItemState = item->GetPTSetState();
 			int nLogState = -1;
 			for (j = 1; j <= nCount; j++){
-				nLogState = log.GetFiled(j, 3).toInt();
+				nLogState = log.GetFieldValue(j, 3).toInt();
 				if (nLogState != nItemState)
 					continue;
 
 				item->SetMarked(TRUE);
 				
 				sContent.Format(" 执行时间：[ %s ]：执行用户：[ %s ]"
-					, log.GetFiled(j, 1).constData()
-					, log.GetFiled(j, 2).constData());
+					, log.GetFieldValue(j, 1).constData()
+					, log.GetFieldValue(j, 2).constData());
 
 				item->SetContent(sContent);
 				

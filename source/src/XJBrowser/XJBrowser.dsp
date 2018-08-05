@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../XJBrowser" /I "./pages" /I "./pages/pt" /I "./stores" /I "./stores/core" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "OS_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../XJBrowser" /I "./pages" /I "./pages/pt" /I "./stores" /I "./stores/core" /I "./stores/table" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "OS_WINDOWS" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "NDEBUG" /d "_AFXDLL"
@@ -101,35 +101,14 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\DlgCheckPro.cpp
-
-!IF  "$(CFG)" == "XJBrowser - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "XJBrowser - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\pages\pt\DlgOperHis.cpp
-
-!IF  "$(CFG)" == "XJBrowser - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "XJBrowser - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\pages\pt\HangoutWnd.cpp
-
-!IF  "$(CFG)" == "XJBrowser - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "XJBrowser - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -157,6 +136,10 @@ SOURCE=.\stores\core\qbytearraymatcher.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\stores\core\qbytearraymatrix.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\stores\core\qcardbase.cpp
 # End Source File
 # Begin Source File
@@ -168,6 +151,14 @@ SOURCE=.\stores\core\qglobal.cpp
 SOURCE=.\stores\core\qptsetcard.cpp
 # End Source File
 # End Group
+# Begin Group "table"
+
+# PROP Default_Filter ".cpp"
+# Begin Source File
+
+SOURCE=.\stores\table\qmemtable.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\stores\XJPTSetStore.cpp
@@ -175,6 +166,14 @@ SOURCE=.\stores\XJPTSetStore.cpp
 # Begin Source File
 
 SOURCE=.\stores\XJRootStore.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJStoreDefine.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJUserStore.cpp
 # End Source File
 # End Group
 # Begin Source File
@@ -1054,6 +1053,10 @@ SOURCE=.\stores\core\qbytearraymatcher.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\stores\core\qbytearraymatrix.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\stores\core\qcardbase.h
 # End Source File
 # Begin Source File
@@ -1065,6 +1068,14 @@ SOURCE=.\stores\core\qglobal.h
 SOURCE=.\stores\core\qptsetcard.h
 # End Source File
 # End Group
+# Begin Group "table "
+
+# PROP Default_Filter ".h"
+# Begin Source File
+
+SOURCE=.\stores\table\qmemtable.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\stores\XJPTSetStore.h
@@ -1072,6 +1083,14 @@ SOURCE=.\stores\XJPTSetStore.h
 # Begin Source File
 
 SOURCE=.\stores\XJRootStore.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJStoreDefine.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJUserStore.h
 # End Source File
 # End Group
 # Begin Source File

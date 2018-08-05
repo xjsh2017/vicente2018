@@ -19,7 +19,7 @@ public:
 	
 	QPTSetCard			m_card;
 	QLogTable			m_log;
-	QMatrixByteArray	m_workflow;
+	QByteArrayMatrix	m_workflow;
 
 	PT_SETTING_DATA_LIST m_arrPTSet;	
 
@@ -32,7 +32,7 @@ public:
 	BOOL	SaveStore();
 	BOOL	RevertStore();
 
-	QMatrixByteArray	GetDefaultWorkFlow();
+	QByteArrayMatrix	GetDefaultWorkFlow();
 };
 
 CXJPTSetStorePrivate::CXJPTSetStorePrivate()
@@ -45,9 +45,9 @@ CXJPTSetStorePrivate::~CXJPTSetStorePrivate()
 	ClearStore();
 }
 
-QMatrixByteArray CXJPTSetStorePrivate::GetDefaultWorkFlow()
+QByteArrayMatrix CXJPTSetStorePrivate::GetDefaultWorkFlow()
 {
-	QMatrixByteArray flow;
+	QByteArrayMatrix flow;
 	
 	// 功能ID, 是否可见, 用户组，用户ID;...;..
 	// 102,1,101,run1;204,1;205,1;206,1;207,1;101,1
@@ -70,7 +70,7 @@ BOOL CXJPTSetStorePrivate::ReloadState()
 
 	QPTSetCard &card = m_card;
 	QLogTable &log = m_log;
-	QMatrixByteArray &flow = m_workflow;
+	QByteArrayMatrix &flow = m_workflow;
 
 	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
 	CDBEngine &dbEngine = pApp->m_DBEngine;
@@ -172,7 +172,7 @@ BOOL CXJPTSetStorePrivate::SaveState()
 
 	QPTSetCard &card = m_card;
 	QLogTable &log = m_log;
-	QMatrixByteArray &flow = m_workflow;
+	QByteArrayMatrix &flow = m_workflow;
 
     CXJBrowserApp*  pApp = (CXJBrowserApp*)AfxGetApp();
 	CDBEngine&		dbEngine = pApp->m_DBEngine;
@@ -189,15 +189,15 @@ BOOL CXJPTSetStorePrivate::SaveState()
 	
 	// value
 	Field fld0;
-	str.Format("%s", card.GetValue());
+	str.Format("%s", card.constData());
 	dbEngine.SetField(sql, fld0, "value", EX_STTP_DATA_TYPE_STRING, str);
 	// reverse1
 	Field fld1;
-	str.Format("%s", flow.GetValue());
+	str.Format("%s", flow.constData());
 	dbEngine.SetField(sql, fld1, "reverse1", EX_STTP_DATA_TYPE_STRING, str);
 	// reverse3
 	Field fld3;
-	str.Format("%s", log.GetValue());
+	str.Format("%s", log.constData());
 	dbEngine.SetField(sql, fld3, "reverse3", EX_STTP_DATA_TYPE_STRING, str);
 	
 	//条件
@@ -246,7 +246,7 @@ int CXJPTSetStorePrivate::CheckState()
     CXJBrowserApp*  pApp = (CXJBrowserApp*)AfxGetApp();
 	CDBEngine&		dbEngine = pApp->m_DBEngine;
 
-	QMatrixByteArray& flow = m_workflow;
+	QByteArrayMatrix& flow = m_workflow;
 
 	CString str;
     
@@ -547,13 +547,13 @@ BOOL CXJPTSetStorePrivate::ReLoadStore()
 				pts->ntimeMStoS = atoi(str);
 			}
 
-			QMatrixByteArray val = mem.GetValue(14);
+			QByteArrayMatrix val = mem.GetValue(14);
 			if (val.count(',') == 0){
 				data->reserve1 = val;
 				data->reserve3 = "";
 			}else{
-				data->reserve1 = val.GetFiled(1, 1);
-				data->reserve3 = val.GetFiled(1, 2);
+				data->reserve1 = val.GetFieldValue(1, 1);
+				data->reserve3 = val.GetFieldValue(1, 2);
 			}
 
 			m_arrPTSet.Add(data);
@@ -656,7 +656,7 @@ BOOL CXJPTSetStorePrivate::SaveStore()
 
 /////////////////////////////////////////////////////////////////////////////
 // CXJPTSetStore
-
+//
 CXJPTSetStore *CXJPTSetStore::m_pInstance = NULL;
 
 CXJPTSetStore *CXJPTSetStore::GetInstance()
@@ -855,7 +855,7 @@ BOOL CXJPTSetStore::SaveRecallToDB(CString &sCPU, CString &sPTID, CTypedPtrArray
 	return TRUE;
 }
 
-BOOL CXJPTSetStore::SaveModifyToDB(CString &sPTID, MODIFY_LIST &arrModifyList)
+BOOL CXJPTSetStore::SaveModifyToDB(CString &sPTID, const MODIFY_LIST &arrModifyList)
 {
 	if (NULL == d_ptr)
 		return FALSE;
@@ -906,12 +906,12 @@ BOOL CXJPTSetStore::RevertModify()
 	return bReturn;
 }
 
-QMatrixByteArray& CXJPTSetStore::GetWorkFlow()
+QByteArrayMatrix& CXJPTSetStore::GetWorkFlow()
 {
 	return d_ptr->m_workflow;
 }
 
-QMatrixByteArray CXJPTSetStore::GetDefaultWorkFlow()
+QByteArrayMatrix CXJPTSetStore::GetDefaultWorkFlow()
 {
 	return d_ptr->GetDefaultWorkFlow();
 }
@@ -1089,11 +1089,11 @@ CString	CXJPTSetStore::GetFuncID(int nStateID)
 	}
 
 	// 设定组
-	QMatrixByteArray &flow = d_ptr->m_workflow;
+	QByteArrayMatrix &flow = d_ptr->m_workflow;
 	for (int i = 1; i <= flow.GetRows(); i++){
-		int nPTSetStateID = flow.GetFiled(i, 1).toInt();
+		int nPTSetStateID = flow.GetFieldValue(i, 1).toInt();
 		if (nPTSetStateID == nStateID){
-			int nUserType = flow.GetFiled(i, 3).toInt();
+			int nUserType = flow.GetFieldValue(i, 3).toInt();
 			if (0 != nUserType)
 				strUserGroupName = GetUserTypeName(nUserType);
 			break;
@@ -1259,4 +1259,34 @@ void CXJPTSetStore::Next_1(const char *pt_id)
 	Save();
 	
 	AddNewManOperator(XJ_OPER_HANGOUT, curTime.constData(), sUserID);
+}
+
+void CXJPTSetStore::Next_PTSet_State_2(int nCPU, int nZone, const char *szUserID
+									   , const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting)
+{
+	CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
+	//store->ReLoad();
+	QPTSetCard &card = *(GetCard());
+	QLogTable &log = *(GetLog());
+
+	// 保存临时修改结果到点表
+	SaveModifyToDB(CString(card.GetPTID().constData()), arrModifyList);
+
+	// 操作人员核对后修改状态机
+	//Next(2, nCPU, nZone, szUserID);
+	ReLoad();
+	
+	card.SetStateID(XJ_OPER_PTSET_STATE_2);
+	card.SetCPUID(nCPU);
+	card.SetZoneID(nZone);
+	
+	char szLog[256] = {0};
+	QByteArray curTime = GetTime();
+	sprintf(szLog, "%s,%s,%d"
+		, curTime.constData()
+		, szUserID
+		, XJ_OPER_PTSET_STATE_2);
+	log.Insert(szLog);
+	
+	AddNewManOperator(XJ_OPER_PTSET_STATE_2, curTime.constData(), szUserID);
 }

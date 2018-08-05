@@ -5,6 +5,8 @@
 #include "xjbrowser.h"
 #include "DlgValidateID.h"
 
+#include "qptsetcard.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -192,8 +194,9 @@ void CDlgValidateID::OnOK()
 			{
 				//只应该有一个值
 				m_strUserGroup = pMemset->GetValue((UINT)0); //用户组ID
-				CString sLoginFlag = pMemset->GetValue((UINT)1); //用户说明：特殊用，1 - 已登录；0 或 其它- 未登录
-
+				QByteArrayMatrix sLoginNote = pMemset->GetValue((UINT)1); //用户说明：特殊用，1 - 已登录；0 或 其它- 未登录
+				
+				QByteArray sLoginFlag = sLoginNote.GetFieldValue(1, 1);
 				if (sLoginFlag == "1" && m_nValidateType == -1){
 					AfxMessageBox( StringFromID(IDS_VALIDATE_USERALREADYLOGIN_ERROR));
 					GetDlgItem(IDC_EDT_USERNAME)->SetFocus();

@@ -144,6 +144,10 @@ public:
     QByteArray &operator+=(char c);
     QByteArray &operator+=(const char *s);
     QByteArray &operator+=(const QByteArray &a);
+	
+    QByteArray &operator<<(const char *s);
+    QByteArray &operator<<(const QByteArray &a);
+    QByteArray &operator<<(int v);
 
     QList<QByteArray> split(char sep) const;
 
@@ -312,6 +316,12 @@ inline QByteArray &QByteArray::operator+=(const char *s)
 { return append(s); }
 inline QByteArray &QByteArray::operator+=(const QByteArray &a)
 { return append(a); }
+inline QByteArray &QByteArray::operator<<(const char *s)
+{ return append(s); }
+inline QByteArray &QByteArray::operator<<(const QByteArray &a)
+{ return append(a); }
+inline QByteArray &QByteArray::operator<<(int v)
+{ return append(QByteArray::number(v)); }
 inline void QByteArray::push_back(char c)
 { append(c); }
 inline void QByteArray::push_back(const char *c)

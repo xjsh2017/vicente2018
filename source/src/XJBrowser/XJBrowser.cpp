@@ -73,6 +73,7 @@
 #include "PushMsgProcess.h"
 
 #include "XJRootStore.h"
+#include "XJUserStore.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3421,6 +3422,9 @@ BOOL CXJBrowserApp::InitInstance()
 
 	if (g_bLoginVerify)
 	{
+		CXJUserStore::GetInstance()->ReLoad();
+		CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+
 		//用户身份验证
 		if (!DoLogin())
 		{
@@ -4035,12 +4039,14 @@ BOOL CXJBrowserApp::DoLogin()
 		strMsg = strTemp;
 		::SendMessage(AfxGetMainWnd()->GetSafeHwnd(), WM_STATUS_INFO, ID_INDICATOR_LOGINTIP, (LPARAM)strTemp.GetBuffer(100));
 		strTemp.ReleaseBuffer();
-		
 
 		//添加人工操作日志
 		AddNewManOperator(FUNC_XJBROWSER_BROWSER, "用户登陆", strMsg, -1);
 
-		SetUserLoginFlag(m_User.m_strUSER_ID, m_User.m_strGROUP_ID, CString("1"));
+		//SetUserLoginFlag(m_User.m_strUSER_ID, m_User.m_strGROUP_ID, CString("1"));
+		CXJUserStore::GetInstance()->SetUserFlags(m_User.m_strUSER_ID.GetBuffer(0)
+			, m_User.m_strGROUP_ID.GetBuffer(0), 1);
+		CXJUserStore::GetInstance()->Save();
 		
 		return TRUE;
 	}

@@ -3179,7 +3179,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
 			
 			int nCurPTSetModState = card.GetStateID();
-			CString sRunnerUserID = log.GetFiled(1, 2).data();
+			CString sRunnerUserID = log.GetFieldValue(1, 2).data();
 			// 运行人员或者超级用户
 			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
 				if (XJ_OPER_PTSET_STATE_3 == nCurPTSetModState){

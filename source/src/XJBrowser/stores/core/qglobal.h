@@ -552,6 +552,11 @@ typedef unsigned long long quint64; /* 64 bit unsigned */
 typedef qint64 qlonglong;
 typedef quint64 qulonglong;
 
+/*
+   Avoid "unused parameter" warnings
+*/
+#define Q_UNUSED(x) (void)x;
+
 #if defined(Q_OS_WIN64)
 # define QT_POINTER_SIZE 8
 #elif defined(Q_OS_WIN32)

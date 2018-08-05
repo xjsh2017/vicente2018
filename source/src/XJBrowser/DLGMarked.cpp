@@ -119,8 +119,8 @@ BOOL DLGMarked::CheckStateBeforeMark()
 		str.Format("当前已存在挂牌的保护装置： \n\n挂牌装置：[ %s ] [ %s ] \n\n挂牌时间：%s \n\n执行用户：%s"
 			, pObj->m_pStation ? pObj->m_pStation->m_sName : ""
 			, pObj->m_sName
-			, log.GetFiled(1, 1).constData()
-			, log.GetFiled(1, 2).constData());
+			, log.GetFieldValue(1, 1).constData()
+			, log.GetFieldValue(1, 2).constData());
 	}
 	AfxMessageBox(str, MB_ICONWARNING);
 	
@@ -137,7 +137,7 @@ BOOL DLGMarked::CheckStateBeforeUnMark()
 	QPTSetCard &card = *(store->GetCard());
 	QLogTable &log = *(store->GetLog());
 
-	CString sRunnerUserID = log.GetFiled(1, 2).constData();
+	CString sRunnerUserID = log.GetFieldValue(1, 2).constData();
 	int nFlag = card.GetFlags();
 	int nPTSetState = card.GetStateID();
 	int nType = card.GetType();

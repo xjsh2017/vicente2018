@@ -6,6 +6,7 @@
 #include "HangoutWnd.h"
 
 #include "XJPTSetStore.h"
+#include "XJUserStore.h"
 
 #include "MainFrm.h"
 
@@ -555,6 +556,11 @@ void CHangoutWnd::MiniWnd( BOOL bMini )
 
 void CHangoutWnd::ShowChannelDetail( int nChannel )
 {
+	CXJUserStore::GetInstance()->ReLoad();
+	AfxMessageBox("loaded!");
+
+	return;
+
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;

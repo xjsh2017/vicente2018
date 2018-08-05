@@ -4,6 +4,7 @@
 #include "StdAfx.h"
 #include "XJRootStore.h"
 
+
 list<CXJRootStore*> CXJRootStore::m_lstInstantce = list<CXJRootStore*>();
 
 CXJRootStore::CXJRootStore(void)
