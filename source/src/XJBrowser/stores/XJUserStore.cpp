@@ -65,31 +65,40 @@ BOOL QUserTable::ReLoad()
 BOOL QUserTable::Save(const char *pszFilePath)
 {
 	BOOL bReturn = FALSE;
+
+//  	CString str;
+// 
+// 	int nFlag;
+// 	QByteArray sOwner;
+// 	Q_UNUSED(nFlag);
+// 	Q_UNUSED(sOwner);
 	
-	int nFlag = GetUserFlags("op1", "操作用户");
-	QByteArray sOwner = GetUserOwner("op1", "操作用户");
+// 	int nFlag = GetUserFlags("op1", "操作用户");
+// 	QByteArray sOwner = GetUserOwner("op1", "操作用户");
+// 	
+// 	
+// 	str.Format(" Flag: %d\n Owner: %s"
+// 		, nFlag
+// 		, sOwner.constData());
+// 	AfxMessageBox(str);
 	
-	CString str;
-	
-	str.Format(" Flag: %d\n Owner: %s"
-		, nFlag
-		, sOwner.constData());
-	AfxMessageBox(str);
-	
-	SetUserFlags("op1", "操作用户", 1);
-	SetUserOwner("op1", "操作用户", QByteArray("hello"));
-	nFlag = GetUserFlags("op1", "操作用户");
-	sOwner = GetUserOwner("op1", "操作用户");
-	
-	str.Format(" Flag: %d\n Owner: %s"
-		, nFlag
-		, sOwner.constData());
-	AfxMessageBox(str);
+// 	SetUserFlags("op1", "操作用户", 1);
+// 	SetUserOwner("op1", "操作用户", QByteArray("hello"));
+// 	nFlag = GetUserFlags("op1", "操作用户");
+// 	sOwner = GetUserOwner("op1", "操作用户");
+// 	
+// 	str.Format(" Flag: %d\n Owner: %s"
+// 		, nFlag
+// 		, sOwner.constData());
+// 	AfxMessageBox(str);
+
+	if (SaveData())
+		bReturn = TRUE;
 	
 	if (NULL != pszFilePath)
 		FWrite(pszFilePath);
 
-	return SaveData();
+	return bReturn;
 }
 
 int QUserTable::GetUserFlags(const char* pszUserID, const char* pszUserGroupID)

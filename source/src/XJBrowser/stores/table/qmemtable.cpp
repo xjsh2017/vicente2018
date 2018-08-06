@@ -7,12 +7,6 @@
 #include "XJBrowser.h"
 #include "XJStoreDefine.h"
 
-#define ooc(str) .append(GetDelimCol()).append(str)
-#define oonc(num) .append(GetDelimCol()).append(QByteArray::number(num))
-
-#define oor(str) .append(GetDelimRow()).append(str)
-#define oonr(num) .append(GetDelimRow()).append(QByteArray::number(num))
-
 ////////////////////////////////////////////////////////////
 // QMemTablePrivate
 // 
@@ -63,7 +57,6 @@ public:
 	BOOL		LoadDataAll();
 	
 	BOOL		SaveData();
-	BOOL		ExcuteSQL(const char* sql_stmt, QByteArrayMatrix &content);
 	
 	int			GetTableID();
 	QByteArray	GetTableName(int nNameType = 0);
@@ -90,6 +83,11 @@ public:
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
 	
 	BOOL		AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldType, QByteArray initVal);
+	
+public: // SQL DML DDL
+	QByteArray	BuildSQL_UPDATE(int iRow);
+	BOOL		ExcuteSQL(const char* sql_stmt, QByteArrayMatrix &content);
+
 };
 
 QMemTablePrivate::QMemTablePrivate()
@@ -251,6 +249,74 @@ BOOL QMemTablePrivate::LoadDataAll()
 BOOL QMemTablePrivate::SaveData()
 {
 	BOOL bReturn = FALSE;
+
+	CString str;
+	CXJBrowserApp*  pApp = (CXJBrowserApp*)AfxGetApp();
+	CDBEngine&		dbEngine = pApp->m_DBEngine;
+	
+	char * sError = NULL;
+	sError = new char[MAXMSGLEN];
+	memset(sError, '\0', MAXMSGLEN);
+	
+	int nRowCount = GetRowCount();
+	for(int i = 1; i <= nRowCount; i++)
+	{
+		CMemSet	mem;
+		int nResult;
+
+		QByteArrayMatrix val = GetFieldValue(i, "is_modified");
+		int is_modified = val.GetFieldValue(1, 1).toInt();
+		if (0 == is_modified)
+			continue;
+		
+		CString strSQL = BuildSQL_UPDATE(i).constData();
+		//AfxMessageBox(strSQL);
+		//continue;
+		
+		WriteLog(strSQL);
+		//AfxMessageBox(strSQL);
+		
+		//进行查询
+		MutiSQL_DATA MutiSql;
+		bzero(&MutiSql, sizeof(MutiSQL_DATA));
+		MutiSql.Funtype = EX_STTP_FUN_TYPE_UPDATE;
+		strncpy(MutiSql.SQL_BODY_Content, strSQL, strSQL.GetLength());
+		memset(sError, '\0', MAXMSGLEN);
+		
+		try
+		{
+			nResult = dbEngine.XJExecuteSql(MutiSql, sError, &mem);
+		}
+		catch (...)
+		{
+			str.Format("QMemTablePrivate::SaveData, 更新失败");
+			WriteLog(str);
+			DELETE_POINTERS(sError);
+			//AfxMessageBox(str);
+			
+			return FALSE;
+		}
+		
+		if(nResult == 1)
+		{	
+			str.Format("QMemTablePrivate::SaveData, 更新成功");
+			WriteLog(str);
+			//AfxMessageBox(str);
+
+			// 取消更新标志
+			int nColIdx = GetFieldIndex("is_modified");
+			m_data.SetFieldValue(i, nColIdx, QByteArray(""));
+		}
+		else
+		{
+			str.Format("QMemTablePrivate::SaveData, 更新失败, 原因为%s", sError);
+			WriteLog(str);
+			//AfxMessageBox(str);
+		}
+		
+		mem.FreeData(true);
+	}
+	DELETE_POINTERS(sError);
 	
 	return TRUE;
 }
@@ -532,7 +598,16 @@ BOOL QMemTablePrivate::SetFieldValue(int iRow, int iCol, QByteArray val)
 {
 	if (val != GetFieldValue(iRow, iCol)){
 		int nColIdx = GetFieldIndex("is_modified");
-		m_data.SetFieldValue(iRow, nColIdx, QByteArray::number(1));
+		QByteArrayMatrix val = GetFieldValue(iRow, nColIdx);
+		QByteArray fldsChangeCol = val.GetRowData(2);
+		if (!fldsChangeCol.contains(QByteArray::number(iCol))){
+			if (!fldsChangeCol.isEmpty())
+				fldsChangeCol << ",";
+			fldsChangeCol << iCol;
+		}
+		QByteArrayMatrix newVal;
+		newVal << 1 << ";" << fldsChangeCol;
+		m_data.SetFieldValue(iRow, nColIdx, newVal);
 // 		SetFieldValue(iRow, "is_modified", QByteArray::number(1));
 	}
 	m_data.SetFieldValue(iRow, iCol, val);
@@ -547,7 +622,17 @@ BOOL QMemTablePrivate::SetFieldValue(int iRow, const char *szFieldName, QByteArr
 
 	if (val != GetFieldValue(iRow, iCol)){
 		int nColIdx = GetFieldIndex("is_modified");
-		m_data.SetFieldValue(iRow, nColIdx, QByteArray::number(1));
+		QByteArrayMatrix val = GetFieldValue(iRow, nColIdx);
+		QByteArray fldsChangeCol = val.GetRowData(2);
+		if (!fldsChangeCol.contains(QByteArray::number(iCol))){
+			if (!fldsChangeCol.isEmpty())
+				fldsChangeCol << ",";
+			fldsChangeCol << iCol;
+		}
+		QByteArrayMatrix newVal;
+		newVal << 1 << ";" << fldsChangeCol;
+		
+		m_data.SetFieldValue(iRow, nColIdx, newVal);
 // 		SetFieldValue(iRow, "is_modified", QByteArray::number(1));
 	}
  	m_data.SetFieldValue(iRow, iCol, val);
@@ -572,6 +657,43 @@ BOOL QMemTablePrivate::AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldTy
 	m_data.expandMatrix(1, initVal);
 
 	return bReturn;
+}
+
+QByteArray QMemTablePrivate::BuildSQL_UPDATE(int iRow)
+{
+	QByteArray baSQL;
+	
+	QByteArrayMatrix val = GetFieldValue(iRow, "is_modified");
+	if (val.GetFieldValue(1, 1).toInt() != 1)
+		return baSQL;
+
+	baSQL << "UPDATE " << GetTableName();
+	baSQL << " SET ";
+
+	int nFieldChangedCount = val.GetCols(2);
+	for (int i = 1; i <= nFieldChangedCount; i++){
+		int nCol = val.GetFieldValue(2, i).toInt();
+		if (0 == nCol)
+			continue;
+
+		if (i != 1)
+			baSQL << ",";
+
+		baSQL << GetFieldName(nCol) << " = '" << GetFieldValue(iRow, nCol) << "'";
+	}
+	baSQL << " ";
+
+	int nKeyCount = GetKeyCount();
+	if (nKeyCount > 0)
+		baSQL << "WHERE ";
+	for (int i = 1; i <= nKeyCount; i++){
+		if (i != 1)
+			baSQL << " AND ";
+
+		baSQL << GetKeyName(i) << " = '" << GetKeyValue(iRow, i) << "'";
+	}
+
+	return baSQL;
 }
 
 ////////////////////////////////////////////////////////////

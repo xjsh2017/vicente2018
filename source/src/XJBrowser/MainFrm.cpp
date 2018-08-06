@@ -50,6 +50,7 @@
 #include "DlgValidateID.h"
 
 #include "XJPTSetStore.h"
+#include "XJUserStore.h"
 #include "qptsetcard.h"
 
 
@@ -2183,7 +2184,10 @@ void CMainFrame::OnClose()
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 	
 	// 用户退出，置标志位
-	pApp->SetUserLoginFlag(pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID, CString(""));
+	//pApp->SetUserLoginFlag(pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID, CString(""));
+	CXJUserStore::GetInstance()->SetUserFlags(pApp->m_User.m_strUSER_ID.GetBuffer(0)
+		, pApp->m_User.m_strGROUP_ID.GetBuffer(0), 0);
+	CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
 
 	WriteLog("CMainFrame::OnClose start", XJ_LOG_LV3);
 

@@ -3423,7 +3423,7 @@ BOOL CXJBrowserApp::InitInstance()
 	if (g_bLoginVerify)
 	{
 		CXJUserStore::GetInstance()->ReLoad();
-		CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+		//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
 
 		//用户身份验证
 		if (!DoLogin())
@@ -4046,7 +4046,7 @@ BOOL CXJBrowserApp::DoLogin()
 		//SetUserLoginFlag(m_User.m_strUSER_ID, m_User.m_strGROUP_ID, CString("1"));
 		CXJUserStore::GetInstance()->SetUserFlags(m_User.m_strUSER_ID.GetBuffer(0)
 			, m_User.m_strGROUP_ID.GetBuffer(0), 1);
-		CXJUserStore::GetInstance()->Save();
+		CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
 		
 		return TRUE;
 	}
