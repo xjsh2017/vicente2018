@@ -9,18 +9,6 @@
 
 ////////////////////////////////////////////////////////////
 
-class QPTSetDataTable : public QMemTable
-{
-public:
-	QPTSetDataTable();
-	~QPTSetDataTable();
-	
-public:	
-	BOOL		ReLoad();
-	BOOL		Save(const char *pszFilePath = NULL);
-
-};
-
 class CXJPTSetStorePrivate 
 {
 public:
@@ -38,61 +26,10 @@ public:
 	
 public:	
 	BOOL		Save(const char *pszFilePath = NULL);
+	BOOL		ReLoadData();
 
-	BOOL		ReloadData();
 };
 
-////////////////////////////////////////////////////////////
-// QPTSetDataTable
-//
-QPTSetDataTable::QPTSetDataTable()
-{
-}
-
-QPTSetDataTable::~QPTSetDataTable()
-{
-	
-}
-
-BOOL QPTSetDataTable::ReLoad()
-{
-	BOOL bReturn = FALSE;
-	
-	LoadInfo("tb_pt_setting_def");
-	//LoadDataAll();
-
-	//if (!m_card.GetPTID().isEmpty()){
-	if (1){
-		QByteArray baSQL;
-		baSQL << "SELECT * FROM tb_pt_setting_def WHERE pt_id IN ('" 
-			<< "由由BH51"
-			//<< m_card.GetPTID()
-			<< "')";
-		LoadData(baSQL);
-		Save("c:/tb_pt_setting_def.txt");
-	}
-	
-	return bReturn;
-}
-
-BOOL QPTSetDataTable::Save(const char *pszFilePath)
-{
-	BOOL bReturn = FALSE;
-	
-	QByteArrayMatrix keyVals;
-	keyVals << "由由BH51" << keyVals.GetDelimCol()
-		<< 2 << keyVals.GetDelimCol()
-		<< 1010;
-	SetFieldValue(keyVals, "reserve3", "20,19.8");
-	
-	if (SaveData())
-		bReturn = TRUE;
-	
-	if (NULL != pszFilePath)
-		FWrite(pszFilePath);
-	
-	return bReturn;
-}
 
 
 ////////////////////////////////////////////////////////////
@@ -100,6 +37,8 @@ BOOL QPTSetDataTable::Save(const char *pszFilePath)
 //
 CXJPTSetStorePrivate::CXJPTSetStorePrivate()
 {
+	m_data_PTSet.m_pState = &m_state;
+	m_state.m_pData = &m_data_PTSet;
 }
 
 CXJPTSetStorePrivate::~CXJPTSetStorePrivate()
@@ -308,6 +247,14 @@ QPTSetStateTable* CXJPTSetStore::GetState()
 		return NULL;
 	
 	return &(d_ptr->m_state);
+}
+
+QPTSetDataTable* CXJPTSetStore::GetPTSetData()
+{
+	if (NULL == d_ptr)
+		return NULL;
+	
+	return &(d_ptr->m_data_PTSet);
 }
 
 

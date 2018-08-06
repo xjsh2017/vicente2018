@@ -3484,12 +3484,20 @@ void CPTSetting::OnBtnPtsetModify2()
 
 		m_nOperationNum = GetOperationNum();
 
+		// 载入新值
+		QPTSetStateTable* pState = CXJPTSetStore::GetInstance()->GetState();
+		pState->SetCPUID(atoi(m_sCPU));
+		pState->SetZoneID(atoi(m_sZone));
+		QPTSetDataTable* pData = CXJPTSetStore::GetInstance()->GetPTSetData();
+		pData->ReLoad(m_arrModifyList, m_arrSetting);
+
 		//操作员确认
 		CDlgCheckPro dlg(this, 2);
 		dlg.m_strModify = m_strOutPut;
 		dlg.m_arrModifyList.Copy(m_arrModifyList);
 		dlg.m_sZone = m_sZone;
 		dlg.m_sCPU = m_sCPU;
+
 		if(dlg.DoModal() == IDOK)
 		{
 			if(g_PTControlModel == 1)
@@ -3510,18 +3518,17 @@ void CPTSetting::OnBtnPtsetModify2()
 					int nPTSetState = pState->GetStateID();
 
 					CString str;
-					CString sRecords;
-					int nState = pApp->GetPTSetModState(PT_ZONE(), sRecords);
 					if (XJ_OPER_HANGOUT != nPTSetState){
 						CString sCurUserID = pState->GetOperUserID().constData();
-						str.Format("用户[%s]正在对该装置进行定值修改操作作业 或者 该装置已取消了挂牌，请稍后再试", sCurUserID);
+						str.Format("用户[%s]正在对该装置进行定值修改操作作业 或者 该装置已取消了挂牌，请稍后再试"
+							, sCurUserID);
 						AfxMessageBox(str, MB_OK | MB_ICONWARNING);
 
 						RevertModifyValue(1, 1);
 						return;
 					}
 
-					CXJPTSetStore::GetInstance()->GetState()->Next_PTSet_State_2(atoi(m_sCPU), atoi(m_sZone)
+					pState->Next_PTSet_State_2(atoi(m_sCPU), atoi(m_sZone)
 						, m_sOperUser.GetBuffer(0), m_arrModifyList, m_arrSetting);
 				}
 				else

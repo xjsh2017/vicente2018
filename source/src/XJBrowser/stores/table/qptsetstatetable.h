@@ -61,6 +61,7 @@ public:
 
 };
 
+class QPTSetDataTable;
 class QPTSetStateTable : public QMemTable
 {
 public:
@@ -103,21 +104,40 @@ public:
 
 public:
 
-	BOOL	Next(const char *card_data, const char *log_data);
-	BOOL	Next(int nNextStateID, const char* szUserID, int nFlag = 0);
-	BOOL	Next(int nNextStateID, const char* szUserID, const char* szPTID, int nFlag = 0);
-	BOOL	Next(int nNextStateID, int nCPUID, int nZoneID, const char* szUserID, int nFlag = 0);
+	BOOL		Next(const char *card_data, const char *log_data);
+	BOOL		Next(int nNextStateID, const char* szUserID, int nFlag = 0);
+	BOOL		Next(int nNextStateID, const char* szUserID, const char* szPTID, int nFlag = 0);
+	BOOL		Next(int nNextStateID, int nCPUID, int nZoneID, const char* szUserID, int nFlag = 0);
 
 	void		Next_0(const char *pszUserID);
 	void		Next_1(const char *pszUserID, const char *pt_id, const char * pszHangoutReason);
 	
-	//private:
-	void		Next_PTSet_State_2(int nCPU, int nZone, const char *szUserID
-		, const MODIFY_LIST &arrModifyList
-		, const PT_SETTING_LIST &arrSetting);
+//private:
+	void		Next_PTSet_State_2(int nCPU, int nZone, const char *pszUserID
+								, const MODIFY_LIST &arrModifyList
+								, const PT_SETTING_LIST &arrSetting);
 	void		Next_PTSet_State_3();
 	void		Next_PTSet_State_4();
 	void		Next_PTSet_State_5();
+
+public:
+	QPTSetDataTable*	m_pData;
+
+};
+
+class QPTSetDataTable : public QMemTable
+{
+public:
+	QPTSetDataTable();
+	~QPTSetDataTable();
+	
+public:	
+	BOOL		ReLoad();
+	BOOL		ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
+	BOOL		Save(const char *pszFilePath = NULL);
+
+	QPTSetStateTable*	m_pState;
+	
 };
 
 extern const char* PTSET_KEYNAME;

@@ -161,6 +161,9 @@ BOOL CDlgCheckPro::OnInitDialog()
 	if (m_nType ==0)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
+		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		QPTSetDataTable *pData = pStore->GetPTSetData();
+		pData->ReLoad();
 	}
 	else if (m_nType ==1)
 	{
@@ -319,57 +322,47 @@ int CDlgCheckPro::InitListStyle()
 
 void CDlgCheckPro::FillData()
 {
-	//CXJPTSetStore::GetInstance()->ReLoad();
-	PT_SETTING_DATA_LIST arrPTSet;// = CXJPTSetStore::GetInstance()->GetStoreData();
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	QPTSetStateTable *pState = pStore->GetState();
+	QPTSetDataTable *pPTSetData = pStore->GetPTSetData();
 	
 	//填充数据时禁止刷新
 	m_List.SetRedraw(FALSE);
 	//EnterCriticalSection(&m_CriticalOper);  
-	//int nGroupCount = m_arrGroup.GetSize();
-	PT_SETTING *pts = NULL;
-	PT_SETTING_DATA *data = NULL;
 	int nIndex = 0;
-	for(int i = 0; i < arrPTSet.GetSize(); i ++)
+	int nRowCount = pPTSetData->GetRowCount();
+	for(int i = 0; i <nRowCount; i ++)
 	{
-		data = (PT_SETTING_DATA*)arrPTSet.GetAt(i);
-		if (NULL == data)
-			continue;
-		pts = data->pts;
-		if (NULL == pts)
-			continue;
-
-		CString sID = pts->ID;
-		if(1 == g_PTIndexType)
-		{
-			sID.Format("%d", nIndex+1);
-		}
-		m_List.InsertItem(nIndex, sID); //ID
-		CString strName;
-		int z = pts->Name.Find(",", 0);
-		if (z != -1)
-		{
-			strName = pts->Name.Left(z);
-		}
-		else
-		{
-			strName = pts->Name;
-		}
-		m_List.SetItemText(nIndex, 1, strName); //名称
-		m_List.SetItemText(nIndex, 2, pts->CodeName); //代码
-		m_List.SetItemText(nIndex, 3, pts->Unit); //单位
-		m_List.SetItemText(nIndex, 4, pts->OrderValue); //基准值
 		CString str;
-		str.Format("%d", pts->Group);
-		m_List.SetItemText(nIndex, 5, str);
-		str.Format("%d", pts->Item);
-		m_List.SetItemText(nIndex,6, str);
-		str.Format("%s", pts->stepValue);
+		str = pPTSetData->GetFieldValue(i + 1, "setting_id").constData();
+		if(1 == g_PTIndexType){
+			str.Format("%d", nIndex+1);
+		}
+		m_List.InsertItem(nIndex, str); //ID
+		str = pPTSetData->GetFieldValue(i + 1, "name").constData();
+		m_List.SetItemText(nIndex, 1, str); //名称
+		str = pPTSetData->GetFieldValue(i + 1, "code_name").constData();
+		m_List.SetItemText(nIndex, 2, str); //代码
+		str = pPTSetData->GetFieldValue(i + 1, "unit").constData();
+		m_List.SetItemText(nIndex, 3, str); //单位
+		//str = pPTSetData->GetFieldValue(i + 1, "unit").constData();
+		m_List.SetItemText(nIndex, 4, ""); //基准值
+		//str.Format("%d", pts->Group);
+		m_List.SetItemText(nIndex, 5, "");
+		//str.Format("%d", pts->Item);
+		m_List.SetItemText(nIndex,6, "");
+		str = pPTSetData->GetFieldValue(i + 1, "stepvalue").constData();
+		str.Format("%s", str);
 		m_List.SetItemText(nIndex, 7, str);
-		
-		str.Format("%s/%s", pts->minValue, pts->maxValue);
-		m_List.SetItemText(nIndex, 8, str);
-		m_List.SetItemText(nIndex, 9, pts->Precision);
-		switch (pts->DataType)
+		QByteArrayMatrix val;
+		val << pPTSetData->GetFieldValue(i + 1, "minvalue") << "/"
+			<< pPTSetData->GetFieldValue(i + 1, "maxvalue");
+		//str.Format("%s/%s", pts->minValue, pts->maxValue);
+		m_List.SetItemText(nIndex, 8, val.constData());
+		str = pPTSetData->GetFieldValue(i + 1, "s_precision").constData();
+		m_List.SetItemText(nIndex, 9, str);
+		str = pPTSetData->GetFieldValue(i + 1, "datatype").constData();
+		switch (atoi(str))
 		{
 			//0-浮点 1-整型 2-控制字(十六进制) 3-字符串 4-控制字(二进制)
 		case 0:
@@ -392,9 +385,10 @@ void CDlgCheckPro::FillData()
 			break;
 		}
 		m_List.SetItemText(nIndex, 10, str);
-		m_List.SetItemText(nIndex, 11, data->reserve1);
-		m_List.SetItemText(nIndex, 12, data->reserve3);
-		m_List.SetItemData(nIndex, (DWORD)data);
+		val = pPTSetData->GetFieldValue(i + 1, "reserve3").constData();
+		m_List.SetItemText(nIndex, 11, val.GetFieldValue(1, 1).constData());
+		m_List.SetItemText(nIndex, 12, val.GetFieldValue(1, 2).constData());
+		m_List.SetItemData(nIndex, (DWORD)NULL);
 		
 		
 		nIndex++;

@@ -670,30 +670,113 @@ void QPTSetStateTable::Next_1(const char *pszUserID, const char *pt_id, const ch
 	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_HANGOUT, slog.GetFieldValue(1, 1).constData(), pszUserID);
 }
 
-void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *szUserID
+void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *pszUserID
 									   , const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting)
 {
-	CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
-	//store->ReLoadState();
-	
-	// 保存临时修改结果到点表
-	//SaveModifyToDB(CString(GetPTID().constData()), arrModifyList);
-	
-	// 操作人员核对后修改状态机
-	//Next(2, nCPU, nZone, szUserID);
-	//ReLoadState();
-	
 	SetStateID(XJ_OPER_PTSET_STATE_2);
 	SetCPUID(nCPU);
 	SetZoneID(nZone);
+
+	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSET_STATE_2, pszUserID);
 	
-	char szLog[256] = {0};
-	QByteArray curTime = GetTime();
-	sprintf(szLog, "%s,%s,%d"
-		, curTime.constData()
-		, szUserID
-		, XJ_OPER_PTSET_STATE_2);
-	//log.Insert(szLog);
+	Save();
+
+	m_pData->ReLoad(arrModifyList, arrSetting);
 	
-	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSET_STATE_2, curTime.constData(), szUserID);
+	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSET_STATE_2
+		, slog.GetFieldValue(1, 1).constData(), pszUserID);
 }
+
+
+////////////////////////////////////////////////////////////
+// QPTSetDataTable
+//
+QPTSetDataTable::QPTSetDataTable()
+{
+}
+
+QPTSetDataTable::~QPTSetDataTable()
+{
+	
+}
+
+BOOL QPTSetDataTable::ReLoad()
+{
+	BOOL bReturn = FALSE;
+	
+	LoadInfo("tb_pt_setting_def");
+	//LoadDataAll();
+	
+	//if (!m_card.GetPTID().isEmpty()){
+	if (1){
+		QByteArray baSQL;
+		baSQL << "SELECT * FROM tb_pt_setting_def WHERE pt_id IN ('" 
+			//<< "由由BH51"
+			<< m_pState->GetPTID()
+			<< "')";
+		LoadData(baSQL);
+		Save("c:/tb_pt_setting_def.txt");
+	}
+	
+	return bReturn;
+}
+
+BOOL QPTSetDataTable::ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting)
+{
+	BOOL bReturn = FALSE;
+
+	ReLoad();
+
+	int nCount = arrSetting.GetSize();
+	for (int i = 0; i < nCount; i++){
+		PT_SETTING *pts_data = (PT_SETTING*)arrSetting.GetAt(i);
+		
+		int nSettingID = atoi(pts_data->ID);
+		int nCPUID = m_pState->GetCPUID();
+		QByteArrayMatrix keyvals;
+		keyvals << m_pState->GetPTID() << "," << nCPUID << "," << nSettingID;
+		
+		QByteArray val = pts_data->Value.GetBuffer(0);
+
+		SetFieldValue(keyvals, "reserve3", val);
+	}
+		
+		
+	nCount = arrModifyList.GetSize();
+	for(int i = 0; i < nCount; i++)
+	{
+		STTP_DATA * sttpData = (STTP_DATA*)arrModifyList.GetAt(i);
+
+		int nSettingID = sttpData->id;
+		int nCPUID = sttpData->nCpu;
+		QByteArrayMatrix keyvals;
+		keyvals << m_pState->GetPTID() << "," << nCPUID << "," << nSettingID;
+
+		QByteArrayMatrix val = GetFieldValue(keyvals, "reserve3");
+		val << ", " << sttpData->str_value.c_str();
+
+		SetFieldValue(keyvals, "reserve3", val);
+	}
+
+	return bReturn;
+}
+
+BOOL QPTSetDataTable::Save(const char *pszFilePath)
+{
+	BOOL bReturn = FALSE;
+	
+// 	QByteArrayMatrix keyVals;
+// 	keyVals << "由由BH51" << keyVals.GetDelimCol()
+// 		<< 2 << keyVals.GetDelimCol()
+// 		<< 1010;
+// 	SetFieldValue(keyVals, "reserve3", "20,19.8");
+	
+	if (SaveData())
+		bReturn = TRUE;
+	
+	if (NULL != pszFilePath)
+		FWrite(pszFilePath);
+	
+	return bReturn;
+}
+
