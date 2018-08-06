@@ -2,6 +2,7 @@
 #include "xjbrowser.h"
 
 #include "XJPTSetStore.h"
+#include "qptsetstatetable.h"
 
 /****************************************************
 Date:2013/10/9  Author:LYH
@@ -135,10 +136,12 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 	CRect rcTypeName = m_rcBound;
 	rcTypeName.right = rcTypeName.left+m_nTypeNameWidth;
 
- 	QPTSetCard &card = *(CXJPTSetStore::GetInstance()->GetCard());
- 	int nCurPTSetState = card.GetStateID();
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	QPTSetStateTable *pState = pStore->GetState();
+
+	int nPTSetState = pState->GetStateID();
 	
-	if (m_bMarked && nCurPTSetState > XJ_OPER_UNHANGOUT)
+	if (m_bMarked && nPTSetState > XJ_OPER_UNHANGOUT)
 		m_colTypeName = RGB(0,232,0);
 	else
 		m_colTypeName = RGB(192,192,192);

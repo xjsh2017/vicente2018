@@ -146,10 +146,6 @@ SOURCE=.\stores\core\qcardbase.cpp
 
 SOURCE=.\stores\core\qglobal.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qptsetcard.cpp
-# End Source File
 # End Group
 # Begin Group "table"
 
@@ -157,6 +153,10 @@ SOURCE=.\stores\core\qptsetcard.cpp
 # Begin Source File
 
 SOURCE=.\stores\table\qmemtable.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\table\qptsetstatetable.cpp
 # End Source File
 # End Group
 # Begin Source File
@@ -1063,10 +1063,6 @@ SOURCE=.\stores\core\qcardbase.h
 
 SOURCE=.\stores\core\qglobal.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\stores\core\qptsetcard.h
-# End Source File
 # End Group
 # Begin Group "table "
 
@@ -1074,6 +1070,10 @@ SOURCE=.\stores\core\qptsetcard.h
 # Begin Source File
 
 SOURCE=.\stores\table\qmemtable.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\table\qptsetstatetable.h
 # End Source File
 # End Group
 # Begin Source File

@@ -34,6 +34,8 @@ public:
 	CPictureEx			m_gif;
 	CButton	m_btnStyle;
 	CXPStyleButtonST	m_btnPrint;
+	CButton	m_btnViewProg;
+	CButton	m_btnViewHis;
 	CButton	m_btnModify;
 	CButton	m_btnCall;
 	CListCtrlEx			m_List;
@@ -58,6 +60,9 @@ public:
 	CString     m_sMonUser;
 	bool        m_bOperVerify;
 	bool        m_bMonVerify;
+
+	CPoint  m_pointViewProg;
+	bool	m_bAlreadyShowOnce;
 
 	/** @brief			是否正在预校*/
 	BOOL		m_bChecking;
@@ -85,7 +90,9 @@ private:
 	//##ModelId=49B87B8A0020
 	int		m_nTimer;
 	/** @brief           操作计时定时器索引*/
-	int			m_nRecordTimer;
+	int			m_nRecordTimer;	
+	/** @brief           软压板修改定时*/
+	int			m_nPTSetTimer;
 	/** @brief           操作用时*/
 	int			m_nOPTime;
 
@@ -388,6 +395,8 @@ protected:
 	afx_msg void OnDestroy();
 	afx_msg void OnBtnPtsoftCall();
 	afx_msg void OnBtnPtsoftModify();
+	afx_msg void OnBtnViewProg();
+	afx_msg void OnBtnViewHis();
 	afx_msg void OnSelchangeCmbPtsoftCpu();
 	afx_msg void OnCustomDraw(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnClickListPtsoft(NMHDR* pNMHDR, LRESULT* pResult);

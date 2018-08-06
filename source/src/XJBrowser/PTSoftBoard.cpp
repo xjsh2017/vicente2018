@@ -8,6 +8,13 @@
 #include "DlgValidateID.h"
 #include "GlobalFunc.h"
 
+#include "MainFrm.h"
+#include "DlgOperHis.h"
+
+#include "XJPTSetStore.h"
+#include "qptsetstatetable.h"
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -70,6 +77,7 @@ CPTSoftBoard::CPTSoftBoard()
 	m_sMonUser = "";
 
 	m_bChecking = FALSE;
+	m_bAlreadyShowOnce = false;
 
 	m_nQueryNo = 0;
 	m_listThread.RemoveAll();
@@ -94,6 +102,8 @@ void CPTSoftBoard::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_PTSOFT_VERIFY2, m_btnVerify2);
 	DDX_Control(pDX, IDC_BTN_PTSOFT_VERIFY1, m_btnVerify1);
 	DDX_Control(pDX, IDC_GIF_PTSOFT, m_gif);
+	DDX_Control(pDX, IDC_BTN_PTSOFTSET_VIEWPROG, m_btnViewProg);
+	DDX_Control(pDX, IDC_BTN_PTSOFTSET_VIEW_HIS, m_btnViewHis);
 	DDX_Control(pDX, IDC_BTN_PTSOFT_STYLE, m_btnStyle);
 	DDX_Control(pDX, IDC_BTN_PTSOFT_PRINT, m_btnPrint);
 	DDX_Control(pDX, IDC_BTN_PTSOFT_MODIFY, m_btnModify);
@@ -109,6 +119,8 @@ BEGIN_MESSAGE_MAP(CPTSoftBoard, CViewBase)
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BTN_PTSOFT_CALL, OnBtnPtsoftCall)
 	ON_BN_CLICKED(IDC_BTN_PTSOFT_MODIFY, OnBtnPtsoftModify)
+	ON_BN_CLICKED(IDC_BTN_PTSOFTSET_VIEWPROG, OnBtnViewProg)
+	ON_BN_CLICKED(IDC_BTN_PTSOFTSET_VIEW_HIS, OnBtnViewHis)
 	ON_CBN_SELCHANGE(IDC_CMB_PTSOFT_CPU, OnSelchangeCmbPtsoftCpu)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_PTSOFT, OnCustomDraw)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_PTSOFT, OnClickListPtsoft)
@@ -175,6 +187,8 @@ void CPTSoftBoard::OnInitialUpdate()
 	RecordRate(IDC_STATIC_PTSB_P2, 0, left_client, top_client);
 	RecordRate(IDC_STATIC_PTSB_P3, 0, left_client, top_client);
 	RecordRate(IDC_BTN_PTSOFT_EXCEL, 0, left_client, top_client);
+	RecordRate(IDC_BTN_PTSOFTSET_VIEWPROG, 0, left_client, top_client);
+	RecordRate(IDC_BTN_PTSOFTSET_VIEW_HIS, 0, left_client, top_client);
 
 	RecordRate(IDC_STATIC_PTSOFT_LOADING, 0, mid_client, top_client);
 	CViewBase::OnInitialUpdate();
@@ -2004,6 +2018,61 @@ void CPTSoftBoard::OnBtnPtsoftModify()
 	}
 }
 
+/*************************************************************
+ 函 数 OnBtnViewProg()
+ 功能概要：软压板修改进度查看
+ 返 回 值: void
+**************************************************************/
+//##ModelId=49B87B8E0271
+void CPTSoftBoard::OnBtnViewProg() 
+{
+	// TODO: Add your control notification handler code here
+	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+	CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
+	CCJTabCtrlBar &bar = pMainFrame->m_wndGlobalMsgBar;
+	
+	CRect rcRect;
+	GetWindowRect(&rcRect);
+	
+	if (m_bAlreadyShowOnce){
+		bar.GetWindowRect(rcRect);
+		m_pointViewProg.x = rcRect.left - 2;
+		m_pointViewProg.y = rcRect.top - 18;
+
+	}else{
+		LONG w = 600;
+		LONG h = 220;
+
+		m_pointViewProg.x = rcRect.right - w;
+		m_pointViewProg.y = rcRect.bottom - h;
+		m_bAlreadyShowOnce = true;
+	}
+	
+	bar.ShowWindow(bar.IsVisible() ? SW_HIDE : SW_SHOW);
+	pMainFrame->FloatControlBar(&bar, m_pointViewProg, CBRS_ALIGN_LEFT);
+
+	
+	CString str;
+	str.Format("x: %d; y: %d", m_pointViewProg.x, m_pointViewProg.y);
+	//AfxMessageBox(str);
+
+}
+
+/*************************************************************
+ 函 数 OnBtnViewHis()
+ 功能概要：软压板修改历史查看
+ 返 回 值: void
+**************************************************************/
+//##ModelId=49B87B8E0271
+void CPTSoftBoard::OnBtnViewHis() 
+{
+	// TODO: Add your control notification handler code here
+	CDlgOperHis dlg;
+	dlg.m_nType = 2;
+	dlg.m_pObj = m_pObj;
+	dlg.DoModal();
+}
+
 //##ModelId=49B87B8A01D4
 void CPTSoftBoard::CheckModifyData( MODIFY_LIST& modifyList, CString& strOut )
 {
@@ -2351,6 +2420,16 @@ void CPTSoftBoard::OnPTFrameOpen( WPARAM wParam, LPARAM lParam )
 			m_btnModify.ShowWindow(SW_SHOW);
 	}
 
+	m_nPTSetTimer = SetTimer(XJ_OPER_PTSOFTSET, 3*1000, NULL);
+	m_btnModify.ShowWindow(SW_HIDE);
+
+// 	CRect rcRect;
+// 	((CWnd*)GetDlgItem(IDC_STATIC_PTSB_P3))->GetWindowRect(rcRect);
+// 	ScreenToClient(&rcRect);
+// 	GetDlgItem(IDC_BTN_PTSOFTSET_VIEWPROG)->SetWindowPos(NULL
+// 		, rcRect.left + 3, rcRect.top, 0, 0
+// 		,SWP_NOZORDER | SWP_NOSIZE );
+
 	ReFillAll();
 }
 
@@ -2662,6 +2741,82 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		UpdateControlsEnable();
 		AfxMessageBox(str);
 	}
+
+	if (nIDEvent == m_nPTSetTimer){
+		KillTimer(m_nPTSetTimer);
+		
+		CString str;
+		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
+		
+		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		QPTSetStateTable *pState = pStore->GetState();
+		
+		int nPTSetState = pState->GetStateID();
+		int nHangoutType = pState->GetType();
+		
+		CString sRunnerUserID = pState->GetRunnerUserID().constData();
+		CString sOperUserID = pState->GetOperUserID().constData();
+		
+		// 软压板投退按钮是否可用： 
+		if (XJ_OPER_HANGOUT == nPTSetState 
+			&& XJ_OPER_PTSOFTSET == nHangoutType
+			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){
+			m_btnModify.EnableWindow(TRUE);
+		}else{
+			m_btnModify.EnableWindow(FALSE);
+		}
+		
+		// 软压板投退按钮是否可见
+		if (XJ_OPER_UNHANGOUT != nPTSetState 
+			&& CString(pState->GetPTID().constData()) == m_pObj->m_sID
+			&& XJ_OPER_PTSOFTSET == nHangoutType
+			&& (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
+			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)))
+			m_btnModify.ShowWindow(SW_SHOW);
+		else
+			m_btnModify.ShowWindow(SW_HIDE);
+		
+		// 查看挂牌进度按钮是否可见
+		if (XJ_OPER_UNHANGOUT != nPTSetState && CString(pState->GetPTID().constData()) == m_pObj->m_sID
+			&& XJ_OPER_PTSOFTSET == nHangoutType){
+			m_btnViewProg.ShowWindow(SW_SHOW);
+			if (XJ_OPER_PTSOFTSET != nHangoutType)
+				m_btnViewProg.SetWindowText("查看修改进度");
+		}
+		else
+			m_btnViewProg.ShowWindow(SW_HIDE);
+		
+		/*if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
+			if (4 == nPTSetState && 0 == m_nCurrentDetailStatus){	
+				m_nCurrentDetailStatus = 1;
+				
+				AfxMessageBox("运行人员已验证定值单内容，定值修改内容将下发到子站，单击<确定>将执行定值修改"
+					, MB_OK|MB_ICONINFORMATION);
+				
+				pStore->ReLoadState();
+				nPTSetState = pState->GetStateID();
+				if (0 == nPTSetState){
+					AfxMessageBox("运行人员已经取消了相应装置的挂牌，此次定值修改取消！");
+					RevertModifyValue();
+					pStore->RevertModify();
+					m_nCurrentDetailStatus = 0;
+				}else{
+					pApp->SetRevertModifyValueFlag(2);	// 不允许此时取消挂牌操作
+					ExcutePTSet();
+				}
+			}
+		}*/
+		
+		if (pState->GetFlags() == 1 && CString(pState->GetPTID().constData()) == m_pObj->m_sID){
+			RevertModifyValue();
+			pState->SetFlags(0);
+			pStore->Save();
+		}
+		
+		// 启用定时器
+		m_nPTSetTimer = SetTimer(XJ_OPER_PTSOFTSET, 3*1000, NULL);
+	}
+
 	if(nIDEvent == m_nRecordTimer)
 	{
 		//改变持续时间显示

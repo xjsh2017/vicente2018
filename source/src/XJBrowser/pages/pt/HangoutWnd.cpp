@@ -8,6 +8,8 @@
 #include "XJPTSetStore.h"
 #include "XJUserStore.h"
 
+#include "qptsetstatetable.h"
+
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -556,10 +558,10 @@ void CHangoutWnd::MiniWnd( BOOL bMini )
 
 void CHangoutWnd::ShowChannelDetail( int nChannel )
 {
-	CXJUserStore::GetInstance()->ReLoad();
-	AfxMessageBox("loaded!");
-
-	return;
+// 	CXJUserStore::GetInstance()->ReLoad();
+// 	CXJPTSetStore::GetInstance()->ReLoadData();
+// 	AfxMessageBox("loaded!");
+//  	return;
 
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
@@ -630,14 +632,13 @@ void CHangoutWnd::RefreshData()
 			CHangoutWndPane* p = (CHangoutWndPane*)m_arrPane.GetAt(i);
 			if(p != NULL)
 			{
-				CXJPTSetStore *store = CXJPTSetStore::GetInstance();
-				QPTSetCard &card = *(store->GetCard());
-				QLogTable &log = *(store->GetLog());
+				CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+				QPTSetStateTable *pState = pStore->GetState();
 
-				int nPTSetState = card.GetStateID();
+				int nPTSetState = pState->GetStateID();
 				
 				CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
-				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
+				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
 				BOOL bHangout = FALSE;
 				if (pObj && pObj->m_pStation && pObj->m_pStation == m_pStation && nPTSetState != XJ_OPER_UNHANGOUT)
 					bHangout = TRUE;

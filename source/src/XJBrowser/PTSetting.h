@@ -112,7 +112,7 @@ private:
 	int			m_nRecordTimer;
 	/** @brief           操作用时*/
 	int			m_nOPTime;
-	/** @brief           定值（区）修改、软压板修改定时*/
+	/** @brief           定值（区）修改定时*/
 	int			m_nPTSetTimer;
 	/** @brief           是否能按组显示*/
 	//##ModelId=49B87B8B03C8
@@ -612,8 +612,8 @@ protected:
 	afx_msg void OnBtnPtsetCallzone();
 	afx_msg void OnBtnPtsetModify();
 	afx_msg void OnBtnPtsetZoneModify();
-	afx_msg void OnBtnViewPTSetModProg();
-	afx_msg void OnBtnViewPTSetHis();
+	afx_msg void OnBtnViewProg();
+	afx_msg void OnBtnViewHis();
 	afx_msg void OnSelchangeTabPtset(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnSelchangeCmbPtsetCpu();
 	afx_msg void OnSelchangeCmbPtsetSrc();

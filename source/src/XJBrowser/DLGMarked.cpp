@@ -6,8 +6,10 @@
 #include "DLGMarked.h"
 #include "MainFrm.h"
 
+#include "DlgValidateID.h"
+
 #include "XJPTSetStore.h"
-#include "qptsetcard.h"
+#include "qptsetstatetable.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -56,18 +58,29 @@ void DLGMarked::OnBtnMark()
 	m_bMark = TRUE;
 
 	//判断是否存在已挂牌装置（一次仅一个保护）
-	if (CheckStateBeforeMark())
+	if (!CanMark())
 		return;
-	
-	//更新数据库的挂牌表
-	if (InsertDBMark())
-	{
-		CXJPTSetStore::GetInstance()->Next_1(m_pObj->m_sID.GetBuffer(0));
 
-		AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
-		SetDeviceState();
-	}else{
-		AfxMessageBox("请选择或输入挂牌原因.");
+	//运行人员确认
+	CString sRunUser;
+	CDlgValidateID dlgID(0, 1);
+	dlgID.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+	if(dlgID.DoModal() == IDOK)
+	{	
+		sRunUser = dlgID.m_strUser;
+
+		//更新数据库的挂牌表
+		if (InsertDBMark())
+		{
+			CString sInsert = "";
+			((CComboBox*)GetDlgItem(IDC_CMB_MARKREASON))->GetWindowText(sInsert);
+
+			CXJPTSetStore::GetInstance()->GetState()->Next_1(sRunUser.GetBuffer(0)
+				, m_pObj->m_sID.GetBuffer(0), sInsert.GetBuffer(0));
+			
+			AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
+			SetDeviceState();
+		}
 	}
 }
 
@@ -78,71 +91,91 @@ void DLGMarked::OnBtnUnmark()
 	m_bMark = FALSE;
 
 	// 检查是否可以取消挂牌
-	if (!CheckStateBeforeUnMark())
+	if (!CanUnMark())
 		return;
 	
-	//更新数据库的挂牌表
-	if (InsertDBMark())
-	{
-		CXJPTSetStore::GetInstance()->Next_0();
-
-		AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
-		SetDeviceState();
+	//运行人员确认
+	CString sRunUser;
+	CDlgValidateID dlgID(0, 1);
+	dlgID.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+	if(dlgID.DoModal() == IDOK)
+	{	
+		sRunUser = dlgID.m_strUser;
+		
+		//更新数据库的挂牌表
+		if (InsertDBMark())
+		{
+			CXJPTSetStore::GetInstance()->GetState()->Next_0(sRunUser.GetBuffer(0));
+			
+			AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
+			SetDeviceState();
+		}
 	}
 }
 
-BOOL DLGMarked::CheckStateBeforeMark()
+BOOL DLGMarked::CanMark()
 {
 	BOOL bReturn = TRUE;
 	
-    CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
-	
-	CXJPTSetStore *store = CXJPTSetStore::GetInstance();
-	store->ReLoad();
-	QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
-	QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
-	
-	int nPTSetState = card.GetStateID();
-	
-	if (XJ_OPER_UNHANGOUT == nPTSetState)
-		return FALSE;
-	
-	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
-	if (NULL == pObj)
-		return FALSE;
-	
 	CString str;
+    CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+		
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	pStore->ReLoadState();	
+	QPTSetStateTable *pState = pStore->GetState();
+
+	QByteArrayMatrix &log = pState->GetLogs();
+
+	int nPTSetState = pState->GetStateID();
 	
-	if (pObj == m_pObj){
-		str.Format("装置已挂牌！");
-	}else{
-		str.Format("当前已存在挂牌的保护装置： \n\n挂牌装置：[ %s ] [ %s ] \n\n挂牌时间：%s \n\n执行用户：%s"
-			, pObj->m_pStation ? pObj->m_pStation->m_sName : ""
-			, pObj->m_sName
-			, log.GetFieldValue(1, 1).constData()
-			, log.GetFieldValue(1, 2).constData());
+	// 状态不是未挂牌状态
+	if (XJ_OPER_UNHANGOUT != nPTSetState){
+		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
+		if (NULL != pObj){
+			if (pObj == m_pObj){
+				str.Format("装置已挂牌！");
+			}else{
+				str.Format("当前已存在挂牌的保护装置： \n\n挂牌装置：[ %s ] [ %s ] \n\n挂牌时间：%s \n\n执行用户：%s"
+					, pObj->m_pStation ? pObj->m_pStation->m_sName : ""
+					, pObj->m_sName
+					, pState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 1).constData()
+					, pState->GetRunnerUserID().constData());
+			}
+			AfxMessageBox(str, MB_ICONWARNING);
+		}
+		
+		return FALSE;
 	}
-	AfxMessageBox(str, MB_ICONWARNING);
+
+	CString sInsert = "";
+	((CComboBox*)GetDlgItem(IDC_CMB_MARKREASON))->GetWindowText(sInsert);
+	if (sInsert == "")
+	{
+		AfxMessageBox("请选择或输入挂牌原因.");
+
+		return FALSE;
+	}
 	
 	return bReturn;
 }
 
-BOOL DLGMarked::CheckStateBeforeUnMark()
+BOOL DLGMarked::CanUnMark()
 {
 	BOOL bReturn = TRUE;
 	
 	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
-	CXJPTSetStore *store = CXJPTSetStore::GetInstance();
-	store->ReLoad();
-	QPTSetCard &card = *(store->GetCard());
-	QLogTable &log = *(store->GetLog());
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	pStore->ReLoadState();	
+	QPTSetStateTable *pState = pStore->GetState();
+	
+	QByteArrayMatrix &log = pState->GetLogs();
+	
+	int nPTSetState = pState->GetStateID();
+	int nFlag = pState->GetFlags();
+	int nType = pState->GetType();
+	CString sRunnerUserID = pState->GetRunnerUserID().constData();
 
-	CString sRunnerUserID = log.GetFieldValue(1, 2).constData();
-	int nFlag = card.GetFlags();
-	int nPTSetState = card.GetStateID();
-	int nType = card.GetType();
-
-	if (XJ_OPER_UNHANGOUT == nPTSetState || CString(card.GetPTID().constData()) != m_pObj->m_sID){
+	if (XJ_OPER_UNHANGOUT == nPTSetState || CString(pState->GetPTID().constData()) != m_pObj->m_sID){
 		CString str;
 		str.Format("该装置未挂牌！");
 		AfxMessageBox(str);

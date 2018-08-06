@@ -7,6 +7,7 @@
 #include "PTSetModStateItem.h"
 
 #include "XJPTSetStore.h"
+#include "qptsetstatetable.h"
 
 #include "MainFrm.h"
 
@@ -60,7 +61,13 @@ CPTSetModProgView::CPTSetModProgView()
 
 	m_pHeadItem = new CPTSetModStateItem("装置名称", 999);
 
-	QByteArrayMatrix &flow = CXJPTSetStore::GetInstance()->GetWorkFlow();
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	pStore->ReLoadState();
+	QPTSetStateTable *pState = pStore->GetState();
+	
+	//int nPTSetState = pState->GetStateID();
+
+	QByteArrayMatrix &flow = pState->GetWorkFlow();
 	//AfxMessageBox(flow.constData());
 	for (int i = 1; i <= flow.GetRows(); i++){
 		int nPTSetStateID = flow.GetFieldValue(i, 1).toInt();
@@ -265,19 +272,30 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 	{
 		//关闭定时器
 		//KillTimer(m_nTimer);
+
+		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+		CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
+		CCJTabCtrlBar &bar = pMainFrame->m_wndGlobalMsgBar;
 		
-		CXJPTSetStore *store = CXJPTSetStore::GetInstance();
-		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(store->GetCard()));
-		QLogTable &log = *(reinterpret_cast<QLogTable *>(store->GetLog()));
-		QByteArrayMatrix &flow = store->GetWorkFlow();
+		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		QPTSetStateTable *pState = pStore->GetState();
+		
+		QByteArrayMatrix &flow = pState->GetWorkFlow();
+		QByteArrayMatrix &log = pState->GetLogs();
+		int nPTSetState = pState->GetStateID();
+
+		QByteArray baHangoutReasonType = pState->GetHangoutReasonName(pState->GetType());
+		if (baHangoutReasonType.isEmpty())
+			baHangoutReasonType << "挂牌";
+		baHangoutReasonType << "监视窗口";
+		bar.SetWindowText(baHangoutReasonType.constData());
+		
+		if (nPTSetState < 0 || pState->GetPTID().isEmpty())
+			return;
 		
 // 		KillTimer(m_nTimer);
 // 		AfxMessageBox(flow.constData());
 // 		m_nTimer = SetTimer(501, 3*1000, 0);
-
-		int nPTSetState = card.GetStateID();
-		if (nPTSetState < 0 || card.GetPTID().isEmpty())
-			return;
 		
 		int i, j;
 		
@@ -312,7 +330,7 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 		if (bResize)
 			ResetObjSize();
 
-		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
+		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
 		if (NULL == pObj)
 			return;
 		
@@ -523,34 +541,42 @@ void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 			//pApp->GetMainWnd()->SendMessage(PUSHTOP_FVIEW, 0, FVIEW_ACTION);
 			//AfxMessageBox("hello, world");
 
-			PT_ZONE zone;
-			pApp->GetPTSetModState(zone);
+			CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+			QPTSetStateTable *pState = pStore->GetState();
+			
+			int nPTSetState = pState->GetStateID();
+			int nHangoutType = pState->GetType();
 
-			CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(zone.PT_ID, TYPE_SEC);
+			CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
 			CMainFrame * pFrame = (CMainFrame*)pApp->m_pMainWnd;
 			CDeviceView *pView = pFrame->m_pDeviceView;
 			if (pObj){
 				pView->LocateObjInTree(pObj);
 
 				CXJBrowserDoc * pDoc = pApp->GetCurDocument();
-				pDoc->ShowSecPropPage(pObj, (ID_PT_SETTING_NEW - ID_PT_GENERAL_NEW));
-				
-				/*CXJBrowserView* pSvgView = pApp->GetSVGView();
-				if(pSvgView == NULL)
-					return;
-				if(pObj->m_pStation && pObj->m_pStation->m_sID != pSvgView->m_sStationID || pSvgView->m_nSvgType != 1)
-				{
-					//现在选择的厂站与当前打开的图形不是同一厂站
-					//关闭旧的,打开新的
-					pSvgView->CloseCurrentView();
-					pSvgView->OpenStationView(pObj->m_pStation->m_sID);
-					pSvgView->GetParentFrame()->ActivateFrame(SW_SHOWMAXIMIZED);
+				if (XJ_OPER_PTSET == nHangoutType || XJ_OPER_PTZONESET == nHangoutType)
+					pDoc->ShowSecPropPage(pObj, (ID_PT_SETTING_NEW - ID_PT_GENERAL_NEW));
+				else if (XJ_OPER_PTSOFTSET == nHangoutType)
+					pDoc->ShowSecPropPage(pObj, (ID_PT_SOFTBOARD_NEW - ID_PT_GENERAL_NEW));
+				else{
+					/*CXJBrowserView* pSvgView = pApp->GetSVGView();
+					if(pSvgView == NULL)
+						return;
+					if(pObj->m_pStation && pObj->m_pStation->m_sID != pSvgView->m_sStationID || pSvgView->m_nSvgType != 1)
+					{
+						//现在选择的厂站与当前打开的图形不是同一厂站
+						//关闭旧的,打开新的
+						pSvgView->CloseCurrentView();
+						pSvgView->OpenStationView(pObj->m_pStation->m_sID);
+						pSvgView->GetParentFrame()->ActivateFrame(SW_SHOWMAXIMIZED);
+					}
+					else
+					{
+						//把视图推到前面
+						pSvgView->GetParentFrame()->ActivateFrame(SW_SHOWMAXIMIZED);
+					}*/
+
 				}
-				else
-				{
-					//把视图推到前面
-					pSvgView->GetParentFrame()->ActivateFrame(SW_SHOWMAXIMIZED);
-				}*/
 			}
 		}
 	}

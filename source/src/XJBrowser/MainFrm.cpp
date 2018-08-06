@@ -51,7 +51,7 @@
 
 #include "XJPTSetStore.h"
 #include "XJUserStore.h"
-#include "qptsetcard.h"
+#include "qptsetstatetable.h"
 
 
 #define PTSET_REFRESHTIME	3000
@@ -92,9 +92,9 @@ UINT RefreshPTSetState(LPVOID pParam)
 		if(pFrame->m_bThreadExit)
 			break;
 
-		CXJPTSetStore *p = CXJPTSetStore::GetInstance();
-		p->ReLoad();
-		p->Save();
+		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		pStore->ReLoadState();
+		//pStore->Save();
 
 		//pView->UpdateAllObj();
 		//pView->PostMessage(THREAD_FILL_DATA, 0, 0);
@@ -3174,16 +3174,17 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		}
 	}
 	if (nIDEvent == m_nMsgTimer){
-		CXJPTSetStore *p = CXJPTSetStore::GetInstance();
-		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(p->GetCard()));
-		QLogTable &log = *(reinterpret_cast<QLogTable *>(p->GetLog()));
+		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		QPTSetStateTable *pState = pStore->GetState();
+		
+		int nPTSetState = pState->GetStateID();
 		
 		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
 			
-			int nCurPTSetModState = card.GetStateID();
-			CString sRunnerUserID = log.GetFieldValue(1, 2).data();
+			int nCurPTSetModState = pState->GetStateID();
+			CString sRunnerUserID = pState->GetRunnerUserID().data();
 			// 运行人员或者超级用户
 			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
 				if (XJ_OPER_PTSET_STATE_3 == nCurPTSetModState){

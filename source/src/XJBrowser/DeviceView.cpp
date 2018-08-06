@@ -15,7 +15,7 @@
 #include "MainFrm.h"
 
 #include "XJPTSetStore.h"
-#include "qptsetcard.h"
+#include "qptsetstatetable.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3303,11 +3303,11 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 		//¹Ø±Õ¶¨Ê±Æ÷
 		//KillTimer(m_nTimer);
 
-		CXJPTSetStore *p = CXJPTSetStore::GetInstance();
-		QPTSetCard &card = *(reinterpret_cast<QPTSetCard *>(p->GetCard()));
-		QLogTable &log = *(reinterpret_cast<QLogTable *>(p->GetLog()));
-		
-		int nPTSetState = card.GetStateID();
+		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		QPTSetStateTable *pState = pStore->GetState();
+
+		int nPTSetState = pState->GetStateID();
+
 		if (-1 == m_nLastPTSetStateID){
 			m_nLastPTSetStateID = nPTSetState;
 		}
@@ -3328,7 +3328,7 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 				FillTree();
 				CXJBrowserView * pView = pApp->GetSVGView();
 
-				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().data(), TYPE_SEC);
+				CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().data(), TYPE_SEC);
 				if (pObj){
 					pObj->m_nRunStatu = 5;
 					pView->SetDeviceCol(pObj);

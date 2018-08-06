@@ -6,7 +6,7 @@
 #include "DlgCheckPro.h"
 
 #include "XJPTSetStore.h"
-#include "qptsetcard.h"
+#include "qptsetstatetable.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -186,17 +186,18 @@ void CDlgCheckPro::UpdateLabels()
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CString str;
 
-	CXJPTSetStore::GetInstance()->ReLoad();
-	QPTSetCard &card = *(CXJPTSetStore::GetInstance()->GetCard());
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	QPTSetStateTable *pState = pStore->GetState();
+	pStore->ReLoadState();
 	
-	int nStateID = card.GetStateID();
+	int nPTSetState = pState->GetStateID();
 
-	if (nStateID != 0){
-		m_sCPU = QByteArray::number(card.GetCPUID()).constData();
-		m_sZone = QByteArray::number(card.GetZoneID()).constData();
+	if (nPTSetState != 0){
+		m_sCPU = QByteArray::number(pState->GetCPUID()).constData();
+		m_sZone = QByteArray::number(pState->GetZoneID()).constData();
 	}
 	
-	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(card.GetPTID().constData(), TYPE_SEC);
+	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
 	m_strDESC.Format("装置[%s]在[%s]号CPU[%s]号定值区上的定值将做如下更改："
 		, pObj->m_sName, m_sCPU, m_sZone);
 	//AfxMessageBox(m_strDESC);
@@ -318,8 +319,8 @@ int CDlgCheckPro::InitListStyle()
 
 void CDlgCheckPro::FillData()
 {
-	CXJPTSetStore::GetInstance()->ReLoadStore();
-	PT_SETTING_DATA_LIST &arrPTSet = CXJPTSetStore::GetInstance()->GetStoreData();
+	//CXJPTSetStore::GetInstance()->ReLoad();
+	PT_SETTING_DATA_LIST arrPTSet;// = CXJPTSetStore::GetInstance()->GetStoreData();
 	
 	//填充数据时禁止刷新
 	m_List.SetRedraw(FALSE);

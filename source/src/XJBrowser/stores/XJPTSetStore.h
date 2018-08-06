@@ -2,7 +2,7 @@
 #define _XJPTSETSTORE_H
 
 #include "XJRootStore.h"
-#include "qptsetcard.h"
+#include "qbytearraymatrix.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CXJPTSetStore
@@ -25,26 +25,12 @@
  */
 /** @} */ //OVER
 
-struct PT_SETTING_DATA{
-	PT_SETTING* pts;
-	QByteArray reserve1;	// 原值
-	QByteArray reserve2;	// 备用
-	QByteArray reserve3;	// 修改值
-	BOOL bMod;
-	
-	PT_SETTING_DATA::PT_SETTING_DATA(){
-		bMod = FALSE;
-		pts = NULL;
-		reserve1 = "";
-		reserve2 = "";
-		reserve3 = "";
-	}
-};
-typedef CTypedPtrArray<CPtrArray, PT_SETTING_DATA*>		PT_SETTING_DATA_LIST;
-typedef CTypedPtrArray<CPtrArray, PT_SETTING*>			PT_SETTING_LIST;
+class QPTSetStateTable;
 
-class QPTSetCard;
-class QLogTable;
+class QPTSetDataTable;
+class QPTSetZoneDataTable;
+class QPTSetSBDataTable;
+
 class CXJPTSetStorePrivate;
 class CXJPTSetStore : public CXJRootStore
 {
@@ -65,16 +51,22 @@ public:
 	/** @brief           动态库句柄*/
 	HMODULE	m_hModule;
 
-// Operations
 public:
 	/*
-	 *  @brief   	ReLoadStore	 获取状态机状态 
+	 *  @brief   	ReLoadStore	 重新载入状态机 
 	 *  @param 		void
 	 *  @return 	BOOL
 	 */
-	BOOL	ReLoad();	
-	BOOL	ReLoadStore();
+	BOOL	ReLoadState();
 
+	/** @brief           状态机*/
+	QPTSetStateTable*	GetState();
+
+	/** @brief           定值修改数据*/
+	QPTSetDataTable*	GetPTSetData();
+
+// Operations
+public:
 	/*
 	 *  @brief   	SaveStore	 保存状态机 
 	 *  @param 		[In]a param of Type  CString  功能模块ID
@@ -82,6 +74,7 @@ public:
 	 *  @return 	PTSETSTORE	
 	 */
 	BOOL	Save();
+	BOOL	Save(const char *pszFilePath/* = NULL*/);
 	
 	/*
 	 *  @brief   	CheckStore	 检查状态机配置情况
@@ -93,26 +86,8 @@ public:
 							11: 配置不存在，创建成功	
 	 */
 	int		Check();
-
-	/* 控制卡 */
-	QPTSetCard*	GetCard();
-	/* 日志 */
-	QLogTable*	GetLog();
-	/* 存储 */
-	PT_SETTING_DATA_LIST& GetStoreData();
-	/* 工作流程 */
-	QByteArrayMatrix& GetWorkFlow();
-
-	BOOL	Next(const char *card_data, const char *log_data);
-	BOOL	Next(int nNextStateID, const char* szUserID, int nFlag = 0);
-	BOOL	Next(int nNextStateID, const char* szUserID, const char* szPTID, int nFlag = 0);
-	BOOL	Next(int nNextStateID, int nCPUID, int nZoneID, const char* szUserID, int nFlag = 0);
 	
-	BOOL	SaveRecallToDB(CString &sCPU, CString &sPTID, CTypedPtrArray<CPtrArray, PT_SETTING*> &arrSetting);
-	BOOL	SaveModifyToDB(CString &sPTID, const MODIFY_LIST &arrModifyList);
 	BOOL	RevertModify();
-
-	QByteArrayMatrix GetDefaultWorkFlow();
 
 	/*
 	 *  @brief   	AddManOperator	 添加人工操作日志 
@@ -130,24 +105,11 @@ public:
 
 	CString		GetFuncID(int nStateID);
 
-	void		Next_0();
-	void		Next_1(const char *pt_id);
-
-//private:
-	void		Next_PTSet_State_2(int nCPU, int nZone, const char *szUserID
-									, const MODIFY_LIST &arrModifyList
-									, const PT_SETTING_LIST &arrSetting);
-	void		Next_PTSet_State_3();
-	void		Next_PTSet_State_4();
-	void		Next_PTSet_State_5();
-
 // Implementation
 public:
 
 	// Generated message map functions
 protected:
 };
-
-extern const char* PTSET_KEYNAME;
 
 #endif // !defined(_XJPTSETSTORE_H)

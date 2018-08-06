@@ -74,6 +74,7 @@
 
 #include "XJRootStore.h"
 #include "XJUserStore.h"
+#include "XJPTSetStore.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3424,6 +3425,8 @@ BOOL CXJBrowserApp::InitInstance()
 	{
 		CXJUserStore::GetInstance()->ReLoad();
 		//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+		//CXJPTSetStore::GetInstance()->ReLoad();
+		//CXJPTSetStore::GetInstance()->ReLoadState();
 
 		//用户身份验证
 		if (!DoLogin())

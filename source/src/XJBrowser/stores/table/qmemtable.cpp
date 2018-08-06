@@ -227,6 +227,8 @@ BOOL QMemTablePrivate::LoadData(const char* sql_stm)
 	strSQL.Format("%s", sql_stm);
 	if (!ExcuteSQL(strSQL.GetBuffer(0), m_data))
 		return bReturn;
+	
+	AddField("is_modified", DBI_FIELD_TYPE_INT, QByteArray::number(0));
 
 	return TRUE;
 }
@@ -777,9 +779,9 @@ QByteArray QMemTable::FWrite(const char *pszFilePath)
 		out << GetKeyValue(3, i);
 	}
 	out << "  |\n";
-
 	
-	out << "\n--------------[ Table Data  ]--------------\n\n"
+ 	out << "\n--------------[ Table Data  ]--------------\n\n"
+ 		<< "Record Count: " << d_ptr->m_data.GetRowCount() << "\n\n"
 		<< d_ptr->m_data.FWrite() << "\n";
 	
 	if (NULL == pszFilePath || QByteArray(pszFilePath).isEmpty()){
@@ -816,13 +818,22 @@ BOOL QMemTable::LoadInfo(const char* table_name, int nNameType/* = 0*/)
 	return d_ptr->LoadInfo(table_name, nNameType);
 }
 
-BOOL QMemTable::LoadData(const char* sql_stm)
+BOOL QMemTable::LoadData(const char* sql_stmt)
 {
 	BOOL bReturn = FALSE;
 	if (NULL == d_ptr)
 		return bReturn;
 
-	return d_ptr->LoadData(sql_stm);
+	return d_ptr->LoadData(sql_stmt);
+}
+
+BOOL QMemTable::LoadData(QByteArray &sql_stmt)
+{
+	BOOL bReturn = FALSE;
+	if (NULL == d_ptr)
+		return bReturn;
+	
+	return d_ptr->LoadData(sql_stmt.constData());
 }
 
 BOOL QMemTable::LoadDataAll()
@@ -915,6 +926,26 @@ QByteArray QMemTable::GetFieldValue(int iRow, const char *szFieldName, int nName
 	return d_ptr->GetFieldValue(iRow, szFieldName, nNameType);
 }
 
+QByteArray QMemTable::GetFieldValue(QByteArrayMatrix keyVals, int iCol)
+{
+	QByteArray s;
+	int iRow = GetValueRowIndex(keyVals);
+	if (iRow < 1 || iRow > GetRowCount())
+		return s;
+
+	return GetFieldValue(iRow, iCol);
+}
+
+QByteArray QMemTable::GetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, int nNameType/* = 0*/)
+{
+	QByteArray s;
+	int iRow = GetValueRowIndex(keyVals);
+	if (iRow < 1 || iRow > GetRowCount())
+		return s;
+	
+	return GetFieldValue(iRow, szFieldName, nNameType);
+}
+
 int QMemTable::GetKeyCount()
 {
 	int nReturn = 0;
@@ -993,4 +1024,13 @@ BOOL QMemTable::SetFieldValue(int iRow, const char *szFieldName, QByteArray val)
 		return FALSE;
 	
 	return d_ptr->SetFieldValue(iRow, szFieldName, val);
+}
+
+BOOL QMemTable::SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, QByteArray val)
+{
+	if (NULL == d_ptr)
+		return FALSE;
+
+	int iRow = GetValueRowIndex(keyVals);
+	SetFieldValue(iRow, szFieldName, val);
 }

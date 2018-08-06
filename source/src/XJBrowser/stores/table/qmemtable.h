@@ -19,7 +19,8 @@ public:
 	
 	BOOL		LoadInfo(int nTableID);
 	BOOL		LoadInfo(const char* table_name, int nNameType = 0);
-	BOOL		LoadData(const char* sql_stm);
+	BOOL		LoadData(const char* sql_stmt);
+	BOOL		LoadData(QByteArray &sql_stmt);
 	BOOL		LoadDataAll();
 
 	BOOL		SaveData();
@@ -34,6 +35,8 @@ public:
 
 	QByteArray	GetFieldValue(int iRow, int iCol);
 	QByteArray	GetFieldValue(int iRow, const char *szFieldName, int nNameType = 0);
+	QByteArray	GetFieldValue(QByteArrayMatrix keyVals, int iCol);
+	QByteArray	GetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, int nNameType = 0);
 
 	int			GetKeyCount();
 	QByteArray	GetKeyValue(int iRow, int idx);
@@ -45,6 +48,7 @@ public:
 
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
+	BOOL		SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, QByteArray val);
 
 private:
 };

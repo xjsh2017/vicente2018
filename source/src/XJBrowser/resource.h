@@ -746,6 +746,8 @@
 #define IDC_BTN_PTSET_MODIFY_VIEW_HIS   1427
 #define IDC_STATIC_DESC                 1428
 #define IDC_BTN_RUN_HANGOUT_COLOR       1429
+#define IDC_BTN_PTSOFTSET_VIEWPROG      1431
+#define IDC_BTN_PTSOFTSET_VIEW_HIS      1432
 #define IDB_TREELIST_BITMAP             8000
 #define IDC_CURSOR_SIZE                 8002
 #define IDB_TREELIST_CHECK              8003
@@ -1684,7 +1686,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        348
 #define _APS_NEXT_COMMAND_VALUE         32982
-#define _APS_NEXT_CONTROL_VALUE         1431
+#define _APS_NEXT_CONTROL_VALUE         1433
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
