@@ -269,12 +269,14 @@ void CDlgOperHis::FillData()
 			<< " FROM tb_operation WHERE ACT IN ('" << m_pObj->m_sID << "')"
 			<< " AND (opertype BETWEEN " << XJ_OPER_UNHANGOUT << " AND " << XJ_OPER_HANGOUT << " OR "
 			<< " opertype BETWEEN " << XJ_OPER_PTSET << " AND " << XJ_OPER_PTZONESET_STATE_5 << " )"
+			<< " AND FUNC like '¶¨Öµ%'"
 			<< " ORDER BY time DESC";
 	}else if (2 == m_nType){
 		baSQL << "SELECT 1,id,time,func,opertype,username,'',act,msg,computer,operresult "
 			<< " FROM tb_operation WHERE ACT IN ('" << m_pObj->m_sID << "')"
 			<< " AND (opertype BETWEEN " << XJ_OPER_UNHANGOUT << " AND " << XJ_OPER_HANGOUT << " OR "
 			<< " opertype BETWEEN " << XJ_OPER_PTSOFTSET << " AND " << XJ_OPER_PTSOFTSET_STATE_5 << " )"
+			<< " AND FUNC like 'ÈíÑ¹°å%'"
 			<< " ORDER BY time DESC";
 	}
 	
