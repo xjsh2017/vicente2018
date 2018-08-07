@@ -1,45 +1,55 @@
 #ifndef _PTSETMODSTATEITEM_H_
 #define	_PTSETMODSTATEITEM_H_
+
 #include "StdAfx.h"
 
-class CPTSetModStateContent
+/********************************************************************
+	created:	2018/08/01
+	filename: 	PTSetStateItem.h
+	author:		WPS
+	purpose:	表现一个提醒对象
+*********************************************************************/
+
+class CPTSetStateContent
 {
 public:
-	CPTSetModStateContent(CString sTypeName, CString sContent);
-	~CPTSetModStateContent();
+	CPTSetStateContent(CString sTypeName, CString sContent);
+	~CPTSetStateContent();
 private:
 	/** @brief			内容*/
 	CString m_sContent;		
 	/** @brief			类型名*/
-	CString	m_sTypeName;	
+	CString	m_sTypeName;		
+	/** @brief			类型名2*/
+	CString	m_sTypeName2;
 	/** @brief			触发时间*/
 	DWORD	m_dwTriggerTime;
 	
 public:
 	CString GetContent() const { return m_sContent; };	
-	void SetContent(CString Content) { m_sContent = Content; };
-	CString GetTypeName() const { return m_sTypeName; };	
-	void SetTypeName(CString TypeName) { m_sTypeName = TypeName; };
+	CString GetTypeName() const { return m_sTypeName; };
+	CString GetTypeName2() const { return m_sTypeName2; };	
 	DWORD GetTriggerTime() const { return m_dwTriggerTime; };	
+
+	void SetContent(CString Content) { m_sContent = Content; };
+	void SetTypeName(CString TypeName) { m_sTypeName = TypeName; };
+	void SetTypeName2(CString TypeName) { m_sTypeName2 = TypeName; };
 	void SetTriggerTime(DWORD TriggerTime) { m_dwTriggerTime = TriggerTime; };
 };
-/********************************************************************
-	created:	2013/10/09
-	filename: 	RemindObj.h
-	author:		LYH
-	purpose:	表现一个提醒对象
-*********************************************************************/
-class CPTSetModStateItem
+
+class CPTSetStateItem
 {
 public:
-	CPTSetModStateItem(CString sTypeName, int nPTSetStateID = -1);
-	~CPTSetModStateItem();
+	CPTSetStateItem(CString sTypeName, int nPTSetStateID = -1);
+	~CPTSetStateItem();
 private:
 
 	/** @brief			内容*/
 	CString m_sContent;	
 	/** @brief			类型名*/
 	CString	m_sTypeName;
+	/** @brief			类型名2*/
+	CString	m_sTypeName2;
 	/** @brief			用于当前显示的内容*/
 	CString m_sDisplayContent;
 	/** @brief			当前显示内容在总内容中的位置*/
@@ -93,7 +103,7 @@ public:
 
 	void Draw(CDC* pDC);
 
-	void AddContent(CPTSetModStateContent* pRC);
+	void AddContent(CPTSetStateContent* pRC);
 	void RemoveHead();
 	
 	void Update(DWORD nElapse);

@@ -112,11 +112,11 @@ SOURCE=.\pages\pt\HangoutWnd.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\pages\pt\PTSetModProgView.cpp
+SOURCE=.\pages\pt\PTSetProgView.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\pages\pt\PTSetModStateItem.cpp
+SOURCE=.\pages\pt\PTSetStateItem.cpp
 # End Source File
 # End Group
 # End Group
@@ -1029,11 +1029,11 @@ SOURCE=.\pages\pt\HangoutWnd.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\pages\pt\PTSetModProgView.h
+SOURCE=.\pages\pt\PTSetProgView.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\pages\pt\PTSetModStateItem.h
+SOURCE=.\pages\pt\PTSetStateItem.h
 # End Source File
 # End Group
 # End Group

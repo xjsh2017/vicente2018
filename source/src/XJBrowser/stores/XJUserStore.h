@@ -55,11 +55,17 @@ public:
 	 */
 	BOOL		Save(const char *pszFilePath = NULL);
 
-	int			GetUserFlags(const char* pszUserID, const char* pszUserGroupID);
-	QByteArray	GetUserOwner(const char* pszUserID, const char* pszUserGroupID);
+public:
+	QByteArray			GetUserGroupIDName(int nType = XJ_USERGROUP_RUNNER);
+	QByteArray			GetUserGroupName(int nType = XJ_USERGROUP_RUNNER);
+	QByteArray			GetUserGroupName(const char* pszUserGroupID);
 
-	void		SetUserFlags(const char *szUserID, const char *szUserGroupID, int nFlags);
-	void		SetUserOwner(const char *szUserID, const char *szUserGroupID, QByteArray &owner);
+	int					GetUserFlags(const char* pszUserID, const char* pszUserGroupID);
+	QByteArray			GetUserOwner(const char* pszUserID, const char* pszUserGroupID);
+	QByteArray			GetUserOwner(const char* pszUserID);
+
+	void				SetUserFlags(const char *szUserID, const char *szUserGroupID, int nFlags);
+	void				SetUserOwner(const char *szUserID, const char *szUserGroupID, QByteArray &owner);
 
 
 // Implementation

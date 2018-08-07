@@ -10,27 +10,28 @@
 // PTSetModProgView.h : header file
 //
 
-class CPTSetModStateItem;
+class CPTSetStateItem;
 /////////////////////////////////////////////////////////////////////////////
-// CPTSetModProgView view
+// CPTSetProgView view
 
-typedef CTypedPtrArray<CPtrArray, CPTSetModStateItem*>			CPTSetModStateItemList;
-class CPTSetModProgView : public CScrollView
+typedef CTypedPtrArray<CPtrArray, CPTSetStateItem*>			CPTSetStateItemList;
+class CPTSetProgView : public CScrollView
 {
 protected:
-	CPTSetModProgView();           // protected constructor used by dynamic creation
-	DECLARE_DYNCREATE(CPTSetModProgView)
+	CPTSetProgView();           // protected constructor used by dynamic creation
+	DECLARE_DYNCREATE(CPTSetProgView)
 
 // Attributes
 private:
-	CPTSetModStateItem*		m_pHeadItem;
-	CPTSetModStateItemList	m_items;
+	CPTSetStateItem*		m_pHeadItem;
+	CPTSetStateItemList	m_items;
 
 	/** @brief           锁*/
 	CRITICAL_SECTION m_CriticalSection;
 	CWinThread*	m_pThread;
 
-	int m_nTimer;
+	int						m_nTimer;
+	int						m_nLastPTSetType;
 
 public:
 	/** @brief			线程退出标志*/
@@ -40,6 +41,9 @@ public:
 public:
 	void UpdateAllObj();
 	void EndThread();
+
+	void ResetObj();
+
 // Operations
 private:
 	void StartThread();
@@ -77,12 +81,12 @@ private:
 
 	void UpdateActive(CPoint pt);
 
-	CPTSetModStateItem* MouseOnObj(CPoint pt);
+	CPTSetStateItem* MouseOnObj(CPoint pt);
 public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CPTSetModProgView)
+	//{{AFX_VIRTUAL(CPTSetProgView)
 	protected:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual void OnInitialUpdate();     // first time after construct
@@ -90,14 +94,14 @@ public:
 
 // Implementation
 protected:
-	virtual ~CPTSetModProgView();
+	virtual ~CPTSetProgView();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
 	// Generated message map functions
-	//{{AFX_MSG(CPTSetModProgView)
+	//{{AFX_MSG(CPTSetProgView)
 	afx_msg void OnWindowPosChanged(WINDOWPOS FAR* lpwndpos);
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);

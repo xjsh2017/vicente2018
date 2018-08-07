@@ -135,8 +135,9 @@ public:
 	CReBar   m_wndReBar;
 	CDialogBar m_wndDialogBar;
 	int      m_oper;
-	int	m_nIdleTimer;
-	int		m_nMsgTimer;	
+	int		m_nIdleTimer;
+	int		m_nMsgTimer;
+	int		m_nTimer;	
 	
 	/** @brief			线程退出标志*/
 	BOOL m_bThreadExit;

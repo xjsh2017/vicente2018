@@ -3,12 +3,11 @@
 
 #include "stdafx.h"
 #include "xjbrowser.h"
-#include "PTSetModProgView.h"
-#include "PTSetModStateItem.h"
+#include "PTSetProgView.h"
 
+#include "PTSetStateItem.h"
 #include "XJPTSetStore.h"
 #include "qptsetstatetable.h"
-
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -18,7 +17,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CPTSetModProgView
+// CPTSetProgView
 
 #define REMIND_REFRESHTIME	300
 
@@ -30,7 +29,7 @@ UINT RefreshItems(LPVOID pParam)
 		return -1;
 	}
 	WriteLog("启动提醒窗口线程成功!", XJ_LOG_LV3);
-	CPTSetModProgView * pView = (CPTSetModProgView*)pParam;
+	CPTSetProgView * pView = (CPTSetProgView*)pParam;
 	while(1)
 	{
 		if(pView->m_bThreadExit)
@@ -53,45 +52,27 @@ UINT RefreshItems(LPVOID pParam)
 }
 
 
-IMPLEMENT_DYNCREATE(CPTSetModProgView, CScrollView)
+IMPLEMENT_DYNCREATE(CPTSetProgView, CScrollView)
 
-CPTSetModProgView::CPTSetModProgView()
+CPTSetProgView::CPTSetProgView()
 {
 	//GetTypeNames();
 
-	m_pHeadItem = new CPTSetModStateItem("装置名称", 999);
-
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
-	pStore->ReLoadState();
-	QPTSetStateTable *pState = pStore->GetState();
-	
-	//int nPTSetState = pState->GetStateID();
-
-	QByteArrayMatrix &flow = pState->GetWorkFlow();
-	//AfxMessageBox(flow.constData());
-	for (int i = 1; i <= flow.GetRows(); i++){
-		int nPTSetStateID = flow.GetFieldValue(i, 1).toInt();
-		int nVisible = flow.GetFieldValue(i, 2).toInt();
-		int nUserType = flow.GetFieldValue(i, 3).toInt();
-		int nUserID = flow.GetFieldValue(i, 4).toInt();
-		CString typeName = CXJPTSetStore::GetInstance()->GetFuncID(nPTSetStateID);
-		CPTSetModStateItem *item = new CPTSetModStateItem(typeName, nPTSetStateID);
-		item->SetVisible(nVisible);
-
-		m_items.Add(item);
-	}
+	m_nLastPTSetType = -1;
+	m_pHeadItem = new CPTSetStateItem("装置名称", 999);
 
 	m_bThreadExit = FALSE;
 	m_pThread = NULL;
 	
 	InitializeCriticalSection(&m_CriticalSection);
+	ResetObj();
 }
 
-CPTSetModProgView::~CPTSetModProgView()
+CPTSetProgView::~CPTSetProgView()
 {
 	DeleteCriticalSection(&m_CriticalSection);
 	for (int i = 0; i < m_items.GetSize(); i++){
-		CPTSetModStateItem *item = m_items.GetAt(i);
+		CPTSetStateItem *item = m_items.GetAt(i);
 		DELETE_POINTER(item);
 	}
 	m_items.RemoveAll();
@@ -99,8 +80,8 @@ CPTSetModProgView::~CPTSetModProgView()
 }
 
 
-BEGIN_MESSAGE_MAP(CPTSetModProgView, CScrollView)
-	//{{AFX_MSG_MAP(CPTSetModProgView)
+BEGIN_MESSAGE_MAP(CPTSetProgView, CScrollView)
+	//{{AFX_MSG_MAP(CPTSetProgView)
 	ON_WM_WINDOWPOSCHANGED()
 	ON_WM_TIMER()
 	ON_WM_ERASEBKGND()
@@ -113,9 +94,9 @@ BEGIN_MESSAGE_MAP(CPTSetModProgView, CScrollView)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CPTSetModProgView drawing
+// CPTSetProgView drawing
 
-void CPTSetModProgView::OnInitialUpdate()
+void CPTSetProgView::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
 
@@ -128,7 +109,7 @@ void CPTSetModProgView::OnInitialUpdate()
 	//StartThread();
 }
 
-void CPTSetModProgView::OnDraw(CDC* pDC)
+void CPTSetProgView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 
@@ -182,7 +163,7 @@ void CPTSetModProgView::OnDraw(CDC* pDC)
 		m_pHeadItem->Draw(pDrawDC);
 	}
 	for (int i = 0; i < m_items.GetSize(); i++){
-		CPTSetModStateItem *item = m_items.GetAt(i);
+		CPTSetStateItem *item = m_items.GetAt(i);
 		if(item){
 			item->Draw(pDrawDC);
 		}
@@ -209,15 +190,15 @@ void CPTSetModProgView::OnDraw(CDC* pDC)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CPTSetModProgView diagnostics
+// CPTSetProgView diagnostics
 
 #ifdef _DEBUG
-void CPTSetModProgView::AssertValid() const
+void CPTSetProgView::AssertValid() const
 {
 	CScrollView::AssertValid();
 }
 
-void CPTSetModProgView::Dump(CDumpContext& dc) const
+void CPTSetProgView::Dump(CDumpContext& dc) const
 {
 	CScrollView::Dump(dc);
 }
@@ -226,7 +207,7 @@ void CPTSetModProgView::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
-// CPTSetModProgView message handlers
+// CPTSetProgView message handlers
 
 /****************************************************
 Date:2013/10/9  Author:LYH
@@ -234,7 +215,7 @@ Date:2013/10/9  Author:LYH
 返回值:   void	
 功能概要: 
 *****************************************************/
-void CPTSetModProgView::ResetObjSize()
+void CPTSetProgView::ResetObjSize()
 {
 	CRect rect;
 	GetClientRect(&rect);
@@ -245,15 +226,18 @@ void CPTSetModProgView::ResetObjSize()
 	}
 	int j = 0;
 	for (int i = 0; i < m_items.GetSize(); i++){
-		CPTSetModStateItem *item = m_items.GetAt(i);
+		CPTSetStateItem *item = m_items.GetAt(i);
 		if(item && item->IsVisble()){
 			item->SetBound(10, 50 + j*40, w, 30);
 			j++;
 		}
+
+		if (item && !item->IsVisble())
+			item->SetBound(10, 50, w, 0);
 	}
 }
 
-void CPTSetModProgView::OnWindowPosChanged(WINDOWPOS FAR* lpwndpos) 
+void CPTSetProgView::OnWindowPosChanged(WINDOWPOS FAR* lpwndpos) 
 {
 	CScrollView::OnWindowPosChanged(lpwndpos);
 	
@@ -261,7 +245,7 @@ void CPTSetModProgView::OnWindowPosChanged(WINDOWPOS FAR* lpwndpos)
 	ResetObjSize();
 }
 
-void CPTSetModProgView::OnTimer(UINT nIDEvent) 
+void CPTSetProgView::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
 	
@@ -274,58 +258,78 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 		//KillTimer(m_nTimer);
 
 		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-		CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
-		CCJTabCtrlBar &bar = pMainFrame->m_wndGlobalMsgBar;
 		
 		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
 		QPTSetStateTable *pState = pStore->GetState();
 		
 		QByteArrayMatrix &flow = pState->GetWorkFlow();
 		QByteArrayMatrix &log = pState->GetLogs();
-		int nPTSetState = pState->GetStateID();
 
-		QByteArray baHangoutReasonType = pState->GetHangoutReasonName(pState->GetType());
-		if (baHangoutReasonType.isEmpty())
-			baHangoutReasonType << "挂牌";
-		baHangoutReasonType << "监视窗口";
-		bar.SetWindowText(baHangoutReasonType.constData());
+		int nPTSetState = pState->GetStateID();
+		int nPTSetType = pState->GetType();
 		
 		if (nPTSetState < 0 || pState->GetPTID().isEmpty())
 			return;
 		
-// 		KillTimer(m_nTimer);
-// 		AfxMessageBox(flow.constData());
-// 		m_nTimer = SetTimer(501, 3*1000, 0);
+		if (-1 == m_nLastPTSetType){
+			m_nLastPTSetType = nPTSetType;
+		}
+		if (m_nLastPTSetType != nPTSetType
+			&& m_nLastPTSetType == XJ_OPER_UNDEFINE)
+		{
+			KillTimer(m_nTimer);
+
+			m_nLastPTSetType = nPTSetType;
+			//AfxMessageBox("ResetObj");
+			ResetObj();
+			ResetObjSize();
+
+			m_nTimer = SetTimer(501, 3*1000, 0);
+		}
+		int n1 = m_nLastPTSetType - XJ_OPER_UNDEFINE;
+		int n2 = nPTSetType - XJ_OPER_UNDEFINE;
+		// 刷新（挂牌原因变化时刷新）
+		if (n1 * n2 == 0 && n1 + n2 > 0){
+			m_nLastPTSetType = nPTSetType;
+		}
 		
 		int i, j;
-		
-//		KillTimer(m_nTimer);
+		KillTimer(m_nTimer);
 		bool bResize = false;
 		for (i = 0; i < m_items.GetSize(); i++){
-			CPTSetModStateItem *item = m_items.GetAt(i);
+			CPTSetStateItem *item = m_items.GetAt(i);
 			if (!item)
 				continue;
-
+			
+			int nItemState = item->GetPTSetState();
 			item->SetCurPTSetState(nPTSetState);
 
-			int nItemState = item->GetPTSetState();
+			if (nPTSetType != XJ_OPER_UNDEFINE){
+				QByteArray typeName = pStore->GetFuncID(nItemState);
+				item->SetTypeName(typeName.constData());
+				//AfxMessageBox(typeName.constData());
+			}
+
 			for (int j = 1; j <= flow.GetRows(); j++){
-				int nFlowState = flow.GetFieldValue(j, 1).toInt();
+				int nFlowPTSetType = flow.GetFieldValue(j, 1).toInt();
+				int nFlowState = flow.GetFieldValue(j, 2).toInt();
+
 				if (nItemState != nFlowState)
 					continue;
 
-				if (!flow.GetFieldValue(j, 2).isEmpty()){
-					int nVisible = flow.GetFieldValue(j, 2).toInt();
+				if (!flow.GetFieldValue(j, 3).isEmpty()){
+					int nVisible = flow.GetFieldValue(j, 3).toInt();
 					
 					if (item->IsVisble() != nVisible){
 						item->SetVisible(nVisible);
+						//AfxMessageBox("bResize");
 						bResize = true;
 					}
 				}
 				break;
 			}
 		}
-//		m_nTimer = SetTimer(501, 3*1000, 0);
+		m_nTimer = SetTimer(501, 3*1000, 0);
 
 		if (bResize)
 			ResetObjSize();
@@ -346,7 +350,7 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 
 		int nCount = log.GetRecordCount();
 		for (i = 0; i < m_items.GetSize(); i++){
-			CPTSetModStateItem *item = m_items.GetAt(i);
+			CPTSetStateItem *item = m_items.GetAt(i);
 			if (!item){
 				continue;
 			}
@@ -381,7 +385,7 @@ void CPTSetModProgView::OnTimer(UINT nIDEvent)
 	CScrollView::OnTimer(nIDEvent);
 }
 
-BOOL CPTSetModProgView::OnEraseBkgnd(CDC* pDC) 
+BOOL CPTSetProgView::OnEraseBkgnd(CDC* pDC) 
 {
 	// TODO: Add your message handler code here and/or call default
 	
@@ -395,11 +399,11 @@ Date:2013/10/9  Author:LYH
 返回值:   void	
 功能概要: 
 *****************************************************/
-void CPTSetModProgView::UpdateAllObj()
+void CPTSetProgView::UpdateAllObj()
 {
 	EnterCriticalSection(&m_CriticalSection);
 	for (int i = 0; i < m_items.GetSize(); i++){
-		CPTSetModStateItem *item = m_items.GetAt(i);
+		CPTSetStateItem *item = m_items.GetAt(i);
 		if (item && item->IsVisble()){
 			item->Update(100);
 		}
@@ -415,7 +419,7 @@ void CPTSetModProgView::UpdateAllObj()
  参    数：param1	要转换的坐标
 **************************************************************/
 //##ModelId=49B87B8502E6
-void CPTSetModProgView::DocToClient( CPoint & pt )
+void CPTSetProgView::DocToClient( CPoint & pt )
 {
 	CClientDC dc(this);
 	OnPrepareDC(&dc, NULL);
@@ -429,7 +433,7 @@ void CPTSetModProgView::DocToClient( CPoint & pt )
  参    数：param1	要转换的范围
 **************************************************************/
 //##ModelId=49B87B8502EE
-void CPTSetModProgView::DocToClient( CRect & rect )
+void CPTSetProgView::DocToClient( CRect & rect )
 {
 	CClientDC dc(this);
 	OnPrepareDC(&dc, NULL);
@@ -444,7 +448,7 @@ void CPTSetModProgView::DocToClient( CRect & rect )
  参    数：param1	要转换的坐标
 **************************************************************/
 //##ModelId=49B87B8502F0
-void CPTSetModProgView::ClientToDoc( CPoint & pt )
+void CPTSetProgView::ClientToDoc( CPoint & pt )
 {
 	CClientDC dc(this);
 	OnPrepareDC(&dc , NULL);
@@ -458,7 +462,7 @@ void CPTSetModProgView::ClientToDoc( CPoint & pt )
  参    数：param1	要转换的范围
 **************************************************************/
 //##ModelId=49B87B8502F2
-void CPTSetModProgView::ClientToDoc( CRect & rect )
+void CPTSetProgView::ClientToDoc( CRect & rect )
 {
 	CClientDC dc(this);
 	OnPrepareDC(&dc);
@@ -474,12 +478,12 @@ Date:2013/10/9  Author:LYH
 参数: WPARAM wParam	
 参数: LPARAM lParam	
 *****************************************************/
-void CPTSetModProgView::OnAddRemind( WPARAM wParam, LPARAM lParam )
+void CPTSetProgView::OnAddRemind( WPARAM wParam, LPARAM lParam )
 {
 	if(lParam == NULL)
 		return;
 	EnterCriticalSection(&m_CriticalSection);
-	CPTSetModStateContent* pRC = (CPTSetModStateContent*)lParam;
+	CPTSetStateContent* pRC = (CPTSetStateContent*)lParam;
 // 	for (int i = 0; i < _countof(m_pItems); i++){
 // 		if(m_pItems[i]){
 // 			m_pItems[i]->Update(100);
@@ -496,10 +500,10 @@ void CPTSetModProgView::OnAddRemind( WPARAM wParam, LPARAM lParam )
 	LeaveCriticalSection(&m_CriticalSection);
 }
 
-void CPTSetModProgView::UpdateActive( CPoint pt )
+void CPTSetProgView::UpdateActive( CPoint pt )
 {
  	for (int i = 0; i < m_items.GetSize(); i++){
-		CPTSetModStateItem *item = m_items.GetAt(i);
+		CPTSetStateItem *item = m_items.GetAt(i);
  		if(item){
 			if(item->IsMouseOn(pt))
 				item->SetActive(TRUE);
@@ -510,7 +514,7 @@ void CPTSetModProgView::UpdateActive( CPoint pt )
 }
 
 
-void CPTSetModProgView::OnMouseMove(UINT nFlags, CPoint point) 
+void CPTSetProgView::OnMouseMove(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
 	CPoint ptDoc = point;
@@ -521,19 +525,19 @@ void CPTSetModProgView::OnMouseMove(UINT nFlags, CPoint point)
 	CScrollView::OnMouseMove(nFlags, point);
 }
 
-void CPTSetModProgView::OnLButtonDown(UINT nFlags, CPoint point) 
+void CPTSetProgView::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
 	
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
-void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point) 
+void CPTSetProgView::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
 	CPoint ptDoc = point;
 	ClientToDoc(ptDoc);
-	CPTSetModStateItem* pSelect = MouseOnObj(ptDoc);
+	CPTSetStateItem* pSelect = MouseOnObj(ptDoc);
 	if(pSelect)
 	{
 		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
@@ -559,6 +563,7 @@ void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 				else if (XJ_OPER_PTSOFTSET == nHangoutType)
 					pDoc->ShowSecPropPage(pObj, (ID_PT_SOFTBOARD_NEW - ID_PT_GENERAL_NEW));
 				else{
+					pDoc->ShowSecPropPage(pObj, (ID_PT_ACTION_NEW - ID_PT_GENERAL_NEW));
 					/*CXJBrowserView* pSvgView = pApp->GetSVGView();
 					if(pSvgView == NULL)
 						return;
@@ -584,14 +589,14 @@ void CPTSetModProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	CScrollView::OnLButtonDown(nFlags, point);
 }
 
-CPTSetModStateItem* CPTSetModProgView::MouseOnObj( CPoint pt )
+CPTSetStateItem* CPTSetProgView::MouseOnObj( CPoint pt )
 {
-	CPTSetModStateItem* pReturn = NULL;
+	CPTSetStateItem* pReturn = NULL;
 
 	if (m_pHeadItem && m_pHeadItem->IsMouseOn(pt))
 		pReturn = m_pHeadItem;
 	for (int i = 0; i < m_items.GetSize(); i++){
-		CPTSetModStateItem* item = m_items.GetAt(i);
+		CPTSetStateItem* item = m_items.GetAt(i);
 		if(item){
 			if(item && item->IsMouseOn(pt))
 				pReturn = item;
@@ -601,7 +606,7 @@ CPTSetModStateItem* CPTSetModProgView::MouseOnObj( CPoint pt )
 	return pReturn;
 }
 
-void CPTSetModProgView::StartThread()
+void CPTSetProgView::StartThread()
 {
 	if (m_pThread == NULL)
 	{
@@ -616,7 +621,7 @@ void CPTSetModProgView::StartThread()
 	}
 }
 
-void CPTSetModProgView::EndThread()
+void CPTSetProgView::EndThread()
 {
 	if(m_pThread != NULL)
 	{
@@ -638,7 +643,50 @@ void CPTSetModProgView::EndThread()
 	}
 }
 
-void CPTSetModProgView::OnThreadUpdate( WPARAM wParam, LPARAM lParam )
+void CPTSetProgView::OnThreadUpdate( WPARAM wParam, LPARAM lParam )
 {
 	Invalidate();
+}
+
+void CPTSetProgView::ResetObj()
+{
+	EnterCriticalSection(&m_CriticalSection);
+	for (int i = 0; i < m_items.GetSize(); i++){
+		CPTSetStateItem *item = m_items.GetAt(i);
+		if(item){
+			DELETE_POINTER(item);
+		}
+	}
+	m_items.RemoveAll();
+
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	pStore->ReLoadState();
+	QPTSetStateTable *pState = pStore->GetState();
+	
+	int nPTSetState = pState->GetStateID();
+	int nPTSetType = pState->GetType();
+	
+	QByteArrayMatrix &flow = pState->GetWorkFlow();
+	for (int i = 1; i <= flow.GetRows(); i++){
+		int nFlowPTSetType = flow.GetFieldValue(i, 1).toInt();
+		int nFlowPTSetStateID = flow.GetFieldValue(i, 2).toInt();
+		
+		if (XJ_OPER_HANGOUT != nFlowPTSetStateID
+			&& XJ_OPER_UNHANGOUT != nFlowPTSetStateID){
+			
+			if (nFlowPTSetType != nPTSetType)
+				continue;
+		}
+		
+		int nVisible = flow.GetFieldValue(i, 3).toInt();
+		int nUserType = flow.GetFieldValue(i, 4).toInt();
+		int nUserID = flow.GetFieldValue(i, 5).toInt();
+		CString typeName = CXJPTSetStore::GetInstance()->GetFuncID(nFlowPTSetStateID);
+		CPTSetStateItem *item = new CPTSetStateItem(typeName, nFlowPTSetStateID);
+		item->SetVisible(nVisible);
+		
+		m_items.Add(item);
+	}
+
+	LeaveCriticalSection(&m_CriticalSection);
 }

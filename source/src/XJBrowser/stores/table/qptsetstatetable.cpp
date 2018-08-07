@@ -425,15 +425,35 @@ QByteArrayMatrix QPTSetStateTable::GetDefaultWorkFlow()
 {
 	QByteArrayMatrix flow;
 	
-	// 功能ID, 是否可见, 用户组，用户ID;...;..
+	// 功能组ID, 功能ID, 是否可见, 用户组，用户ID;...;..
 	// 102,1,101,run1;204,1;205,1;206,1;207,1;101,1
+	/*
+	100,102,1,101,;
+	201,204,1,102,;201,205,1,103,;201,206,1,101,;201,207,1,102,;
+	301,204,1,102,;301,205,1,103,;301,206,1,101,;301,207,1,102,;
+	401,204,1,102,;401,205,1,103,;401,206,1,101,;401,207,1,102,;
+	100,101,0,101,
+	*/
+
 	if (1){
-		flow += QByteArray::number(XJ_OPER_HANGOUT) + ",1," + QByteArray::number(XJ_USERGROUP_RUNNER) + ",;";
-		flow += QByteArray::number(XJ_OPER_PTSET_STATE_2) + ",1," + QByteArray::number(XJ_USERGROUP_OPERATOR) + ",;";
-		flow += QByteArray::number(XJ_OPER_PTSET_STATE_3) + ",1," + QByteArray::number(XJ_USERGROUP_MONITOR) + ",;";
-		flow += QByteArray::number(XJ_OPER_PTSET_STATE_4) + ",1," + QByteArray::number(XJ_USERGROUP_RUNNER) + ",;";
-		flow += QByteArray::number(XJ_OPER_PTSET_STATE_5) + ",1," + QByteArray::number(XJ_USERGROUP_OPERATOR) + ",;";
-		flow += QByteArray::number(XJ_OPER_UNHANGOUT) + ",0," + QByteArray::number(XJ_USERGROUP_RUNNER) + ",";
+		flow << XJ_OPER_UNDEFINE << "," << XJ_OPER_HANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",;"
+			<< XJ_OPER_PTSET << "," << XJ_OPER_PTSET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
+			<< XJ_OPER_PTSET << "," << XJ_OPER_PTSET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << ",;"
+			<< XJ_OPER_PTSET << "," << XJ_OPER_PTSET_STATE_4 << ",1," << XJ_USERGROUP_RUNNER << ",;"
+			<< XJ_OPER_PTSET << "," << XJ_OPER_PTSET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
+			
+			<< XJ_OPER_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
+			<< XJ_OPER_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << ",;"
+			<< XJ_OPER_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_4 << ",0," << XJ_USERGROUP_RUNNER << ",;"
+			<< XJ_OPER_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
+
+			
+			<< XJ_OPER_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
+			<< XJ_OPER_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << ",;"
+			<< XJ_OPER_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_4 << ",0," << XJ_USERGROUP_RUNNER << ",;"
+			<< XJ_OPER_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
+
+			<< XJ_OPER_UNDEFINE << "," << XJ_OPER_UNHANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",";
 	}
 	return flow;
 }
@@ -532,13 +552,19 @@ int	QPTSetStateTable::GetHangoutReasonType(const char* pszHangoutReason)
 {
 	if (QByteArray(pszHangoutReason).trimmed() == QByteArray("定值修改")){
 		return XJ_OPER_PTSET;
-	}else if (QByteArray(pszHangoutReason).trimmed() == QByteArray("定值区修改")){
+	}else if (QByteArray(pszHangoutReason).trimmed() == QByteArray("定值区切换")){
 		return XJ_OPER_PTZONESET;
-	}else if (QByteArray(pszHangoutReason).trimmed() == QByteArray("软压板修改")){
+	}else if (QByteArray(pszHangoutReason).trimmed() == QByteArray("软压板投退")){
 		return XJ_OPER_PTSOFTSET;
 	}
 	
 	return 0;
+}
+
+QByteArray	QPTSetStateTable::GetHangoutReasonName()
+{
+	int nHangoutReasonType = GetType();
+	return GetHangoutReasonName(nHangoutReasonType);
 }
 
 QByteArray	QPTSetStateTable::GetHangoutReasonName(int nHangoutReasonType)
@@ -547,10 +573,24 @@ QByteArray	QPTSetStateTable::GetHangoutReasonName(int nHangoutReasonType)
 	case XJ_OPER_PTSET:
 		return QByteArray("定值修改");
 	case XJ_OPER_PTZONESET:
-		return QByteArray("定值区修改");
+		return QByteArray("定值区切换");
 	case XJ_OPER_PTSOFTSET:
-		return QByteArray("软压板修改");
+		return QByteArray("软压板投退");
 	}
+	
+	return QByteArray("");
+}
+
+QByteArray	QPTSetStateTable::GetHangoutReasonNameByState(int nStateID)
+{
+	if (nStateID >= XJ_OPER_PTSET && nStateID <= XJ_OPER_PTSET_STATE_5)
+		return GetHangoutReasonName(XJ_OPER_PTSET);
+
+	if (nStateID >= XJ_OPER_PTZONESET && nStateID <= XJ_OPER_PTZONESET_STATE_5)
+		return GetHangoutReasonName(XJ_OPER_PTZONESET);
+
+	if (nStateID >= XJ_OPER_PTSOFTSET && nStateID <= XJ_OPER_PTSOFTSET_STATE_5)
+		return GetHangoutReasonName(XJ_OPER_PTSOFTSET);
 	
 	return QByteArray("");
 }
@@ -632,21 +672,21 @@ void QPTSetStateTable::Next_0(const char *pszUserID)
 {
 	if (NULL == pszUserID)
 		return;
+
+	// 添加工作进度
+	QByteArrayMatrix slog = AddLog(XJ_OPER_UNHANGOUT, pszUserID);
+
+	// 添加历史日志
+	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_UNHANGOUT, slog.GetFieldValue(1, 1).constData(), pszUserID);
 	
-	SetType(0);
+	SetType(XJ_OPER_UNDEFINE);
 	SetStateID(XJ_OPER_UNHANGOUT);
 	SetCPUID(0);
 	SetZoneID(0);
 	SetFlags(1);	// 通知相应操作员的界面恢复原值
 	//RevertModify();	 // 数据库恢复原值
 	
-	// 添加工作进度
-	QByteArrayMatrix slog = AddLog(XJ_OPER_UNHANGOUT, pszUserID);
-
 	Save();
-	
-	// 添加历史日志
-	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_UNHANGOUT, slog.GetFieldValue(1, 1).constData(), pszUserID);
 }
 
 void QPTSetStateTable::Next_1(const char *pszUserID, const char *pt_id, const char * pszHangoutReason)

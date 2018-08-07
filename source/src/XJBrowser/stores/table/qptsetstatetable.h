@@ -100,7 +100,9 @@ public:
 	QByteArrayMatrix	GetLog(int nStateID, int &iRow);
 
 	int					GetHangoutReasonType(const char* pszHangoutReason);
+	QByteArray			GetHangoutReasonName();
 	QByteArray			GetHangoutReasonName(int nHangoutReasonType);
+	QByteArray			GetHangoutReasonNameByState(int nStateID);
 
 public:
 

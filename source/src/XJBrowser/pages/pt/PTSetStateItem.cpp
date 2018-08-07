@@ -1,4 +1,4 @@
-#include "PTSetModStateItem.h"
+#include "PTSetStateItem.h"
 #include "xjbrowser.h"
 
 #include "XJPTSetStore.h"
@@ -6,13 +6,13 @@
 
 /****************************************************
 Date:2013/10/9  Author:LYH
-函数名:   CPTSetModStateContent	
+函数名:   CPTSetStateContent	
 返回值:   	
 功能概要: 
 参数: CString sTypeName	
 参数: CString sContent	
 *****************************************************/
-CPTSetModStateContent::CPTSetModStateContent( CString sTypeName, CString sContent )
+CPTSetStateContent::CPTSetStateContent( CString sTypeName, CString sContent )
 {
 	m_sTypeName = sTypeName;
 	m_sContent = sContent;
@@ -20,23 +20,23 @@ CPTSetModStateContent::CPTSetModStateContent( CString sTypeName, CString sConten
 
 /****************************************************
 Date:2013/10/9  Author:LYH
-函数名:   ~CPTSetModStateContent	
+函数名:   ~CPTSetStateContent	
 返回值:   	
 功能概要: 
 *****************************************************/
-CPTSetModStateContent::~CPTSetModStateContent()
+CPTSetStateContent::~CPTSetStateContent()
 {
 	
 }
 
 /****************************************************
 Date:2013/10/9  Author:LYH
-函数名:   CPTSetModStateItem	
+函数名:   CPTSetStateItem	
 返回值:   	
 功能概要: 
 *****************************************************/
-int CPTSetModStateItem::s_nTypeNameWidth = 120;
-CPTSetModStateItem::CPTSetModStateItem(CString sTypeName, int nPTSetStateID)
+int CPTSetStateItem::s_nTypeNameWidth = 120;
+CPTSetStateItem::CPTSetStateItem(CString sTypeName, int nPTSetStateID)
 	: m_nPTSetStateID(nPTSetStateID), m_nCurPTSetState(-1)
 {
 	m_sContent = "";	
@@ -85,16 +85,16 @@ CPTSetModStateItem::CPTSetModStateItem(CString sTypeName, int nPTSetStateID)
 
 /****************************************************
 Date:2013/10/9  Author:LYH
-函数名:   ~CPTSetModStateItem	
+函数名:   ~CPTSetStateItem	
 返回值:   	
 功能概要: 
 *****************************************************/
-CPTSetModStateItem::~CPTSetModStateItem()
+CPTSetStateItem::~CPTSetStateItem()
 {
 	POSITION pos = m_listContent.GetHeadPosition();
 	while(pos)
 	{
-		CPTSetModStateContent* rc = (CPTSetModStateContent*)m_listContent.GetNext(pos);
+		CPTSetStateContent* rc = (CPTSetStateContent*)m_listContent.GetNext(pos);
 		if(rc)
 			delete rc;
 	}
@@ -109,7 +109,7 @@ Date:2013/10/9  Author:LYH
 功能概要: 
 参数: CDC * pDC	
 *****************************************************/
-void CPTSetModStateItem::Draw( CDC* pDC )
+void CPTSetStateItem::Draw( CDC* pDC )
 {
 	if(pDC == NULL)
 		return;
@@ -169,7 +169,7 @@ void CPTSetModStateItem::Draw( CDC* pDC )
 		pDC->DrawText(m_sContent, &rcContent, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
 }
 
-void CPTSetModStateItem::SetCurPTSetState(int nState)
+void CPTSetStateItem::SetCurPTSetState(int nState)
 {
 	m_nCurPTSetState = nState;
 	Update(100);
@@ -180,9 +180,9 @@ Date:2013/10/9  Author:LYH
 函数名:   AddContent	
 返回值:   void	
 功能概要: 
-参数: CPTSetModStateContent * pRC	
+参数: CPTSetStateContent * pRC	
 *****************************************************/
-void CPTSetModStateItem::AddContent( CPTSetModStateContent* pRC )
+void CPTSetStateItem::AddContent( CPTSetStateContent* pRC )
 {
 	if(pRC == NULL)
 		return;
@@ -210,11 +210,11 @@ Date:2013/10/9  Author:LYH
 返回值:   void	
 功能概要: 
 *****************************************************/
-void CPTSetModStateItem::RemoveHead()
+void CPTSetStateItem::RemoveHead()
 {
 	if(m_listContent.GetCount() == 0)
 		return;
-	CPTSetModStateContent* rc = (CPTSetModStateContent*)m_listContent.GetHead();
+	CPTSetStateContent* rc = (CPTSetStateContent*)m_listContent.GetHead();
 	if(!rc)
 		return;
 	CString sHeadContent = rc->GetContent();
@@ -241,7 +241,7 @@ Date:2013/10/9  Author:LYH
 返回值:   void	
 功能概要: 
 *****************************************************/
-void CPTSetModStateItem::Update(DWORD nElapse)
+void CPTSetStateItem::Update(DWORD nElapse)
 {
 	int ncount = 0;
 	DWORD nstart = GetTickCount();
@@ -249,7 +249,7 @@ void CPTSetModStateItem::Update(DWORD nElapse)
 	{
 		if( GetTickCount() - nstart >= nElapse )
 			break;
-		CPTSetModStateContent* rc = (CPTSetModStateContent*)m_listContent.GetHead();
+		CPTSetStateContent* rc = (CPTSetStateContent*)m_listContent.GetHead();
 		if(GetTickCount() - rc->GetTriggerTime() > 1000*60*g_RemindTime)
 		{
 			RemoveHead();
@@ -281,7 +281,7 @@ Date:2013/10/9  Author:LYH
 功能概要: 
 参数: CString str	
 *****************************************************/
-BOOL CPTSetModStateItem::IsChinese( CString str )
+BOOL CPTSetStateItem::IsChinese( CString str )
 {
 	TBYTE ucHigh, ucLow;
 

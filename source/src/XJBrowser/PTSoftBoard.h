@@ -91,7 +91,7 @@ private:
 	int		m_nTimer;
 	/** @brief           操作计时定时器索引*/
 	int			m_nRecordTimer;	
-	/** @brief           软压板修改定时*/
+	/** @brief           软压板投退定时*/
 	int			m_nPTSetTimer;
 	/** @brief           操作用时*/
 	int			m_nOPTime;

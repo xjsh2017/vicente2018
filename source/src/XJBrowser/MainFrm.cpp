@@ -45,7 +45,7 @@
 #include "RemindObj.h"
 
 #include "MsgView.h"	//消息输出窗口
-#include "PTSetModProgView.h"
+#include "PTSetProgView.h"
 #include "DlgCheckPro.h"
 #include "DlgValidateID.h"
 
@@ -92,8 +92,11 @@ UINT RefreshPTSetState(LPVOID pParam)
 		if(pFrame->m_bThreadExit)
 			break;
 
-		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
-		pStore->ReLoadState();
+		CXJPTSetStore *pPTSetStore = CXJPTSetStore::GetInstance();
+		pPTSetStore->ReLoadState();
+
+		CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+		pUserStore->ReLoad();
 		//pStore->Save();
 
 		//pView->UpdateAllObj();
@@ -618,7 +621,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 设置寻找标记 
 	::SetProp(m_hWnd, "XJBrowser", (HANDLE)1); 
-
+	
+	m_nTimer = SetTimer(10, 1*1000, NULL);
 	// 启动定值修改状态机刷新线程
 	m_nMsgTimer = SetTimer(201, 3*1000, NULL);
 	StartThread();
@@ -695,7 +699,7 @@ int CMainFrame::InitDockWindows()
 	}
 	// 浮动的Bar
 	if(!m_wndGlobalMsgBar.Create(this, 102, StringFromID(IDS_WINDOW_MSG),
-		CSize(600,200), CBRS_BOTTOM | CBRS_SIZE_DYNAMIC))
+		CSize(700,260), CBRS_BOTTOM | CBRS_SIZE_DYNAMIC))
 	{
 		TRACE("failed to create msgbar\n");
 		return -1;
@@ -729,7 +733,7 @@ int CMainFrame::InitDockWindows()
 	// 设置消息栏
 	//m_wndGlobalMsgBar.AddView(StringFromID(IDS_DOCK_MSG), RUNTIME_CLASS(CMsgView));
 	m_wndGlobalMsgBar.ModifyTabStyle(WS_VISIBLE, 0);
-	m_wndGlobalMsgBar.AddView(StringFromID(IDS_DOCK_MSG), RUNTIME_CLASS(CPTSetModProgView));
+	m_wndGlobalMsgBar.AddView(StringFromID(IDS_DOCK_MSG), RUNTIME_CLASS(CPTSetProgView));
 	//m_pLogView	 = (CLogView*)(m_wndGlobalMsgBar.GetView(RUNTIME_CLASS(CLogView)));
 	
 	//设置隐藏显示
@@ -3173,9 +3177,10 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 			pApp->LockUI();
 		}
 	}
+	
+	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	QPTSetStateTable *pState = pStore->GetState();
 	if (nIDEvent == m_nMsgTimer){
-		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
-		QPTSetStateTable *pState = pStore->GetState();
 		
 		int nPTSetState = pState->GetStateID();
 		
@@ -3198,6 +3203,38 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 					m_nMsgTimer = SetTimer(201, 3*1000, NULL);
 				}
 		}
+	}
+
+	if (nIDEvent == m_nTimer){
+
+		int nPTSetState = pState->GetStateID();
+
+		CString text;
+		m_wndGlobalMsgBar.GetWindowText(text);
+		QByteArray winText = text.GetBuffer(0);
+		QByteArray dynText;
+		if (winText.contains(" / "))
+			dynText = " -- ";
+		else if (winText.contains(" -- "))
+			dynText = " \\ ";
+		else if (winText.contains(" \\ "))
+			dynText = " | ";
+		else if (winText.contains(" | "))
+			dynText = " / ";
+		
+		if (dynText.isEmpty())
+			dynText = " -- ";
+		QByteArray baHangoutReasonType = pState->GetHangoutReasonName();
+		if (baHangoutReasonType.isEmpty())
+			baHangoutReasonType << "挂牌任务";
+		baHangoutReasonType << "监视窗口";
+
+		if (nPTSetState != XJ_OPER_UNHANGOUT)
+			baHangoutReasonType << dynText;
+		m_wndGlobalMsgBar.SetWindowText(baHangoutReasonType.constData());
+		m_wndGlobalMsgBar.GetParent()->SetWindowText(baHangoutReasonType.constData());
+		m_wndGlobalMsgBar.GetParent()->GetParent()->SetWindowText(baHangoutReasonType.constData());
+		OnUpdateFrameTitle(TRUE);
 	}
 
 	CMDIFrameWnd::OnTimer(nIDEvent);

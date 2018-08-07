@@ -196,11 +196,11 @@ BOOL DLGMarked::CanUnMark()
 
 		if (nFlag == 2){
 			if (XJ_OPER_PTSET == nType)
-				str.Format("该装置：操作员正在下发定值修改，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
+				str.Format("该装置：操作员正在下发定值修改执行请求，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
 			else if (XJ_OPER_PTZONESET == nType)
-				str.Format("该装置：操作员正在下发定值区修改，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
+				str.Format("该装置：操作员正在下发定值区切换执行请求，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
 			else if (XJ_OPER_PTSOFTSET == nType)
-				str.Format("该装置：操作员正在下发软压板投退修改，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
+				str.Format("该装置：操作员正在下发软压板投退执行请求，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
 
 			AfxMessageBox(str, MB_OK | MB_ICONWARNING);
 

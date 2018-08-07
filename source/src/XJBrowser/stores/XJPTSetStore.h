@@ -99,11 +99,9 @@ public:
 		, CString sUserID, int nOperType, int nOperResult  = 0, int num  = -1);
 	void AddNewManOperator(int nStateID, const char* szTime, CString sUserID);
 
-	CString		GetUserTypeName(CString sUserGroupID);
-	CString		GetUserTypeName(int nUserType);
 	BOOL		SetUserLoginFlag(const CString &sUserID, const CString &sUserGroupID, CString &sFlag = CString(""));
 
-	CString		GetFuncID(int nStateID);
+	QByteArray		GetFuncID(int nStateID);
 
 // Implementation
 public:

@@ -7,6 +7,7 @@
 #include "xjbrowser.h"
 #include "DeviceObj.h"
 #include "XJPTSetStore.h"
+#include "XJUserStore.h"
 
 
 #ifdef _DEBUG
@@ -111,47 +112,6 @@ void CDlgOperHis::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CDlgOperHis message handlers
-
-/*
-BOOL CDlgOperHis::OnInitDialog() 
-{
-	CDialog::OnInitDialog();
-	InitListStyle();
-	
-	UpdateLabels();
-	
-	// TODO: Add extra initialization here
-	if (m_nType ==0)
-	{
-		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
-
-		LoadPTSET();
-		FillListData();
-	}
-	else if (m_nType ==1)
-	{
-		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
-		
-		LoadPTSETMod();
-	}
-	else if (m_nType ==2)
-	{
-		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
-		
-		LoadPTSETMod();
-	}
-	else
-	{
-		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
-	}
-		
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
-}
-*/
 BOOL CDlgOperHis::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
@@ -231,7 +191,7 @@ int CDlgOperHis::InitListStyle()
 				colName = "操作时间";
 				break;
 			case 3:
-				lvCol.cx = 140; // 用户操作
+				lvCol.cx = 190; // 用户操作
 				colName = "用户操作";
 				break;
 			case 4:
@@ -243,18 +203,22 @@ int CDlgOperHis::InitListStyle()
 				colName = "用户名";
 				break;
 			case 6:
+				lvCol.cx = 60; // 用户所有者
+				colName = "所有者";
+				break;
+			case 7:
 				lvCol.cx = 80; // 操作对象
 				colName = "操作对象";
 				break;
-			case 7://
+			case 8://
 				lvCol.cx = 250; // 操作信息
 				colName = "人工操作信息";
 				break;
-			case 8:
+			case 9:
 				lvCol.cx = 80; // 计算机名
 				colName = "计算机名";
 				break;
-			case 9:
+			case 10:
 				lvCol.cx = 60; // 操作结果
 				colName = "操作结果";
 				break;
@@ -268,8 +232,8 @@ int CDlgOperHis::InitListStyle()
 		//默认隐藏第一列(序号)
 		m_List.SetColumnHide(1, TRUE);
 		m_List.SetColumnHide(4, TRUE);
-		m_List.SetColumnHide(6, TRUE);
-		m_List.SetColumnHide(8, TRUE);
+		m_List.SetColumnHide(7, TRUE);
+		m_List.SetColumnHide(9, TRUE);
 	}
 	//设置风格
 	m_List.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
@@ -279,6 +243,9 @@ int CDlgOperHis::InitListStyle()
 void CDlgOperHis::FillData()
 {
 	WriteLog("CDlgOperHis::FillData, 开始", XJ_LOG_LV3);
+
+	CXJUserStore *pUsrStore = CXJUserStore::GetInstance();
+	pUsrStore->ReLoad();
 	
 	//填充数据时禁止刷新
 	m_List.SetRedraw(FALSE);
@@ -295,21 +262,30 @@ void CDlgOperHis::FillData()
 
 	CMemSet	mem;
 	int nResult;
+
+	QByteArray baSQL;
+	if (m_nType == 1){
+		baSQL << "SELECT 1,id,time,func,opertype,username,'',act,msg,computer,operresult "
+			<< " FROM tb_operation WHERE ACT IN ('" << m_pObj->m_sID << "')"
+			<< " AND (opertype BETWEEN " << XJ_OPER_UNHANGOUT << " AND " << XJ_OPER_HANGOUT << " OR "
+			<< " opertype BETWEEN " << XJ_OPER_PTSET << " AND " << XJ_OPER_PTZONESET_STATE_5 << " )"
+			<< " ORDER BY time DESC";
+	}else if (2 == m_nType){
+		baSQL << "SELECT 1,id,time,func,opertype,username,'',act,msg,computer,operresult "
+			<< " FROM tb_operation WHERE ACT IN ('" << m_pObj->m_sID << "')"
+			<< " AND (opertype BETWEEN " << XJ_OPER_UNHANGOUT << " AND " << XJ_OPER_HANGOUT << " OR "
+			<< " opertype BETWEEN " << XJ_OPER_PTSOFTSET << " AND " << XJ_OPER_PTSOFTSET_STATE_5 << " )"
+			<< " ORDER BY time DESC";
+	}
 	
-	CString strSQL;
-	strSQL.Format("SELECT 1,id,time,func,opertype,username,act,msg,computer,operresult "
-		" FROM tb_operation WHERE ACT IN ('%s') AND opertype > 100 AND opertype < 200 "
-		" ORDER BY time DESC"
-		, m_pObj->m_sID);
-	
-	WriteLog(strSQL);
+	WriteLog(baSQL.constData());
 	//AfxMessageBox(strSQL);
 	
 	//进行查询
 	MutiSQL_DATA MutiSql;
 	bzero(&MutiSql, sizeof(MutiSQL_DATA));
 	MutiSql.Funtype = EX_STTP_FUN_TYPE_FULL;
-	strncpy(MutiSql.SQL_BODY_Content, strSQL, strSQL.GetLength());
+	strncpy(MutiSql.SQL_BODY_Content, baSQL.constData(), baSQL.count());
 	memset(sError, '\0', MAXMSGLEN);
 	
 	try
@@ -362,6 +338,10 @@ void CDlgOperHis::FillData()
 
 				m_List.SetItemText(nIndex, j, str);
 			}
+
+			QByteArray user_id = mem.GetValue((UINT)5);
+			QByteArray &owner = pUsrStore->GetUserOwner(user_id.constData());
+			m_List.SetItemText(nIndex, 6, owner.constData());
 			
 			nIndex++;
 			

@@ -578,8 +578,8 @@ void CHangoutWnd::ShowChannelDetail( int nChannel )
 		m_pointPTSetModView.y = rcRect.top - 18;
 
 	}else{
-		LONG w = 600;
-		LONG h = 220;
+		LONG w = 700;
+		LONG h = 260;
 
 		m_pointPTSetModView.x = rcRect.right - w;
 		m_pointPTSetModView.y = rcRect.bottom - h;

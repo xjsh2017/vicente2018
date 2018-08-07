@@ -40,7 +40,7 @@ public:
 protected:
 
 private:
-	// 类型: 0 - 定值修改；1 - 定值区修改；2 - 软压板修改
+	// 类型: 0 - 定值修改；1 - 定值区切换；2 - 软压板投退
 	char m_szType[2];
 	// 状态机ID
 	char m_szID[2];

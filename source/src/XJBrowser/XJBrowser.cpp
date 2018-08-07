@@ -3424,6 +3424,7 @@ BOOL CXJBrowserApp::InitInstance()
 	if (g_bLoginVerify)
 	{
 		CXJUserStore::GetInstance()->ReLoad();
+		CXJPTSetStore::GetInstance()->Check();
 		//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
 		//CXJPTSetStore::GetInstance()->ReLoad();
 		//CXJPTSetStore::GetInstance()->ReLoadState();

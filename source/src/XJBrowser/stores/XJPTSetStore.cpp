@@ -6,6 +6,7 @@
 
 #include "XJBrowser.h"
 #include "qptsetstatetable.h"
+#include "XJUserStore.h"
 
 ////////////////////////////////////////////////////////////
 
@@ -132,7 +133,7 @@ int CXJPTSetStorePrivate::CheckState()
 		Field fld0;
 		dbEngine.SetField(sql1, fld0, "keyname", EX_STTP_DATA_TYPE_STRING, PTSET_KEYNAME);
 		Field fld1;
-		str.Format("0,%d,,0,0,0", XJ_OPER_UNHANGOUT);
+		str.Format("%d,%d,,0,0,0", XJ_OPER_UNDEFINE, XJ_OPER_UNHANGOUT);
 		dbEngine.SetField(sql1, fld1, "value", EX_STTP_DATA_TYPE_STRING, str);
 		Field fld2;
 		dbEngine.SetField(sql1, fld2, "reverse1", EX_STTP_DATA_TYPE_STRING, m_state.GetDefaultWorkFlow().constData());
@@ -412,138 +413,87 @@ void CXJPTSetStore::AddNewManOperator( CString FunID, CString Act, CString strTi
 	}
 }
 
-CString	CXJPTSetStore::GetFuncID(int nStateID)
+QByteArray CXJPTSetStore::GetFuncID(int nStateID)
 {
-	CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
+	QByteArray baReturn;
 
-	CString strUserGroupName;
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+
+	QByteArray baUserGroupName;
 	// 默认用户组
 	switch (nStateID)
 	{
-	case XJ_OPER_UNHANGOUT: case XJ_OPER_HANGOUT: case XJ_OPER_PTSET_STATE_4:
-		strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_RUNNER));
+	case XJ_OPER_UNHANGOUT: case XJ_OPER_HANGOUT: 
+	case XJ_OPER_PTSET_STATE_4:
+	case XJ_OPER_PTZONESET_STATE_4:
+	case XJ_OPER_PTSOFTSET_STATE_4:
+		//strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_RUNNER));
+		baUserGroupName = pUserStore->GetUserGroupName(XJ_USERGROUP_RUNNER);
 		break;
-	case XJ_OPER_PTSET_STATE_2: case XJ_OPER_PTSET_STATE_5:
-		strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_OPERATOR));
+	case XJ_OPER_PTSET_STATE_2: 
+	case XJ_OPER_PTZONESET_STATE_2: 
+	case XJ_OPER_PTSOFTSET_STATE_2: 
+	case XJ_OPER_PTSET_STATE_5:
+	case XJ_OPER_PTZONESET_STATE_5: 
+	case XJ_OPER_PTSOFTSET_STATE_5: 
+		//strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_OPERATOR));
+		baUserGroupName = pUserStore->GetUserGroupName(XJ_USERGROUP_OPERATOR);
 		break;
 	case XJ_OPER_PTSET_STATE_3:
-		strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_MONITOR));
+	case XJ_OPER_PTZONESET_STATE_3: 
+	case XJ_OPER_PTSOFTSET_STATE_3: 
+		//strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_MONITOR));
+		baUserGroupName = pUserStore->GetUserGroupName(XJ_USERGROUP_MONITOR);
 		break;
 	}
-
 	// 设定组
 	QByteArrayMatrix &flow = d_ptr->m_state.GetWorkFlow();
 	for (int i = 1; i <= flow.GetRows(); i++){
 		int nPTSetStateID = flow.GetFieldValue(i, 1).toInt();
 		if (nPTSetStateID == nStateID){
-			int nUserType = flow.GetFieldValue(i, 3).toInt();
-			if (0 != nUserType)
-				strUserGroupName = GetUserTypeName(nUserType);
+			int nUserGroupType = flow.GetFieldValue(i, 3).toInt();
+			if (0 != nUserGroupType)
+				baUserGroupName = pUserStore->GetUserGroupName(nUserGroupType);
 			break;
 		}
 	}
 
-	map<int, CString> mapFunc;
-	mapFunc.insert(make_pair(XJ_OPER_UNHANGOUT, CString("取消挂牌")));
-	mapFunc.insert(make_pair(XJ_OPER_HANGOUT, StringFromID(IDS_DZ_MOD_STATE_1)));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_2, StringFromID(IDS_DZ_MOD_STATE_2)));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_3, StringFromID(IDS_DZ_MOD_STATE_3)));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_4, StringFromID(IDS_DZ_MOD_STATE_4)));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_5, StringFromID(IDS_DZ_MOD_STATE_5)));
-	
-	CString str;
-	str.Format("%s: %s", strUserGroupName, mapFunc[nStateID]);
+	const char* szState[] = {
+			"挂牌",
+			"取消挂牌",
+			"修改核对",
+			"监护",
+			"验证",
+			"执行完成"
+	};
 
-	return str;
-}
+	map<int, QByteArray> mapFunc;
+	mapFunc.insert(make_pair(XJ_OPER_HANGOUT, szState[0]));
+	mapFunc.insert(make_pair(XJ_OPER_UNHANGOUT, szState[1]));
 
-CString	CXJPTSetStore::GetUserTypeName(int nUserType)
-{
-	CString sReturn;
-	switch (nUserType){
-	case  XJ_USERGROUP_RUNNER:
-		return GetUserTypeName(StringFromID(IDS_USERGROUP_RUNNER));
-	case XJ_USERGROUP_OPERATOR:
-		return GetUserTypeName(StringFromID(IDS_USERGROUP_OPERATOR));
-	case XJ_USERGROUP_MONITOR:
-		return GetUserTypeName(StringFromID(IDS_USERGROUP_MONITOR));
-	}
+	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_5, szState[5]));
+	
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_5, szState[5]));
+	
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_5, szState[5]));
 
-	return sReturn;
-}
+	//QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
+	QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonNameByState(nStateID);
+	if (opReasonTypeName.isEmpty())
+		opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
 
-CString CXJPTSetStore::GetUserTypeName(CString sUserGroupID)
-{
-	CString sReturn;
-	
-	if (NULL == d_ptr || sUserGroupID.IsEmpty())
-		return sReturn;
+	baReturn << opReasonTypeName << " | "
+		<< baUserGroupName << ": "
+		<< mapFunc[nStateID];
 
-	CString str;
-	CXJBrowserApp*  pApp = (CXJBrowserApp*)AfxGetApp();
-	CDBEngine&		dbEngine = pApp->m_DBEngine;
-
-	SQL_DATA sql;
-	sql.Conditionlist.clear();
-	sql.Fieldlist.clear();
-	
-	//字段
-	//NAME
-	Field fld0;
-	dbEngine.SetField(sql, fld0, "NAME", EX_STTP_DATA_TYPE_STRING);
-	
-	//条件
-	//USER_ID
-	Condition cond0;
-	str.Format("GROUP_ID = '%s'", sUserGroupID);
-	dbEngine.SetCondition(sql, cond0, str);
-	
-	CMemSet mem;
-	char * sError = new char[MAXMSGLEN];
-	memset(sError, '\0', MAXMSGLEN);
-	
-	int nResult;
-	try
-	{
-		nResult = dbEngine.XJSelectData(EX_STTP_INFO_SYS_GROUP_CFG, sql, sError, &mem);
-	}
-	catch (CException* e)
-	{
-		e->Delete();
-		WriteLog("CXJPTSetStore::GetUserTypeName, 查询失败", XJ_LOG_LV3);
-		
-		DELETE_POINTERS(sError);
-		
-		return sReturn;
-	}
-	
-	// 查询成功
-	if(1 == nResult)
-	{
-		int nCount = mem.GetMemRowNum();
-		
-		str.Format("CXJPTSetStore::GetUserTypeName, 读取到%d条数据", nCount);
-		WriteLog(str, XJ_LOG_LV3);
-		//AfxMessageBox(str);
-		
-		if(nCount > 0)
-		{
-			CString strVal = mem.GetValue((UINT)0);
-			if (!strVal.IsEmpty()){
-				sReturn = strVal;
-			}
-		}
-	}
-	else
-	{
-		CString str;
-		str.Format("CXJPTSetStore::GetUserTypeName, 查询失败, 原因为：%s", sError);
-		WriteLog(str, XJ_LOG_LV3);
-		//AfxMessageBox(str);
-		sReturn = "";	
-	}
-	DELETE_POINTERS(sError);
-	mem.FreeData(true);
-    
-	return sReturn;
+	return baReturn;
 }

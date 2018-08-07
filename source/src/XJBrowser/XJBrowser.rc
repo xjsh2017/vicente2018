@@ -4476,7 +4476,7 @@ BEGIN
     IDS_DZ_MOD_STATE_2      "修改核对"
     IDS_DZ_MOD_STATE_3      "监视"
     IDS_DZ_MOD_STATE_4      "验证"
-    IDS_DZ_MOD_STATE_5      "修改完成"
+    IDS_DZ_MOD_STATE_5      "执行完成"
     IDS_PTSET_VERIFY_0      "运行员验证"
     IDS_PTSET_VERIFY_1      "操作员验证"
     IDS_CHECK_RUNNER        "请运行人员确认以下修改"

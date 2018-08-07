@@ -8,7 +8,7 @@
 
 #include "XJBrowser.h"
 
-
+// 用户表
 class QUserTable : public QMemTable
 {
 public:
@@ -19,23 +19,51 @@ public:
 	BOOL		ReLoad();
 	BOOL		Save(const char *pszFilePath = NULL);
 
-	int			GetUserFlags(const char* pszUserID, const char* pszUserGroupID);
-	QByteArray	GetUserOwner(const char* pszUserID, const char* pszUserGroupID);
+	QByteArray		GetName(const char* pszID, const char* pszGroupID);
+	int				GetFlags(const char* pszID, const char* pszGroupID);
+	QByteArray		GetOwner(const char* pszID, const char* pszGroupID);
+	QByteArray		GetOwner(const char* pszID);
 
-	void		SetUserFlags(const char *pszUserID, const char *pszUserGroupID, int nFlags);
-	void		SetUserOwner(const char *pszUserID, const char *pszUserGroupID, QByteArray &owner);
+	void			SetFlags(const char *pszID, const char *pszGroupID, int nFlags);
+	void			SetOwner(const char *pszID, const char *pszGroupID, QByteArray &owner);
 };
 
+// 用户组表
+class QUserGroupTable : public QMemTable
+{
+public:
+	QUserGroupTable();
+	~QUserGroupTable();
+	
+public:	
+	BOOL		ReLoad();
+	BOOL		Save(const char *pszFilePath = NULL);
+
+	QByteArray		GetName(const char* pszID);
+};
+
+// 用户类存储私有数据
 class CXJUserStorePrivate 
 {
 public:
 	CXJUserStorePrivate();
     ~CXJUserStorePrivate();
 	
-	QUserTable	m_user_table;
+	QUserTable			m_table_user;
+	QUserGroupTable		m_table_user_group;
 	
 	BOOL		ReLoad();
 	BOOL		Save(const char *pszFilePath = NULL);
+
+public:
+	/*
+	 *  @brief   	GetUserGroupName	 获取用户组ID名 
+	 *  @param 		[In] pszID		const char*		ID
+	 *  @param 		[In] nIDType	int				ID 类别: 0 - 用户ID，1 - 用户组ID
+	 *  @return 	QByteArray	
+	 */
+	QByteArray			GetUserGroupName(const char* pszID, int nIDType = 0);
+	QByteArray			GetUserGroupName(QByteArray &baID, int nIDType = 0);
 	
 };
 
@@ -58,6 +86,7 @@ BOOL QUserTable::ReLoad()
 	
 	LoadInfo("tb_sys_user");
 	LoadDataAll();
+	Save("c:/tb_sys_user.txt");
 
 	return bReturn;
 }
@@ -101,33 +130,53 @@ BOOL QUserTable::Save(const char *pszFilePath)
 	return bReturn;
 }
 
-int QUserTable::GetUserFlags(const char* pszUserID, const char* pszUserGroupID)
+QByteArray QUserTable::GetName(const char* pszID, const char* pszGroupID)
 {
 	QByteArrayMatrix keyVals;
-	keyVals.AppendField(pszUserID, true);
-	keyVals.AppendField(pszUserGroupID);
+	keyVals.AppendField(pszID, true);
+	keyVals.AppendField(pszGroupID);
+	int nValRowIdx = GetValueRowIndex(keyVals);
+	// AfxMessageBox(QByteArray::number(nValRowIdx));
+	return GetFieldValue(nValRowIdx, "name");
+}
+
+int QUserTable::GetFlags(const char* pszID, const char* pszGroupID)
+{
+	QByteArrayMatrix keyVals;
+	keyVals.AppendField(pszID, true);
+	keyVals.AppendField(pszGroupID);
 	int nValRowIdx = GetValueRowIndex(keyVals);
 	// AfxMessageBox(QByteArray::number(nValRowIdx));
 	QByteArrayMatrix val = GetFieldValue(nValRowIdx, "notes");
 	return val.GetFieldValue(1, 1).toInt();
 }
 
-QByteArray QUserTable::GetUserOwner(const char* pszUserID, const char* pszUserGroupID)
+QByteArray QUserTable::GetOwner(const char* pszID, const char* pszGroupID)
 {
-	QByteArrayMatrix keyVals;
-	keyVals.AppendField(pszUserID, true);
-	keyVals.AppendField(pszUserGroupID);
-	int nValRowIdx = GetValueRowIndex(keyVals);
-	// AfxMessageBox(QByteArray::number(nValRowIdx));
-	QByteArrayMatrix val = GetFieldValue(nValRowIdx, "notes");
-	return val.GetFieldValue(1, 2);
+	return GetName(pszID, pszGroupID);
 }
 
-void QUserTable::SetUserFlags(const char *pszUserID, const char *pszUserGroupID, int nFlags)
+QByteArray QUserTable::GetOwner(const char* pszID)
+{
+	QByteArray s;
+	int nRowCount = GetRowCount();
+
+	for (int i = 1; i <= nRowCount; i++){
+		if (QByteArray(pszID) != GetFieldValue(i, "user_id"))
+			continue;
+
+		return GetFieldValue(i, "name");
+		break;
+	}
+
+	return s;
+}
+
+void QUserTable::SetFlags(const char *pszID, const char *pszGroupID, int nFlags)
 {
 	QByteArrayMatrix keyVals;
-	keyVals.AppendField(pszUserID, true);
-	keyVals.AppendField(pszUserGroupID);
+	keyVals.AppendField(pszID, true);
+	keyVals.AppendField(pszGroupID);
 	int nValRowIdx = GetValueRowIndex(keyVals);
 
 	QByteArrayMatrix val = GetFieldValue(nValRowIdx, "notes");
@@ -135,18 +184,87 @@ void QUserTable::SetUserFlags(const char *pszUserID, const char *pszUserGroupID,
 	SetFieldValue(nValRowIdx, "notes", val);
 }
 
-void QUserTable::SetUserOwner(const char *pszUserID, const char *pszUserGroupID, QByteArray &owner)
+void QUserTable::SetOwner(const char *pszID, const char *pszGroupID, QByteArray &owner)
 {
 	QByteArrayMatrix keyVals;
-	keyVals.AppendField(pszUserID, true);
-	keyVals.AppendField(pszUserGroupID);
+	keyVals.AppendField(pszID, true);
+	keyVals.AppendField(pszGroupID);
 	int nValRowIdx = GetValueRowIndex(keyVals);
 	
-	QByteArrayMatrix val = GetFieldValue(nValRowIdx, "notes");
-	val.SetFieldValue(1, 2, owner);
-	SetFieldValue(nValRowIdx, "notes", val);
+	SetFieldValue(nValRowIdx, "name", owner);
 }
 
+
+////////////////////////////////////////////////////////////
+// QUserGroupTable
+//
+QUserGroupTable::QUserGroupTable()
+{
+}
+
+QUserGroupTable::~QUserGroupTable()
+{
+	
+}
+
+BOOL QUserGroupTable::ReLoad()
+{
+	BOOL bReturn = FALSE;
+	
+	LoadInfo("tb_sys_group");
+	LoadDataAll();
+	Save("c:/tb_sys_group.txt");
+	
+	return bReturn;
+}
+
+BOOL QUserGroupTable::Save(const char *pszFilePath)
+{
+	BOOL bReturn = FALSE;
+	
+	//  	CString str;
+	// 
+	// 	int nFlag;
+	// 	QByteArray sOwner;
+	// 	Q_UNUSED(nFlag);
+	// 	Q_UNUSED(sOwner);
+	
+	// 	int nFlag = GetUserFlags("op1", "操作用户");
+	// 	QByteArray sOwner = GetUserOwner("op1", "操作用户");
+	// 	
+	// 	
+	// 	str.Format(" Flag: %d\n Owner: %s"
+	// 		, nFlag
+	// 		, sOwner.constData());
+	// 	AfxMessageBox(str);
+	
+	// 	SetUserFlags("op1", "操作用户", 1);
+	// 	SetUserOwner("op1", "操作用户", QByteArray("hello"));
+	// 	nFlag = GetUserFlags("op1", "操作用户");
+	// 	sOwner = GetUserOwner("op1", "操作用户");
+	// 	
+	// 	str.Format(" Flag: %d\n Owner: %s"
+	// 		, nFlag
+	// 		, sOwner.constData());
+	// 	AfxMessageBox(str);
+	
+	if (SaveData())
+		bReturn = TRUE;
+	
+	if (NULL != pszFilePath)
+		FWrite(pszFilePath);
+	
+	return bReturn;
+}
+
+QByteArray QUserGroupTable::GetName(const char* pszID)
+{
+	QByteArrayMatrix keyVals;
+	keyVals.AppendField(pszID, true);
+	int nValRowIdx = GetValueRowIndex(keyVals);
+	// AfxMessageBox(QByteArray::number(nValRowIdx));
+	return GetFieldValue(nValRowIdx, "name");
+}
 
 ////////////////////////////////////////////////////////////
 // CXJUserStorePrivate
@@ -163,14 +281,41 @@ BOOL CXJUserStorePrivate::ReLoad()
 {
 	BOOL bReturn = FALSE;
 
-	m_user_table.ReLoad();
+	m_table_user.ReLoad();
+	m_table_user_group.ReLoad();
 
 	return bReturn;
 }
 
 BOOL CXJUserStorePrivate::Save(const char *pszFilePath/* = NULL*/)
 {
-	return m_user_table.Save(pszFilePath);
+	return m_table_user.Save(pszFilePath);
+}
+
+QByteArray CXJUserStorePrivate::GetUserGroupName(const char* pszID, int nIDType/* = 0*/)
+{
+	QByteArray s;
+
+	if (0 == nIDType){
+
+	}else if (1 == nIDType){
+		
+	}
+
+	return s;
+}
+
+QByteArray CXJUserStorePrivate::GetUserGroupName(QByteArray &baID, int nIDType/* = 0*/)
+{
+	QByteArray s;
+	
+	if (0 == nIDType){
+		
+	}else if (1 == nIDType){
+
+	}
+	
+	return s;
 }
 
 ////////////////////////////////////////////////////////////
@@ -221,13 +366,35 @@ BOOL CXJUserStore::Save(const char *pszFilePath)
 	return d_ptr->Save(pszFilePath);
 }
 
+QByteArray CXJUserStore::GetUserGroupIDName(int nType/* = XJ_USERGROUP_RUNNER*/)
+{
+	QByteArray s;
+
+	switch (nType){
+	case XJ_USERGROUP_RUNNER:
+		return QByteArray("运行用户");
+	case XJ_USERGROUP_OPERATOR:
+		return QByteArray("操作用户");
+	case XJ_USERGROUP_MONITOR:
+		return QByteArray("监护用户");
+	}
+
+	return s;
+}
+
+QByteArray CXJUserStore::GetUserGroupName(int nType/* = XJ_USERGROUP_RUNNER*/)
+{
+	QByteArray val = GetUserGroupIDName(nType);
+	return d_ptr->m_table_user_group.GetName(val);
+}
+
 int CXJUserStore::GetUserFlags(const char* pszUserID, const char* pszUserGroupID)
 {
 	int nReturn = 0;
 	if (NULL == d_ptr)
 		return nReturn;
 
-	return d_ptr->m_user_table.GetUserFlags(pszUserID, pszUserGroupID);
+	return d_ptr->m_table_user.GetFlags(pszUserID, pszUserGroupID);
 }
 
 QByteArray CXJUserStore::GetUserOwner(const char* pszUserID, const char* pszUserGroupID)
@@ -236,7 +403,16 @@ QByteArray CXJUserStore::GetUserOwner(const char* pszUserID, const char* pszUser
 	if (NULL == d_ptr)
 		return s;
 
-	return d_ptr->m_user_table.GetUserOwner(pszUserID, pszUserGroupID);
+	return d_ptr->m_table_user.GetOwner(pszUserID, pszUserGroupID);
+}
+
+QByteArray CXJUserStore::GetUserOwner(const char* pszUserID)
+{
+	QByteArray s;
+	if (NULL == d_ptr)
+		return s;
+	
+	return d_ptr->m_table_user.GetOwner(pszUserID);
 }
 
 void CXJUserStore::SetUserFlags(const char *szUserID, const char *szUserGroupID, int nFlags)
@@ -244,7 +420,7 @@ void CXJUserStore::SetUserFlags(const char *szUserID, const char *szUserGroupID,
 	if (NULL == d_ptr)
 		return;
 	
-	d_ptr->m_user_table.SetUserFlags(szUserID, szUserGroupID, nFlags);
+	d_ptr->m_table_user.SetFlags(szUserID, szUserGroupID, nFlags);
 }
 
 void CXJUserStore::SetUserOwner(const char *szUserID, const char *szUserGroupID, QByteArray &owner)
@@ -252,5 +428,5 @@ void CXJUserStore::SetUserOwner(const char *szUserID, const char *szUserGroupID,
 	if (NULL == d_ptr)
 		return;
 	
-	d_ptr->m_user_table.SetUserOwner(szUserID, szUserGroupID, owner);
+	d_ptr->m_table_user.SetOwner(szUserID, szUserGroupID, owner);
 }
