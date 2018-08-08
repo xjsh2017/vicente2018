@@ -279,7 +279,7 @@ void CMsgView::OnTimer(UINT nIDEvent)
 
 		PT_ZONE zone;
 		CString sRecords;
-		int nCurState = pApp->GetPTSetModState(zone, sRecords);
+		int nCurState;// = pApp->GetPTSetModState(zone, sRecords);
 		if (nCurState < 0)
 			return;
 

@@ -398,18 +398,6 @@ public:
 	void AddNewManOperator( CString FunID, CString Act, CString strMsg, int nOperType, int nOperResult  = 0, int num = -1);
 	void AddNewManOperator( CString FunID, CString Act, CString strMsg, CString strUser, int nOperType, int nOperResult  = 0, int num  = -1);
 
-	BOOL NextPTSetModState(int nNextStateID, const PT_ZONE &data, const CString &sUserID, const CString &sRecords = CString());
-	int  GetPTSetModState(PT_ZONE &data, CString &sRecords = CString(), CString &sFlag = CString());
-	BOOL RevertPTSetModState(int nRevertStateID, int nFlag = 0);
-	BOOL SetRevertModifyValueFlag(int nFlag);
-	CString GetUserIDByState(int nState, CString &sRecords = CString());
-	BOOL SaveTempPTSetToDB(CString &sPTID, MODIFY_LIST &arrModifyList);
-	BOOL SaveNewPTSetToDB(CString &sCPU, CString &sPTID, CTypedPtrArray<CPtrArray, PT_SETTING*> &arrSetting);
-	BOOL RevertTempPTSetToDB(const PT_ZONE &zone, int nFlag = 0);
-	int CheckKeyNameForPTSet();
-
-	CString GetUserGroupNameByID(CString sUserGroupID);
-	BOOL SetUserLoginFlag(const CString &sUserID, const CString &sUserGroupID, CString &sFlag = CString(""));
 	vector<CString> SplitCString(CString &str,const CString find, int limit=0);
 
 /*

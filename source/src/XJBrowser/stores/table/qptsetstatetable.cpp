@@ -233,7 +233,7 @@ BOOL QPTSetStateTable::ReLoad()
 	
 	LoadInfo("tb_sys_config");
 	LoadDataAll();
-	//Save("c:/tb_sys_config.txt");
+	Save("c:/tb_sys_config.txt");
 	
 	return bReturn;
 }
@@ -727,6 +727,58 @@ void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *pszUs
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
 }
 
+void QPTSetStateTable::Next_PTSet_State_3(const char *pszUserID)
+{
+	SetStateID(XJ_OPER_PTSET_STATE_3);
+	
+	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSET_STATE_3, pszUserID);
+	
+	Save();
+	
+	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSET_STATE_3
+		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+}
+
+void QPTSetStateTable::Next_PTSet_State_4(const char *pszUserID)
+{
+	SetStateID(XJ_OPER_PTSET_STATE_4);
+	
+	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSET_STATE_4, pszUserID);
+	
+	Save();
+	
+	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSET_STATE_4
+		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+}
+
+void QPTSetStateTable::Next_PTSet_State_5(const char *pszUserID)
+{
+	SetStateID(XJ_OPER_PTSET_STATE_5);
+	
+	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSET_STATE_5, pszUserID);
+	
+	Save();
+
+	CXJPTSetStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSET_STATE_5
+		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+}
+
+void QPTSetStateTable::RevertTo_PTSet_State_1(int nFrom_PTSetStateID, const char* pszUserID, QByteArray &strMs)
+{
+	SetStateID(XJ_OPER_HANGOUT);
+
+	int nPTSetType = GetType();
+	QByteArrayMatrix log = GetLog(XJ_OPER_HANGOUT);
+	
+	QByteArrayMatrix keyVals;
+	keyVals << PTSET_KEYNAME;
+	
+	SetFieldValue(keyVals, "reverse3", log);
+	Save();
+
+	CXJPTSetStore::GetInstance()->AddNewManOperator(nFrom_PTSetStateID
+		, GetTime().constData(), pszUserID, OPER_FAILD, strMs.constData());
+}
 
 ////////////////////////////////////////////////////////////
 // QPTSetDataTable

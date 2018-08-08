@@ -82,6 +82,8 @@ public:
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
 	
+	BOOL		HasField(const char* fieldName, int nNameType = 0);
+	BOOL		HasField(const QByteArray &fieldName, int nNameType = 0);
 	BOOL		AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldType, QByteArray initVal);
 	
 public: // SQL DML DDL
@@ -227,8 +229,9 @@ BOOL QMemTablePrivate::LoadData(const char* sql_stm)
 	strSQL.Format("%s", sql_stm);
 	if (!ExcuteSQL(strSQL.GetBuffer(0), m_data))
 		return bReturn;
-	
-	AddField("is_modified", DBI_FIELD_TYPE_INT, QByteArray::number(0));
+
+	if (!HasField("is_modified"))
+		AddField("is_modified", DBI_FIELD_TYPE_INT, QByteArray::number(0));
 
 	return TRUE;
 }
@@ -243,7 +246,8 @@ BOOL QMemTablePrivate::LoadDataAll()
 	if (!ExcuteSQL(strSQL.GetBuffer(0), m_data))
 		return bReturn;
 
-	AddField("is_modified", DBI_FIELD_TYPE_INT, QByteArray::number(0));
+	if (!HasField("is_modified"))
+		AddField("is_modified", DBI_FIELD_TYPE_INT, QByteArray::number(0));
 	
 	return TRUE;
 }
@@ -639,6 +643,21 @@ BOOL QMemTablePrivate::SetFieldValue(int iRow, const char *szFieldName, QByteArr
 	}
  	m_data.SetFieldValue(iRow, iCol, val);
 	return TRUE;
+}
+
+BOOL QMemTablePrivate::HasField(const char* fieldName, int nNameType/* = 0*/)
+{
+	BOOL bReturn = TRUE;
+
+	if (-1 == GetFieldIndex(fieldName, nNameType))
+		return FALSE;
+
+	return bReturn;
+}
+
+BOOL QMemTablePrivate::HasField(const QByteArray &fieldName, int nNameType/* = 0*/)
+{
+	return HasField(fieldName.constData(), nNameType);
 }
 
 BOOL QMemTablePrivate::AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldType, QByteArray initVal)

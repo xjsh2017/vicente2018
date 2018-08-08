@@ -3282,10 +3282,11 @@ void CMainFrame::DoPtsetVerify0()
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 	CString strOutPut;
-		
-	PT_ZONE zone;
-	CString sRecords;
-	int nCurPTSetModState = pApp->GetPTSetModState(zone, sRecords);
+	CString str;
+	CXJPTSetStore *pPTSetStore = CXJPTSetStore::GetInstance();
+	QPTSetStateTable *pPTSetState = pPTSetStore->GetState();
+
+	int nPTSetState = pPTSetState->GetStateID();
 
 	//运行人员确认
 	CDlgCheckPro dlg(this, 0);
@@ -3301,29 +3302,16 @@ void CMainFrame::DoPtsetVerify0()
 			if(dlgID.DoModal() == IDOK)
 			{	
 				sRunUser = dlgID.m_strUser;
-
-				CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-				CString str;
-				str.Format("用户%s以运行员身份验证成功:修改定值", sRunUser);
-				WriteLog(str);
-				//pApp->AddNewManOperator("用户验证", pObj->m_sID, str, sRunUser, -1, OPER_SUCCESS,m_nOperationNum);
-				
-				// 运行人员核对后修改状态机
-				pApp->NextPTSetModState(4, zone, sRunUser);
+				pPTSetState->Next_PTSet_State_4(sRunUser.GetBuffer(0));
 			}
 			else
 			{
-				//无操作权限
-				//回复修改前的值
-				//RevertModifyValue();
-				CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
-				CString str;
-				str.Format("用户%s以运行员身份验证失败:修改定值", dlgID.m_strUser);
+				// 权限不足
+				str.Format("用户%s以运行员身份验证失败：定值修改密码验证失败", pPTSetState->GetRunnerUserID().constData());
 				WriteLog(str, XJ_LOG_LV2);
-				//pApp->AddNewManOperator("用户验证", pObj->m_sID, str, dlgID.m_strUser, -1, OPER_FAILD,m_nOperationNum);
-			
-				pApp->RevertPTSetModState(1, 1);
-
+				pPTSetState->SetFlags(1);
+				pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
+						, QByteArray(str.GetBuffer(0)));
 			}
 		}
 	}
@@ -3331,10 +3319,10 @@ void CMainFrame::DoPtsetVerify0()
 	{
 		//不同意修改
 		//回复修改前的值
-		//RevertModifyValue();
-		//UpdateControlsEnable();
-
-		pApp->RevertPTSetModState(1, 1);
+		str.Format("用户%s以运行员身份验证失败：不同意修改定值修改", pPTSetState->GetRunnerUserID().constData());
+			WriteLog(str, XJ_LOG_LV2);
+		pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
+						, QByteArray(str.GetBuffer(0)));
 	}
 	
 	KillTimer(m_nMsgTimer);

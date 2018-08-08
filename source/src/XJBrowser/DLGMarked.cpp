@@ -120,17 +120,17 @@ BOOL DLGMarked::CanMark()
 	CString str;
     CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 		
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
-	pStore->ReLoadState();	
-	QPTSetStateTable *pState = pStore->GetState();
+	CXJPTSetStore *pPTSetStore = CXJPTSetStore::GetInstance();
+	pPTSetStore->ReLoadState();	
+	QPTSetStateTable *pPTSetState = pPTSetStore->GetState();
 
-	QByteArrayMatrix &log = pState->GetLogs();
+	QByteArrayMatrix &log = pPTSetState->GetLogs();
 
-	int nPTSetState = pState->GetStateID();
+	int nPTSetState = pPTSetState->GetStateID();
 	
 	// 状态不是未挂牌状态
 	if (XJ_OPER_UNHANGOUT != nPTSetState){
-		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
+		CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pPTSetState->GetPTID().constData(), TYPE_SEC);
 		if (NULL != pObj){
 			if (pObj == m_pObj){
 				str.Format("装置已挂牌！");
@@ -138,8 +138,8 @@ BOOL DLGMarked::CanMark()
 				str.Format("当前已存在挂牌的保护装置： \n\n挂牌装置：[ %s ] [ %s ] \n\n挂牌时间：%s \n\n执行用户：%s"
 					, pObj->m_pStation ? pObj->m_pStation->m_sName : ""
 					, pObj->m_sName
-					, pState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 1).constData()
-					, pState->GetRunnerUserID().constData());
+					, pPTSetState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 1).constData()
+					, pPTSetState->GetRunnerUserID().constData());
 			}
 			AfxMessageBox(str, MB_ICONWARNING);
 		}

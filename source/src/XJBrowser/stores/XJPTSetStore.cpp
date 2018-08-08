@@ -266,7 +266,7 @@ BOOL CXJPTSetStore::RevertModify()
 	return bReturn;
 }
 
-void CXJPTSetStore::AddNewManOperator(int nStateID, const char* szTime, CString sUserID)
+void CXJPTSetStore::AddNewManOperator(int nStateID, const char* szTime, CString sUserID, int nOperType, CString strMsg)
 {
 	if(NULL == d_ptr)
 		return;
@@ -274,41 +274,97 @@ void CXJPTSetStore::AddNewManOperator(int nStateID, const char* szTime, CString 
 	CString FunID = GetFuncID(nStateID);
 	CString Act = d_ptr->m_state.GetPTID().constData();
 	CString strTime = szTime;
-	CString strMsg;
 
 	CString str;
+	if (strMsg.IsEmpty())
 	switch (nStateID){
 	case XJ_OPER_UNHANGOUT:
-		strMsg.Format("用户[%s]以运行员身份取消挂牌成功", sUserID);
-		WriteLog(strMsg);
-		AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, XJ_OPER_UNHANGOUT, OPER_SUCCESS, -1);
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以运行员身份取消挂牌成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以运行员身份取消挂牌失败", sUserID);
 		break;
 	case XJ_OPER_HANGOUT:
-		strMsg.Format("用户[%s]以运行员身份挂牌成功", sUserID);
-		WriteLog(strMsg);
-		AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, XJ_OPER_HANGOUT, OPER_SUCCESS, -1);
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以运行员身份挂牌成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以运行员身份挂牌失败", sUserID);
 		break;
 	case XJ_OPER_PTSET_STATE_2:
-		strMsg.Format("用户[%s]以操作员身份修改核对定值成功", sUserID);
-		WriteLog(strMsg);
-		AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, XJ_OPER_PTSET_STATE_2, OPER_SUCCESS, -1);
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以操作员身份修改核对定值成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以操作员身份修改核对定值失败", sUserID);
 		break;
 	case XJ_OPER_PTSET_STATE_3:
-		strMsg.Format("用户[%s]以监视员身份验证定值修改成功", sUserID);
-		WriteLog(strMsg);
-		AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, XJ_OPER_PTSET_STATE_3, OPER_SUCCESS, -1);
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以监视员身份验证定值修改成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以监视员身份验证定值修改失败", sUserID);
 		break;
 	case XJ_OPER_PTSET_STATE_4:
-		strMsg.Format("用户[%s]以运行员身份验证定值修改成功", sUserID);
-		WriteLog(strMsg);
-		AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, XJ_OPER_PTSET_STATE_4, OPER_SUCCESS, -1);
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以运行员身份验证定值修改成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以运行员身份验证定值修改失败", sUserID);
 		break;
 	case XJ_OPER_PTSET_STATE_5:
-		strMsg.Format("用户[%s]以操作员身份执行定值修改成功", sUserID);
-		WriteLog(strMsg);
-		AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, XJ_OPER_PTSET_STATE_5, OPER_SUCCESS, -1);
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以操作员身份执行定值修改成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以操作员身份执行定值修改失败", sUserID);
+		break;
+	case XJ_OPER_PTZONESET_STATE_2:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以操作员身份进行定值区切换修改核对成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以操作员身份进行定值区切换修改核对失败", sUserID);
+		break;
+	case XJ_OPER_PTZONESET_STATE_3:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以监视员身份进行定值区切换监护成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以监视员身份进行定值区切换监护失败", sUserID);
+		break;
+	case XJ_OPER_PTZONESET_STATE_4:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以运行员身份进行定值区切换验证成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以运行员身份进行定值区切换验证失败", sUserID);
+		break;
+	case XJ_OPER_PTZONESET_STATE_5:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以操作员身份执行定值区切换成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以操作员身份执行定值区切换失败", sUserID);
+		break;
+	case XJ_OPER_PTSOFTSET_STATE_2:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以操作员身份进行软压板投退修改核对成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以操作员身份进行软压板投退修改核对失败", sUserID);
+		break;
+	case XJ_OPER_PTSOFTSET_STATE_3:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以监视员身份进行软压板投退监护成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以监视员身份进行软压板投退监护失败", sUserID);
+		break;
+	case XJ_OPER_PTSOFTSET_STATE_4:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以运行员身份进行软压板投退验证成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以运行员身份进行软压板投退验证失败", sUserID);
+		break;
+	case XJ_OPER_PTSOFTSET_STATE_5:
+		if (OPER_SUCCESS == nOperType)
+			strMsg.Format("用户[%s]以操作员身份执行软压板投退成功", sUserID);
+		else
+			strMsg.Format("用户[%s]以操作员身份执行软压板投退失败", sUserID);
 		break;
 	}
+	WriteLog(strMsg);
+	AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, nStateID, nOperType, -1);
 }
 
 void CXJPTSetStore::AddNewManOperator( CString FunID, CString Act, CString strTime, CString strMsg

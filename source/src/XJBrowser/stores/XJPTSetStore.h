@@ -97,7 +97,7 @@ public:
 	 */
 	void AddNewManOperator(CString FunID, CString Act, CString strTime, CString strMsg
 		, CString sUserID, int nOperType, int nOperResult  = 0, int num  = -1);
-	void AddNewManOperator(int nStateID, const char* szTime, CString sUserID);
+	void AddNewManOperator(int nStateID, const char* szTime, CString sUserID, int nOperType = OPER_SUCCESS, CString strMsg = CString());
 
 	BOOL		SetUserLoginFlag(const CString &sUserID, const CString &sUserGroupID, CString &sFlag = CString(""));
 
