@@ -59,6 +59,25 @@ void QByteArrayMatrix::expandMatrix(int iAddCols, QByteArray val)
 	}
 }
 
+void QByteArrayMatrix::expandRow(int iRow, int iTotalCols, QByteArray val)
+{
+	if (iRow < 1 || iTotalCols < 1)
+		return;
+
+	int nCols = GetCols(iRow);
+	if (nCols >= iTotalCols)
+		return;
+
+	QByteArrayMatrix row_data = GetRow(iRow);
+	for (int i = nCols + 1; i <= iTotalCols; i++){
+		row_data.AppendField("");
+	}
+	int from;
+	int end;
+	GetRowBytePos(iRow, from, end);
+	replace(from, end - from, row_data.constData());
+}
+
 QByteArray QByteArrayMatrix::FWrite(const char *pszFilePath)
 {
 	QByteArray out;
@@ -191,14 +210,16 @@ void QByteArrayMatrix::GetRowBytePos(int iRow, int &from, int &end)
 	from = 0;
 	end = 0;
 
-	if (iRow < 1)
+	if (iRow < 1){
+		from = end  = -1;
 		return;
+	}
 	
 	for (int i = 1; i < iRow; i++){
 		from = indexOf(m_delim_row, from);
 
 		if (from == -1){
-			from = 0;
+			end = -1;
 			return;
 		}
 		
@@ -215,8 +236,10 @@ void QByteArrayMatrix::GetBytePos(int iRow, int iCol, int &from, int &end)
 	from = 0;
 	end = 0;
 
-	if (iRow < 1 || iCol < 1)
+	if (iRow < 1 || iCol < 1){
+		from = end  = -1;
 		return;
+	}
 
 	GetRowBytePos(iRow, from, end);
 		
@@ -227,8 +250,9 @@ void QByteArrayMatrix::GetBytePos(int iRow, int iCol, int &from, int &end)
 		from = indexOf(m_delim_col, from);
 
 		if (from == -1){
-			from = from_min;
-			end = from_min;
+// 			from = from_min;
+// 			end = from_min;
+			end = -1;
 			return;
 		}
 		
@@ -255,12 +279,14 @@ QByteArray	QByteArrayMatrix::GetFieldValue(int iRow, int iCol)
 
 void QByteArrayMatrix::SetFieldValue(int iRow, int iCol, const char *val)
 {
+	expandRow(iRow, iCol, "");
 	GetBytePos(iRow, iCol, m_from, m_end);
 	replace(m_from, m_end - m_from, val);
 }
 
 void QByteArrayMatrix::SetFieldValue(int iRow, int iCol, const QByteArray &s)
 {
+	expandRow(iRow, iCol, "");
 	GetBytePos(iRow, iCol, m_from, m_end);
 	replace(m_from, m_end - m_from, s);
 }

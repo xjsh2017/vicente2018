@@ -49,7 +49,7 @@
 #include "DlgCheckPro.h"
 #include "DlgValidateID.h"
 
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "XJUserStore.h"
 #include "qptsetstatetable.h"
 
@@ -92,8 +92,9 @@ UINT RefreshPTSetState(LPVOID pParam)
 		if(pFrame->m_bThreadExit)
 			break;
 
-		CXJPTSetStore *pPTSetStore = CXJPTSetStore::GetInstance();
+		CXJTagOutStore *pPTSetStore = CXJTagOutStore::GetInstance();
 		pPTSetStore->ReLoadState();
+		pPTSetStore->Check();
 
 		CXJUserStore *pUserStore = CXJUserStore::GetInstance();
 		pUserStore->ReLoad();
@@ -2191,7 +2192,8 @@ void CMainFrame::OnClose()
 	//pApp->SetUserLoginFlag(pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID, CString(""));
 	CXJUserStore::GetInstance()->SetUserFlags(pApp->m_User.m_strUSER_ID.GetBuffer(0)
 		, pApp->m_User.m_strGROUP_ID.GetBuffer(0), 0);
-	CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+	//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+	CXJUserStore::GetInstance()->Save();
 
 	WriteLog("CMainFrame::OnClose start", XJ_LOG_LV3);
 
@@ -3178,7 +3180,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		}
 	}
 	
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pState = pStore->GetState();
 	if (nIDEvent == m_nMsgTimer){
 		
@@ -3192,11 +3194,11 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 			CString sRunnerUserID = pState->GetRunnerUserID().data();
 			// 运行人员或者超级用户
 			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
-				if (XJ_OPER_PTSET_STATE_3 == nCurPTSetModState){
+				if (XJ_OPER_PTVALVSET_STATE_3 == nCurPTSetModState){
 					KillTimer(m_nMsgTimer);
 					DoPtsetVerify0();
 					m_oper = 0;
-				}else if (XJ_OPER_PTSET_STATE_5 == nCurPTSetModState && 0 == m_oper){
+				}else if (XJ_OPER_PTVALVSET_STATE_5 == nCurPTSetModState && 0 == m_oper){
 					KillTimer(m_nMsgTimer);
 					AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
 					m_oper = 1;
@@ -3224,7 +3226,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		
 		if (dynText.isEmpty())
 			dynText = " -- ";
-		QByteArray baHangoutReasonType = pState->GetHangoutReasonName();
+		QByteArray baHangoutReasonType = pState->GetTypeName();
 		if (baHangoutReasonType.isEmpty())
 			baHangoutReasonType << "挂牌任务";
 		baHangoutReasonType << "监视窗口";
@@ -3283,7 +3285,7 @@ void CMainFrame::DoPtsetVerify0()
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 	CString strOutPut;
 	CString str;
-	CXJPTSetStore *pPTSetStore = CXJPTSetStore::GetInstance();
+	CXJTagOutStore *pPTSetStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pPTSetState = pPTSetStore->GetState();
 
 	int nPTSetState = pPTSetState->GetStateID();
@@ -3310,7 +3312,7 @@ void CMainFrame::DoPtsetVerify0()
 				str.Format("用户%s以运行员身份验证失败：定值修改密码验证失败", pPTSetState->GetRunnerUserID().constData());
 				WriteLog(str, XJ_LOG_LV2);
 				pPTSetState->SetFlags(1);
-				pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
+				pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
 						, QByteArray(str.GetBuffer(0)));
 			}
 		}
@@ -3321,7 +3323,7 @@ void CMainFrame::DoPtsetVerify0()
 		//回复修改前的值
 		str.Format("用户%s以运行员身份验证失败：不同意修改定值修改", pPTSetState->GetRunnerUserID().constData());
 			WriteLog(str, XJ_LOG_LV2);
-		pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
+		pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
 						, QByteArray(str.GetBuffer(0)));
 	}
 	

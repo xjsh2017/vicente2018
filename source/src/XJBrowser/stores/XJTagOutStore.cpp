@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 
 #include "XJBrowser.h"
 #include "qptsetstatetable.h"
@@ -10,11 +10,11 @@
 
 ////////////////////////////////////////////////////////////
 
-class CXJPTSetStorePrivate 
+class CXJTagOutStorePrivate 
 {
 public:
-	CXJPTSetStorePrivate();
-    ~CXJPTSetStorePrivate();
+	CXJTagOutStorePrivate();
+    ~CXJTagOutStorePrivate();
 	
 	/** @brief           挂牌状态机*/
 	QPTSetStateTable	m_state;
@@ -23,10 +23,13 @@ public:
 	QPTSetDataTable		m_data_PTSet;
 
 	BOOL		ReLoadState();
-	int			CheckState();
+	int			CheckState(int nTagOutType);
+	BOOL		Check(int nTagOutType);
 	
 public:	
-	BOOL		Save(const char *pszFilePath = NULL);
+	BOOL		Save();
+	BOOL		SaveState(const char *pszFilePath = NULL);
+	BOOL		SaveData(const char *pszFilePath = NULL);
 	BOOL		ReLoadData();
 
 };
@@ -34,38 +37,59 @@ public:
 
 
 ////////////////////////////////////////////////////////////
-// CXJPTSetStorePrivate
+// CXJTagOutStorePrivate
 //
-CXJPTSetStorePrivate::CXJPTSetStorePrivate()
+CXJTagOutStorePrivate::CXJTagOutStorePrivate()
 {
 	m_data_PTSet.m_pState = &m_state;
 	m_state.m_pData = &m_data_PTSet;
 }
 
-CXJPTSetStorePrivate::~CXJPTSetStorePrivate()
+CXJTagOutStorePrivate::~CXJTagOutStorePrivate()
 {
 }
 
-BOOL CXJPTSetStorePrivate::ReLoadState()
+BOOL CXJTagOutStorePrivate::ReLoadState()
 {
 	BOOL bReturn = FALSE;
 
 	return m_state.ReLoad();
 }
 
-BOOL CXJPTSetStorePrivate::Save(const char *pszFilePath/* = NULL*/)
+BOOL CXJTagOutStorePrivate::Save()
+{
+	return TRUE;
+}
+
+BOOL CXJTagOutStorePrivate::SaveState(const char *pszFilePath/* = NULL*/)
+{
+	return m_state.Save(pszFilePath);
+}
+
+BOOL CXJTagOutStorePrivate::SaveData(const char *pszFilePath/* = NULL*/)
 {
 	return m_data_PTSet.Save(pszFilePath);
 }
 
-int CXJPTSetStorePrivate::CheckState()
+BOOL CXJTagOutStorePrivate::Check(int nTagOutType)
 {
-	int nReturn = -1;
+	return m_state.Check(nTagOutType);
+}
+/*
+ *  @brief   	CheckStore	 检查状态机配置情况
+ *  @param 		void
+ *  @return 	int		
+						 -1: 配置不存在，创建失败;
+						  0: 配置检查失败;
+						  1: 配置存在;
+						  2: 配置不存在，创建成功	
+ */
+int CXJTagOutStorePrivate::CheckState(int nTagOutType)
+{
+	int nReturn = 0;
 
     CXJBrowserApp*  pApp = (CXJBrowserApp*)AfxGetApp();
 	CDBEngine&		dbEngine = pApp->m_DBEngine;
-
-	QByteArrayMatrix& flow = m_state.GetWorkFlow();
 
 	CString str;
     
@@ -73,16 +97,27 @@ int CXJPTSetStorePrivate::CheckState()
 	sql.Conditionlist.clear();
 	sql.Fieldlist.clear();
 	
-	//字段
-	//value
-	Field fld0;
-	dbEngine.SetField(sql, fld0, "value", EX_STTP_DATA_TYPE_STRING);
+	QByteArray tagKeyname = PTVALVSET_KEYNAME;
+	switch (nTagOutType){
+	case XJ_TAGOUT_PTVALVSET:
+		tagKeyname = PTVALVSET_KEYNAME;
+		break;
+	case XJ_TAGOUT_PTZONESET:
+		tagKeyname = PTZONESET_KEYNAME;
+		break;
+	case XJ_TAGOUT_PTSOFTSET:
+		tagKeyname = PTSOFTSET_KEYNAME;
+		break;
+	default:
+		tagKeyname = TAGOUT_KEYNAME;
+	}
 	
 	//条件
 	//keyname
 	Condition condition1;
-	str.Format("keyname = '%s'", PTSET_KEYNAME);
+	str.Format("keyname = '%s'", tagKeyname);
 	dbEngine.SetCondition(sql, condition1, str);
+		AfxMessageBox(tagKeyname.constData());
 	
 	CMemSet* pMemset = new CMemSet;
 	char * sError = new char[MAXMSGLEN];
@@ -92,22 +127,16 @@ int CXJPTSetStorePrivate::CheckState()
 	try
 	{
 		nResult = dbEngine.XJSelectData(EX_STTP_INFO_TBSYSCONFIG, sql, sError, pMemset);
-		
-		if (1 != nResult)
-		{
-			nReturn = -1;
-			//AfxMessageBox("CXJPTSetStore::CheckStore, 查询失败");
-		}
 	}
 	catch (CException* e)
 	{
 		e->Delete();
-		WriteLog("CXJPTSetStore::CheckStore, 查询失败", XJ_LOG_LV3);
+		WriteLog("CXJTagOutStorePrivate::CheckState, 查询失败", XJ_LOG_LV3);
 		delete[] sError;
 		delete pMemset;
 		sError = NULL;
 
-		nReturn = -1;
+		nReturn = 0;
 	}
 
 	if(pMemset != NULL && nResult == 1)
@@ -115,14 +144,14 @@ int CXJPTSetStorePrivate::CheckState()
 		int nCount = pMemset->GetMemRowNum();
 		
 		CString str;
-		str.Format("CXJPTSetStore::CheckStore, 读取到%d条数据", nCount);
+		str.Format("CXJTagOutStorePrivate::CheckState, 读取到%d条数据", nCount);
 		WriteLog(str, XJ_LOG_LV3);
-		//AfxMessageBox(str);
+		AfxMessageBox(str);
 		
 		if(nCount > 0)
-			return 0;
+			return 1;
 
-		// 不存在记录 PTSET_KEYNAME
+		// 不存在记录
 		//组建查询条件
 		SQL_DATA sql1;
 		sql1.Conditionlist.clear();
@@ -131,12 +160,32 @@ int CXJPTSetStorePrivate::CheckState()
 		//设置字段
 		//挂牌状态关键字
 		Field fld0;
-		dbEngine.SetField(sql1, fld0, "keyname", EX_STTP_DATA_TYPE_STRING, PTSET_KEYNAME);
-		Field fld1;
-		str.Format("%d,%d,,0,0,0", XJ_OPER_UNDEFINE, XJ_OPER_UNHANGOUT);
-		dbEngine.SetField(sql1, fld1, "value", EX_STTP_DATA_TYPE_STRING, str);
-		Field fld2;
-		dbEngine.SetField(sql1, fld2, "reverse1", EX_STTP_DATA_TYPE_STRING, m_state.GetDefaultWorkFlow().constData());
+		dbEngine.SetField(sql1, fld0, "keyname", EX_STTP_DATA_TYPE_STRING, tagKeyname.constData());
+
+		switch (nTagOutType){
+		case XJ_TAGOUT_PTVALVSET:
+		case XJ_TAGOUT_PTZONESET:
+		case XJ_TAGOUT_PTSOFTSET:
+			{
+				Field fld1;
+				//str.Format("%d,%d,,0,0,0", XJ_TAGOUT_UNDEFINE, XJ_OPER_UNHANGOUT);
+				str.Format("子状态机：%s", m_state.GetTagOutReasonName(nTagOutType).constData());
+				dbEngine.SetField(sql1, fld1, "note", EX_STTP_DATA_TYPE_STRING, str);
+				Field fld2;
+				dbEngine.SetField(sql1, fld2, "reverse1", EX_STTP_DATA_TYPE_STRING
+						, m_state.GetDefaultWorkFlow(nTagOutType).constData());
+			}
+			break;
+		default:
+			{
+				Field fld1;
+				str.Format("%d,%d,,0,0,0", XJ_TAGOUT_UNDEFINE, XJ_OPER_UNHANGOUT);
+				dbEngine.SetField(sql1, fld1, "value", EX_STTP_DATA_TYPE_STRING, str);
+				Field fld2;
+				str.Format("装置挂牌状态机");
+				dbEngine.SetField(sql1, fld2, "note", EX_STTP_DATA_TYPE_STRING, str);
+			}
+		}
 		
 		memset(sError, '\0', MAXMSGLEN);
 		
@@ -153,7 +202,7 @@ int CXJPTSetStorePrivate::CheckState()
 		}
 		catch (...)
 		{
-			WriteLog("CXJPTSetStore::CheckStore, 保存失败");
+			WriteLog("CXJTagOutStore::CheckStore, 保存失败");
 			delete[] sError;
 			sError = NULL;
 			
@@ -163,7 +212,7 @@ int CXJPTSetStorePrivate::CheckState()
 	else
 	{
 		CString str;
-		str.Format("CXJPTSetStore::CheckStore, 查询失败, 原因为%s", sError);
+		str.Format("CXJTagOutStore::CheckStore, 查询失败, 原因为%s", sError);
 		WriteLog(str, XJ_LOG_LV3);
 
 		//AfxMessageBox(str);
@@ -180,37 +229,37 @@ int CXJPTSetStorePrivate::CheckState()
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CXJPTSetStore
+// CXJTagOutStore
 //
-CXJPTSetStore *CXJPTSetStore::m_pInstance = NULL;
+CXJTagOutStore *CXJTagOutStore::m_pInstance = NULL;
 
-CXJPTSetStore *CXJPTSetStore::GetInstance()
+CXJTagOutStore *CXJTagOutStore::GetInstance()
 {
 	if (NULL == m_pInstance)
 	{
-		m_pInstance = new CXJPTSetStore;
+		m_pInstance = new CXJTagOutStore;
 		m_pInstance->Register(m_pInstance);
 	}
 	return m_pInstance;
 }
 
-void CXJPTSetStore::ReleaseInstance()
+void CXJTagOutStore::ReleaseInstance()
 {
 	m_pInstance->UnRegister(m_pInstance);
 	DELETE_POINTER(m_pInstance);
 }
 
-CXJPTSetStore::CXJPTSetStore()
-	: d_ptr(new CXJPTSetStorePrivate)
+CXJTagOutStore::CXJTagOutStore()
+	: d_ptr(new CXJTagOutStorePrivate)
 {
 }
 
-CXJPTSetStore::~CXJPTSetStore()
+CXJTagOutStore::~CXJTagOutStore()
 {
 	DELETE_POINTER(d_ptr);
 }
 
-BOOL CXJPTSetStore::ReLoadState()
+BOOL CXJTagOutStore::ReLoadState()
 {
 	if (NULL == d_ptr)
 		return FALSE;
@@ -218,31 +267,44 @@ BOOL CXJPTSetStore::ReLoadState()
 	return d_ptr->ReLoadState();
 }
 
-BOOL CXJPTSetStore::Save()
+BOOL CXJTagOutStore::Save()
 {
 	if (NULL == d_ptr)
 		return FALSE;
 	
-	return d_ptr->m_state.Save();
+	return d_ptr->Save();
 }
 
-BOOL CXJPTSetStore::Save(const char *pszFilePath/* = NULL*/)
+BOOL CXJTagOutStore::SaveState(const char *pszFilePath/* = NULL*/)
+{	
+	if (NULL == d_ptr)
+		return FALSE;
+
+	return d_ptr->SaveState(pszFilePath);
+}
+
+BOOL CXJTagOutStore::SaveData(const char *pszFilePath/* = NULL*/)
 {
 	if (NULL == d_ptr)
 		return FALSE;
 	
-	return d_ptr->Save(pszFilePath);
+	return d_ptr->SaveData(pszFilePath);
 }
 
-int CXJPTSetStore::Check()
+BOOL CXJTagOutStore::Check()
 {
 	if (NULL == d_ptr)
-		return -2;
+		return TRUE;
 	
-	return d_ptr->CheckState();
+	d_ptr->Check(XJ_TAGOUT_UNDEFINE);
+ 	d_ptr->Check(XJ_TAGOUT_PTVALVSET);
+ 	d_ptr->Check(XJ_TAGOUT_PTZONESET);
+ 	d_ptr->Check(XJ_TAGOUT_PTSOFTSET);
+
+	return TRUE;
 }
 
-QPTSetStateTable* CXJPTSetStore::GetState()
+QPTSetStateTable* CXJTagOutStore::GetState()
 {
 	if (NULL == d_ptr)
 		return NULL;
@@ -250,7 +312,7 @@ QPTSetStateTable* CXJPTSetStore::GetState()
 	return &(d_ptr->m_state);
 }
 
-QPTSetDataTable* CXJPTSetStore::GetPTSetData()
+QPTSetDataTable* CXJTagOutStore::GetPTSetData()
 {
 	if (NULL == d_ptr)
 		return NULL;
@@ -259,14 +321,14 @@ QPTSetDataTable* CXJPTSetStore::GetPTSetData()
 }
 
 
-BOOL CXJPTSetStore::RevertModify()
+BOOL CXJTagOutStore::RevertModify()
 {
 	BOOL bReturn = FALSE;
 
 	return bReturn;
 }
 
-void CXJPTSetStore::AddNewManOperator(int nStateID, const char* szTime, CString sUserID, int nOperType, CString strMsg)
+void CXJTagOutStore::AddNewManOperator(int nStateID, const char* szTime, CString sUserID, int nOperType, CString strMsg)
 {
 	if(NULL == d_ptr)
 		return;
@@ -290,25 +352,25 @@ void CXJPTSetStore::AddNewManOperator(int nStateID, const char* szTime, CString 
 		else
 			strMsg.Format("用户[%s]以运行员身份挂牌失败", sUserID);
 		break;
-	case XJ_OPER_PTSET_STATE_2:
+	case XJ_OPER_PTVALVSET_STATE_2:
 		if (OPER_SUCCESS == nOperType)
 			strMsg.Format("用户[%s]以操作员身份修改核对定值成功", sUserID);
 		else
 			strMsg.Format("用户[%s]以操作员身份修改核对定值失败", sUserID);
 		break;
-	case XJ_OPER_PTSET_STATE_3:
+	case XJ_OPER_PTVALVSET_STATE_3:
 		if (OPER_SUCCESS == nOperType)
 			strMsg.Format("用户[%s]以监视员身份验证定值修改成功", sUserID);
 		else
 			strMsg.Format("用户[%s]以监视员身份验证定值修改失败", sUserID);
 		break;
-	case XJ_OPER_PTSET_STATE_4:
+	case XJ_OPER_PTVALVSET_STATE_4:
 		if (OPER_SUCCESS == nOperType)
 			strMsg.Format("用户[%s]以运行员身份验证定值修改成功", sUserID);
 		else
 			strMsg.Format("用户[%s]以运行员身份验证定值修改失败", sUserID);
 		break;
-	case XJ_OPER_PTSET_STATE_5:
+	case XJ_OPER_PTVALVSET_STATE_5:
 		if (OPER_SUCCESS == nOperType)
 			strMsg.Format("用户[%s]以操作员身份执行定值修改成功", sUserID);
 		else
@@ -367,7 +429,7 @@ void CXJPTSetStore::AddNewManOperator(int nStateID, const char* szTime, CString 
 	AddNewManOperator(FunID, Act, strTime, strMsg, sUserID, nStateID, nOperType, -1);
 }
 
-void CXJPTSetStore::AddNewManOperator( CString FunID, CString Act, CString strTime, CString strMsg
+void CXJTagOutStore::AddNewManOperator( CString FunID, CString Act, CString strTime, CString strMsg
 									  , CString strUser, int nOperType, int nOperResult , int num)
 {
 	if(NULL == d_ptr)
@@ -469,7 +531,7 @@ void CXJPTSetStore::AddNewManOperator( CString FunID, CString Act, CString strTi
 	}
 }
 
-QByteArray CXJPTSetStore::GetFuncID(int nStateID)
+QByteArray CXJTagOutStore::GetFuncID(int nStateID)
 {
 	QByteArray baReturn;
 
@@ -480,22 +542,22 @@ QByteArray CXJPTSetStore::GetFuncID(int nStateID)
 	switch (nStateID)
 	{
 	case XJ_OPER_UNHANGOUT: case XJ_OPER_HANGOUT: 
-	case XJ_OPER_PTSET_STATE_4:
+	case XJ_OPER_PTVALVSET_STATE_4:
 	case XJ_OPER_PTZONESET_STATE_4:
 	case XJ_OPER_PTSOFTSET_STATE_4:
 		//strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_RUNNER));
 		baUserGroupName = pUserStore->GetUserGroupName(XJ_USERGROUP_RUNNER);
 		break;
-	case XJ_OPER_PTSET_STATE_2: 
+	case XJ_OPER_PTVALVSET_STATE_2: 
 	case XJ_OPER_PTZONESET_STATE_2: 
 	case XJ_OPER_PTSOFTSET_STATE_2: 
-	case XJ_OPER_PTSET_STATE_5:
+	case XJ_OPER_PTVALVSET_STATE_5:
 	case XJ_OPER_PTZONESET_STATE_5: 
 	case XJ_OPER_PTSOFTSET_STATE_5: 
 		//strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_OPERATOR));
 		baUserGroupName = pUserStore->GetUserGroupName(XJ_USERGROUP_OPERATOR);
 		break;
-	case XJ_OPER_PTSET_STATE_3:
+	case XJ_OPER_PTVALVSET_STATE_3:
 	case XJ_OPER_PTZONESET_STATE_3: 
 	case XJ_OPER_PTSOFTSET_STATE_3: 
 		//strUserGroupName = GetUserTypeName(StringFromID(IDS_USERGROUP_MONITOR));
@@ -527,10 +589,10 @@ QByteArray CXJPTSetStore::GetFuncID(int nStateID)
 	mapFunc.insert(make_pair(XJ_OPER_HANGOUT, szState[0]));
 	mapFunc.insert(make_pair(XJ_OPER_UNHANGOUT, szState[1]));
 
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_2, szState[2]));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_3, szState[3]));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_4, szState[4]));
-	mapFunc.insert(make_pair(XJ_OPER_PTSET_STATE_5, szState[5]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_5, szState[5]));
 	
 	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_2, szState[2]));
 	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_3, szState[3]));
@@ -543,13 +605,80 @@ QByteArray CXJPTSetStore::GetFuncID(int nStateID)
 	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_5, szState[5]));
 
 	//QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
-	QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonNameByState(nStateID);
+	QByteArray opReasonTypeName = d_ptr->m_state.GetTagOutReasonNameByState(nStateID);
 	if (opReasonTypeName.isEmpty())
-		opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
+		opReasonTypeName = d_ptr->m_state.GetTypeName();
 
 	baReturn << opReasonTypeName << " | "
 		<< baUserGroupName << ": "
 		<< mapFunc[nStateID];
 
 	return baReturn;
+}
+
+QByteArray CXJTagOutStore::GetSubFuncID(int nStateID)
+{
+	QByteArray baReturn;
+	
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+	
+	const char* szState[] = {
+		"挂牌",
+			"取消挂牌",
+			"修改核对",
+			"监护",
+			"验证",
+			"执行完成"
+	};
+	
+	map<int, QByteArray> mapFunc;
+	mapFunc.insert(make_pair(XJ_OPER_HANGOUT, szState[0]));
+	mapFunc.insert(make_pair(XJ_OPER_UNHANGOUT, szState[1]));
+	
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_5, szState[5]));
+	
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_5, szState[5]));
+	
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_2, szState[2]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_3, szState[3]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_4, szState[4]));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_5, szState[5]));
+	
+	//QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
+	QByteArray opReasonTypeName = d_ptr->m_state.GetTagOutReasonNameByState(nStateID);
+	if (opReasonTypeName.isEmpty())
+		opReasonTypeName = d_ptr->m_state.GetTypeName();
+	
+	baReturn << mapFunc[nStateID];
+	
+	return baReturn;
+}
+
+int CXJTagOutStore::GetTagOutRowIdx(int nTagOutType/* = XJ_TAGOUT_UNDEFINE*/)
+{
+	QByteArrayMatrix keyvals;
+	switch (nTagOutType){
+	case XJ_TAGOUT_PTVALVSET:
+		keyvals = PTVALVSET_KEYNAME;
+		break;
+	case XJ_TAGOUT_PTZONESET:
+		keyvals = PTZONESET_KEYNAME;
+		break;
+	case XJ_TAGOUT_PTSOFTSET:
+		keyvals = PTSOFTSET_KEYNAME;
+		break;
+	default:
+		keyvals = TAGOUT_KEYNAME;
+	}
+
+	if (NULL == d_ptr)
+		return -1;
+
+	return d_ptr->m_state.GetRowIndex(keyvals);
 }

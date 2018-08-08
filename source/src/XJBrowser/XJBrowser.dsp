@@ -161,15 +161,15 @@ SOURCE=.\stores\table\qptsetstatetable.cpp
 # End Group
 # Begin Source File
 
-SOURCE=.\stores\XJPTSetStore.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\stores\XJRootStore.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\stores\XJStoreDefine.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJTagOutStore.cpp
 # End Source File
 # Begin Source File
 
@@ -1078,15 +1078,15 @@ SOURCE=.\stores\table\qptsetstatetable.h
 # End Group
 # Begin Source File
 
-SOURCE=.\stores\XJPTSetStore.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\stores\XJRootStore.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\stores\XJStoreDefine.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJTagOutStore.h
 # End Source File
 # Begin Source File
 

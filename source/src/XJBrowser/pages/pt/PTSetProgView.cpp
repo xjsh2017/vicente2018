@@ -6,7 +6,7 @@
 #include "PTSetProgView.h"
 
 #include "PTSetStateItem.h"
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
 #include "MainFrm.h"
 
@@ -259,38 +259,38 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 
 		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 		
-		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 		QPTSetStateTable *pState = pStore->GetState();
 		
 		QByteArrayMatrix &flow = pState->GetWorkFlow();
 		QByteArrayMatrix &log = pState->GetLogs();
 
-		int nPTSetState = pState->GetStateID();
-		int nPTSetType = pState->GetType();
+		int nTagOutState = pState->GetStateID();
+		int nTagOutType = pState->GetType();
 		
-		if (nPTSetState < 0 || pState->GetPTID().isEmpty())
+		if (nTagOutState < 0 || pState->GetPTID().isEmpty())
 			return;
 		
 		if (-1 == m_nLastPTSetType){
-			m_nLastPTSetType = nPTSetType;
+			m_nLastPTSetType = nTagOutType;
 		}
-		if (m_nLastPTSetType != nPTSetType
-			&& m_nLastPTSetType == XJ_OPER_UNDEFINE)
+		if (m_nLastPTSetType != nTagOutType
+			&& m_nLastPTSetType == XJ_TAGOUT_UNDEFINE)
 		{
 			KillTimer(m_nTimer);
 
-			m_nLastPTSetType = nPTSetType;
-			//AfxMessageBox("ResetObj");
+			m_nLastPTSetType = nTagOutType;
+			AfxMessageBox("ResetObj");
 			ResetObj();
 			ResetObjSize();
 
 			m_nTimer = SetTimer(501, 3*1000, 0);
 		}
-		int n1 = m_nLastPTSetType - XJ_OPER_UNDEFINE;
-		int n2 = nPTSetType - XJ_OPER_UNDEFINE;
+		int n1 = m_nLastPTSetType - XJ_TAGOUT_UNDEFINE;
+		int n2 = nTagOutType - XJ_TAGOUT_UNDEFINE;
 		// 刷新（挂牌原因变化时刷新）
 		if (n1 * n2 == 0 && n1 + n2 > 0){
-			m_nLastPTSetType = nPTSetType;
+			m_nLastPTSetType = nTagOutType;
 		}
 		
 		int i, j;
@@ -302,9 +302,9 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 				continue;
 			
 			int nItemState = item->GetPTSetState();
-			item->SetCurPTSetState(nPTSetState);
+			item->SetCurPTSetState(nTagOutState);
 
-			if (nPTSetType != XJ_OPER_UNDEFINE){
+			if (nTagOutType != XJ_TAGOUT_UNDEFINE){
 				QByteArray typeName = pStore->GetFuncID(nItemState);
 				item->SetTypeName(typeName.constData());
 				//AfxMessageBox(typeName.constData());
@@ -545,10 +545,10 @@ void CPTSetProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 			//pApp->GetMainWnd()->SendMessage(PUSHTOP_FVIEW, 0, FVIEW_ACTION);
 			//AfxMessageBox("hello, world");
 
-			CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+			CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 			QPTSetStateTable *pState = pStore->GetState();
 			
-			int nPTSetState = pState->GetStateID();
+			int nTagOutState = pState->GetStateID();
 			int nHangoutType = pState->GetType();
 
 			CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
@@ -558,9 +558,9 @@ void CPTSetProgView::OnLButtonDblClk(UINT nFlags, CPoint point)
 				pView->LocateObjInTree(pObj);
 
 				CXJBrowserDoc * pDoc = pApp->GetCurDocument();
-				if (XJ_OPER_PTSET == nHangoutType || XJ_OPER_PTZONESET == nHangoutType)
+				if (XJ_TAGOUT_PTVALVSET == nHangoutType || XJ_TAGOUT_PTZONESET == nHangoutType)
 					pDoc->ShowSecPropPage(pObj, (ID_PT_SETTING_NEW - ID_PT_GENERAL_NEW));
-				else if (XJ_OPER_PTSOFTSET == nHangoutType)
+				else if (XJ_TAGOUT_PTSOFTSET == nHangoutType)
 					pDoc->ShowSecPropPage(pObj, (ID_PT_SOFTBOARD_NEW - ID_PT_GENERAL_NEW));
 				else{
 					pDoc->ShowSecPropPage(pObj, (ID_PT_ACTION_NEW - ID_PT_GENERAL_NEW));
@@ -659,12 +659,12 @@ void CPTSetProgView::ResetObj()
 	}
 	m_items.RemoveAll();
 
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	pStore->ReLoadState();
 	QPTSetStateTable *pState = pStore->GetState();
 	
-	int nPTSetState = pState->GetStateID();
-	int nPTSetType = pState->GetType();
+	int nTagOutState = pState->GetStateID();
+	int nTagOutType = pState->GetType();
 	
 	QByteArrayMatrix &flow = pState->GetWorkFlow();
 	for (int i = 1; i <= flow.GetRows(); i++){
@@ -674,14 +674,14 @@ void CPTSetProgView::ResetObj()
 		if (XJ_OPER_HANGOUT != nFlowPTSetStateID
 			&& XJ_OPER_UNHANGOUT != nFlowPTSetStateID){
 			
-			if (nFlowPTSetType != nPTSetType)
+			if (nFlowPTSetType != nTagOutType)
 				continue;
 		}
 		
 		int nVisible = flow.GetFieldValue(i, 3).toInt();
 		int nUserType = flow.GetFieldValue(i, 4).toInt();
 		int nUserID = flow.GetFieldValue(i, 5).toInt();
-		CString typeName = CXJPTSetStore::GetInstance()->GetFuncID(nFlowPTSetStateID);
+		CString typeName = CXJTagOutStore::GetInstance()->GetFuncID(nFlowPTSetStateID);
 		CPTSetStateItem *item = new CPTSetStateItem(typeName, nFlowPTSetStateID);
 		item->SetVisible(nVisible);
 		

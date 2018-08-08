@@ -5,7 +5,7 @@
 #include "xjbrowser.h"
 #include "HangoutWnd.h"
 
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "XJUserStore.h"
 
 #include "qptsetstatetable.h"
@@ -559,7 +559,7 @@ void CHangoutWnd::MiniWnd( BOOL bMini )
 void CHangoutWnd::ShowChannelDetail( int nChannel )
 {
 // 	CXJUserStore::GetInstance()->ReLoad();
-// 	CXJPTSetStore::GetInstance()->ReLoadData();
+// 	CXJTagOutStore::GetInstance()->ReLoadData();
 // 	AfxMessageBox("loaded!");
 //  	return;
 
@@ -632,7 +632,7 @@ void CHangoutWnd::RefreshData()
 			CHangoutWndPane* p = (CHangoutWndPane*)m_arrPane.GetAt(i);
 			if(p != NULL)
 			{
-				CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+				CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 				QPTSetStateTable *pState = pStore->GetState();
 
 				int nPTSetState = pState->GetStateID();

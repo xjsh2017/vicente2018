@@ -1,7 +1,7 @@
 #include "PTSetStateItem.h"
 #include "xjbrowser.h"
 
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
 
 /****************************************************
@@ -136,7 +136,7 @@ void CPTSetStateItem::Draw( CDC* pDC )
 	CRect rcTypeName = m_rcBound;
 	rcTypeName.right = rcTypeName.left+m_nTypeNameWidth;
 
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pState = pStore->GetState();
 
 	int nPTSetState = pState->GetStateID();

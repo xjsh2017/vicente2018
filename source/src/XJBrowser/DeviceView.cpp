@@ -14,7 +14,7 @@
 #include "DLGMarked.h"
 #include "MainFrm.h"
 
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
 
 /*#ifdef _DEBUG
@@ -3303,7 +3303,7 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 		//¹Ø±Õ¶¨Ê±Æ÷
 		//KillTimer(m_nTimer);
 
-		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 		QPTSetStateTable *pState = pStore->GetState();
 
 		int nPTSetState = pState->GetStateID();

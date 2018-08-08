@@ -66,6 +66,8 @@ public:
 
 	void				SetUserFlags(const char *szUserID, const char *szUserGroupID, int nFlags);
 	void				SetUserOwner(const char *szUserID, const char *szUserGroupID, QByteArray &owner);
+	QByteArray			BuildComboxUserList(const char* pszUserGroupID);
+	QByteArray			BuildComboxUserList(int nGroupType = XJ_USERGROUP_RUNNER);
 
 
 // Implementation

@@ -74,7 +74,8 @@
 
 #include "XJRootStore.h"
 #include "XJUserStore.h"
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
+#include "qptsetstatetable.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3424,10 +3425,12 @@ BOOL CXJBrowserApp::InitInstance()
 	if (g_bLoginVerify)
 	{
 		CXJUserStore::GetInstance()->ReLoad();
-		CXJPTSetStore::GetInstance()->Check();
-		//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
-		//CXJPTSetStore::GetInstance()->ReLoad();
-		//CXJPTSetStore::GetInstance()->ReLoadState();
+		CXJTagOutStore::GetInstance()->ReLoadState();
+		CXJTagOutStore::GetInstance()->Check();
+		//AfxMessageBox(CXJTagOutStore::GetInstance()->GetState()->GetWorkFlow(XJ_TAGOUT_PTVALVSET).constData());
+		//AfxMessageBox(QByteArray::number(CXJTagOutStore::GetInstance()->GetState()->GetType()).constData());
+		//AfxMessageBox(CXJTagOutStore::GetInstance()->GetState()->GetWorkFlow().constData());
+		//AfxMessageBox(CXJTagOutStore::GetInstance()->GetState()->GetRunnerUserID().constData());
 
 		//用户身份验证
 		if (!DoLogin())
@@ -4050,7 +4053,8 @@ BOOL CXJBrowserApp::DoLogin()
 		//SetUserLoginFlag(m_User.m_strUSER_ID, m_User.m_strGROUP_ID, CString("1"));
 		CXJUserStore::GetInstance()->SetUserFlags(m_User.m_strUSER_ID.GetBuffer(0)
 			, m_User.m_strGROUP_ID.GetBuffer(0), 1);
-		CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+		//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
+		CXJUserStore::GetInstance()->Save();
 		
 		return TRUE;
 	}

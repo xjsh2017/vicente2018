@@ -2474,6 +2474,23 @@ BEGIN
                     LVS_SINGLESEL | WS_BORDER | WS_TABSTOP,7,30,345,184
 END
 
+IDD_DLG_TAGOUT DIALOG DISCARDABLE  0, 0, 288, 225
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "挂牌设置"
+FONT 9, "宋体"
+BEGIN
+    PUSHBUTTON      "挂牌",IDC_BTN_MARK,50,198,50,14
+    PUSHBUTTON      "取消挂牌",IDC_BTN_UNMARK,122,198,50,14
+    COMBOBOX        IDC_CMB_MARKREASON,20,32,249,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "请填写挂牌原因（亦可选择下拉框查找）：",IDC_STATIC,20,
+                    16,165,9
+    CONTROL         "List1",IDC_LIST_CTRL1,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | WS_BORDER | WS_TABSTOP,20,72,249,119
+    LTEXT           "请指定工作人员：",IDC_STATIC,20,56,248,9
+    PUSHBUTTON      "保存设置",IDC_BTN_SAVE,194,198,50,14,WS_DISABLED
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -3201,6 +3218,14 @@ BEGIN
         RIGHTMARGIN, 352
         TOPMARGIN, 7
         BOTTOMMARGIN, 214
+    END
+
+    IDD_DLG_TAGOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 281
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 218
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -6647,6 +6672,19 @@ BEGIN
                     234,8
 END
 
+IDD_DLG_TAGOUT DIALOG DISCARDABLE  0, 0, 227, 58
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Mark device"
+FONT 9, "Microsoft YaHei UI"
+BEGIN
+    PUSHBUTTON      "Mark",IDC_BTN_MARK,46,37,50,14
+    PUSHBUTTON      "Unmark",IDC_BTN_UNMARK,126,37,50,14
+    COMBOBOX        IDC_CMB_MARKREASON,11,22,203,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Please input the reason of mark (you can select from combobox)",
+                    IDC_STATIC,10,10,211,9
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -7358,6 +7396,14 @@ BEGIN
         RIGHTMARGIN, 352
         TOPMARGIN, 7
         BOTTOMMARGIN, 193
+    END
+
+    IDD_DLG_TAGOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 51
     END
 END
 #endif    // APSTUDIO_INVOKED

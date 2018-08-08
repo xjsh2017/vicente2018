@@ -12,6 +12,8 @@ public:
 	
 	virtual void resizeMatrix(int iRows, int iCols, QByteArray val);
 	virtual void expandMatrix(int iAddCols, QByteArray val);
+	virtual void expandRow(int iRow, int iTotalCols, QByteArray val);
+
 	virtual int FRead(char *pszLine, size_t s = -1)
 	{
 		clear();
@@ -26,7 +28,7 @@ public:
 			this->append(m_delim_row);
 		this->append(pszLine);
 
-		return 0;
+		return GetRows();
 	}
 	virtual int AppendRow(const QByteArray &s)
 	{
@@ -34,7 +36,15 @@ public:
 			this->append(m_delim_row);
 		this->append(s);
 		
-		return 0;
+		return GetRows();
+	}
+	virtual int AppendRow(const QByteArrayMatrix &s)
+	{
+		if (GetRows() > 0) 
+			this->append(m_delim_row);
+		this->append(s);
+		
+		return GetRows();
 	}
 	virtual int AppendField(const char *pszLine, bool bFirst = false)
 	{

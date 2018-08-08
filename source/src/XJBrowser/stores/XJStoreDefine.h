@@ -18,63 +18,59 @@ int const XJ_USERGROUP_OPERATOR = 102;
 /** @brief			监视组*/
 int const XJ_USERGROUP_MONITOR = 103;
 
+/** @brief			挂牌原因: 未定义*/
+int const XJ_TAGOUT_UNDEFINE = 100;
+/** @brief			挂牌原因: 定值修改*/
+int const XJ_TAGOUT_PTVALVSET = 200;
+/** @brief			挂牌原因: 定值区切换*/
+int const XJ_TAGOUT_PTZONESET = 300;
+/** @brief			软压板投退*/
+int const XJ_TAGOUT_PTSOFTSET = 400;
+
 // 功能组
-/** @brief			操作未定义*/
-int const XJ_OPER_UNDEFINE = 100;
 /** @brief			装置取消挂牌*/
 int const XJ_OPER_UNHANGOUT = 101;
 /** @brief			装置挂牌*/
 int const XJ_OPER_HANGOUT = 102;
 
-/** @brief			定值修改*/
-int const XJ_OPER_PTSET = 201;
 /** @brief			定值修改预校*/
-int const XJ_OPER_PTSET_PRECORRECTION = 202;
+int const XJ_OPER_PTVALVSET_PRECORRECTION = 202;
 /** @brief			定值修改执行*/
-int const XJ_OPER_PTSET_EXECUTE = 203;
+int const XJ_OPER_PTVALVSET_EXECUTE = 203;
 /** @brief			定值修改:修改核对*/
-int const XJ_OPER_PTSET_STATE_2 = 204;
+int const XJ_OPER_PTVALVSET_STATE_2 = 212;
 /** @brief			定值修改:监视*/
-int const XJ_OPER_PTSET_STATE_3 = 205;
+int const XJ_OPER_PTVALVSET_STATE_3 = 213;
 /** @brief			定值修改:验证*/
-int const XJ_OPER_PTSET_STATE_4 = 206;
+int const XJ_OPER_PTVALVSET_STATE_4 = 214;
 /** @brief			定值修改:执行完成*/
-int const XJ_OPER_PTSET_STATE_5 = 207;
+int const XJ_OPER_PTVALVSET_STATE_5 = 215;
 
-/** @brief			定值区切换*/
-int const XJ_OPER_PTZONESET = 301;
 /** @brief			定值区切换预校*/
 int const XJ_OPER_PTZONESET_PRECORRECTION = 302;
 /** @brief			定值区切换执行*/
 int const XJ_OPER_PTZONESET_EXECUTE = 303;
 /** @brief			定值区切换:修改核对*/
-int const XJ_OPER_PTZONESET_STATE_2 = 304;
+int const XJ_OPER_PTZONESET_STATE_2 = 312;
 /** @brief			定值区切换:监视*/
-int const XJ_OPER_PTZONESET_STATE_3 = 305;
+int const XJ_OPER_PTZONESET_STATE_3 = 313;
 /** @brief			定值区切换:验证*/
-int const XJ_OPER_PTZONESET_STATE_4 = 306;
+int const XJ_OPER_PTZONESET_STATE_4 = 314;
 /** @brief			定值区切换:执行完成*/
-int const XJ_OPER_PTZONESET_STATE_5 = 307;
+int const XJ_OPER_PTZONESET_STATE_5 = 315;
 
-/** @brief			软压板投退*/
-int const XJ_OPER_PTSOFTSET = 401;
 /** @brief			软压板投退预校*/
 int const XJ_OPER_PTSOFTSET_PRECORRECTION = 402;
 /** @brief			软压板投退执行*/
 int const XJ_OPER_PTSOFTSET_EXECUTE = 403;
 /** @brief			软压板投退:修改核对*/
-int const XJ_OPER_PTSOFTSET_STATE_2 = 404;
+int const XJ_OPER_PTSOFTSET_STATE_2 = 412;
 /** @brief			软压板投退:监视*/
-int const XJ_OPER_PTSOFTSET_STATE_3 = 405;
+int const XJ_OPER_PTSOFTSET_STATE_3 = 413;
 /** @brief			软压板投退:验证*/
-int const XJ_OPER_PTSOFTSET_STATE_4 = 406;
+int const XJ_OPER_PTSOFTSET_STATE_4 = 414;
 /** @brief			软压板投退:执行完成*/
-int const XJ_OPER_PTSOFTSET_STATE_5 = 407;
-
-#define oo(str) .append(str)
-#define oon(num) .append(QByteArray::number(num))
-#define oc(x) oo(x.GetDelimCol())
-#define or(x) oo(x.GetDelimRow())
+int const XJ_OPER_PTSOFTSET_STATE_5 = 415;
 
 //字段类型
 enum FIELD_TYPE_ENUM

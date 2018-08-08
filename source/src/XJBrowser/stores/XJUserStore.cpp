@@ -19,13 +19,15 @@ public:
 	BOOL		ReLoad();
 	BOOL		Save(const char *pszFilePath = NULL);
 
-	QByteArray		GetName(const char* pszID, const char* pszGroupID);
-	int				GetFlags(const char* pszID, const char* pszGroupID);
-	QByteArray		GetOwner(const char* pszID, const char* pszGroupID);
-	QByteArray		GetOwner(const char* pszID);
+	QByteArray			GetName(const char* pszID, const char* pszGroupID);
+	int					GetFlags(const char* pszID, const char* pszGroupID);
+	QByteArray			GetOwner(const char* pszID, const char* pszGroupID);
+	QByteArray			GetOwner(const char* pszID);
 
-	void			SetFlags(const char *pszID, const char *pszGroupID, int nFlags);
-	void			SetOwner(const char *pszID, const char *pszGroupID, QByteArray &owner);
+	void				SetFlags(const char *pszID, const char *pszGroupID, int nFlags);
+	void				SetOwner(const char *pszID, const char *pszGroupID, QByteArray &owner);
+
+	QByteArray			BuildComboxUserList(const char* pszUserGroupID);
 };
 
 // 用户组表
@@ -86,7 +88,7 @@ BOOL QUserTable::ReLoad()
 	
 	LoadInfo("tb_sys_user");
 	LoadDataAll();
-	Save("c:/tb_sys_user.txt");
+	//Save("c:/tb_sys_user.txt");
 
 	return bReturn;
 }
@@ -135,7 +137,7 @@ QByteArray QUserTable::GetName(const char* pszID, const char* pszGroupID)
 	QByteArrayMatrix keyVals;
 	keyVals.AppendField(pszID, true);
 	keyVals.AppendField(pszGroupID);
-	int nValRowIdx = GetValueRowIndex(keyVals);
+	int nValRowIdx = GetRowIndex(keyVals);
 	// AfxMessageBox(QByteArray::number(nValRowIdx));
 	return GetFieldValue(nValRowIdx, "name");
 }
@@ -145,7 +147,7 @@ int QUserTable::GetFlags(const char* pszID, const char* pszGroupID)
 	QByteArrayMatrix keyVals;
 	keyVals.AppendField(pszID, true);
 	keyVals.AppendField(pszGroupID);
-	int nValRowIdx = GetValueRowIndex(keyVals);
+	int nValRowIdx = GetRowIndex(keyVals);
 	// AfxMessageBox(QByteArray::number(nValRowIdx));
 	QByteArrayMatrix val = GetFieldValue(nValRowIdx, "notes");
 	return val.GetFieldValue(1, 1).toInt();
@@ -177,7 +179,7 @@ void QUserTable::SetFlags(const char *pszID, const char *pszGroupID, int nFlags)
 	QByteArrayMatrix keyVals;
 	keyVals.AppendField(pszID, true);
 	keyVals.AppendField(pszGroupID);
-	int nValRowIdx = GetValueRowIndex(keyVals);
+	int nValRowIdx = GetRowIndex(keyVals);
 
 	QByteArrayMatrix val = GetFieldValue(nValRowIdx, "notes");
 	val.SetFieldValue(1, 1, QByteArray::number(nFlags));
@@ -189,11 +191,30 @@ void QUserTable::SetOwner(const char *pszID, const char *pszGroupID, QByteArray 
 	QByteArrayMatrix keyVals;
 	keyVals.AppendField(pszID, true);
 	keyVals.AppendField(pszGroupID);
-	int nValRowIdx = GetValueRowIndex(keyVals);
+	int nValRowIdx = GetRowIndex(keyVals);
 	
 	SetFieldValue(nValRowIdx, "name", owner);
 }
 
+QByteArray QUserTable::BuildComboxUserList(const char* pszUserGroupID)
+{
+	QByteArray s;
+
+	for (int i = 1; i <= GetRowCount(); i++){
+		QByteArray &group = GetFieldValue(i, 2);
+		if (group != QByteArray(pszUserGroupID))
+			continue;
+
+		if (!s.isEmpty())
+			s << ";";
+
+		s << GetFieldValue(i, 1);
+	}
+
+	//AfxMessageBox(s.constData());
+
+	return s;
+}
 
 ////////////////////////////////////////////////////////////
 // QUserGroupTable
@@ -213,7 +234,7 @@ BOOL QUserGroupTable::ReLoad()
 	
 	LoadInfo("tb_sys_group");
 	LoadDataAll();
-	Save("c:/tb_sys_group.txt");
+	//Save("c:/tb_sys_group.txt");
 	
 	return bReturn;
 }
@@ -261,7 +282,7 @@ QByteArray QUserGroupTable::GetName(const char* pszID)
 {
 	QByteArrayMatrix keyVals;
 	keyVals.AppendField(pszID, true);
-	int nValRowIdx = GetValueRowIndex(keyVals);
+	int nValRowIdx = GetRowIndex(keyVals);
 	// AfxMessageBox(QByteArray::number(nValRowIdx));
 	return GetFieldValue(nValRowIdx, "name");
 }
@@ -429,4 +450,20 @@ void CXJUserStore::SetUserOwner(const char *szUserID, const char *szUserGroupID,
 		return;
 	
 	d_ptr->m_table_user.SetOwner(szUserID, szUserGroupID, owner);
+}
+
+QByteArray CXJUserStore::BuildComboxUserList(const char* pszUserGroupID)
+{
+	if (NULL == d_ptr)
+		return QByteArray();
+
+	return d_ptr->m_table_user.BuildComboxUserList(pszUserGroupID);
+}
+
+QByteArray CXJUserStore::BuildComboxUserList(int nGroupType)
+{
+	if (NULL == d_ptr)
+		return QByteArray();
+	
+	return d_ptr->m_table_user.BuildComboxUserList(GetUserGroupIDName(nGroupType).constData());
 }

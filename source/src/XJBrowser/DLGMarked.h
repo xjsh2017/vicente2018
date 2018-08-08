@@ -67,8 +67,9 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(DLGMarked)
-	enum { IDD = IDD_DLG_MARKED };
+	enum { IDD = IDD_DLG_TAGOUT };
 	CComboBox	m_cmbMarkReason;
+	CListCtrlEx	m_List;
 	//}}AFX_DATA
 
 
@@ -79,6 +80,16 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
+private:	
+	/*
+	*  @brief   	InitListStyle	 初始化列表样式 
+	*  @return 	int 失败返回-1, 成功返回>=0
+	*/
+	//##ModelId=49B87B8C009C
+	int	InitListStyle();
+
+	void FillData();
+
 // Implementation
 protected:
 
@@ -86,7 +97,9 @@ protected:
 	//{{AFX_MSG(DLGMarked)
 	afx_msg void OnBtnMark();
 	afx_msg void OnBtnUnmark();
+	afx_msg void OnApplySetting();
 	afx_msg void OnSelchangeCmbMarkreason();
+	afx_msg void OnClickList1(NMHDR* pNMHDR, LRESULT* pResult);
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

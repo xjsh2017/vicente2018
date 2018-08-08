@@ -5,7 +5,7 @@
 #include "xjbrowser.h"
 #include "DlgCheckPro.h"
 
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
 
 #ifdef _DEBUG
@@ -112,7 +112,6 @@ void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 /////////////////////////////////////////////////////////////////////////////
 // CDlgCheckPro message handlers
 
-/*
 BOOL CDlgCheckPro::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
@@ -124,44 +123,7 @@ BOOL CDlgCheckPro::OnInitDialog()
 	if (m_nType ==0)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
-
-		LoadPTSET();
-		FillListData();
-	}
-	else if (m_nType ==1)
-	{
-		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
-		
-		LoadPTSETMod();
-	}
-	else if (m_nType ==2)
-	{
-		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
-		
-		LoadPTSETMod();
-	}
-	else
-	{
-		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
-	}
-		
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
-}
-*/
-BOOL CDlgCheckPro::OnInitDialog() 
-{
-	CDialog::OnInitDialog();
-	InitListStyle();
-	
-	UpdateLabels();
-	
-	// TODO: Add extra initialization here
-	if (m_nType ==0)
-	{
-		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
-		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 		QPTSetDataTable *pData = pStore->GetPTSetData();
 		pData->ReLoad();
 	}
@@ -189,7 +151,7 @@ void CDlgCheckPro::UpdateLabels()
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CString str;
 
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pState = pStore->GetState();
 	pStore->ReLoadState();
 	
@@ -322,7 +284,7 @@ int CDlgCheckPro::InitListStyle()
 
 void CDlgCheckPro::FillData()
 {
-	CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pState = pStore->GetState();
 	QPTSetDataTable *pPTSetData = pStore->GetPTSetData();
 	

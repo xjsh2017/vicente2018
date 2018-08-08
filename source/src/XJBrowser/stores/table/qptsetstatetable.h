@@ -1,6 +1,7 @@
 #ifndef _QPTSETSTATETABLE_H
 #define _QPTSETSTATETABLE_H
 
+#include "XJStoreDefine.h"
 #include "qmemtable.h"
 
 struct PT_SETTING_DATA{
@@ -71,8 +72,10 @@ public:
 public:	
 	BOOL				ReLoad();
 	BOOL				Save(const char *pszFilePath = NULL);
+	BOOL				Check(int nTagOutType);
 	
 	int					GetType();
+	QByteArray			GetTypeName();
 	int					GetStateID();
 	QByteArray			GetPTID();
 	int					GetCPUID();
@@ -81,11 +84,12 @@ public:
 	QByteArray			GetRunnerUserID();
 	QByteArray			GetOperUserID();
 	QByteArray			GetMonitorUserID();
-	QByteArray			GetStateUserID();
+	QByteArray			GetStateUserID(int nStateID);
+	QByteArray			GetWorkFlowStep(int nStateID);
 
 	/** @brief           工作流程*/
-	QByteArrayMatrix	GetWorkFlow();
-	QByteArrayMatrix	GetDefaultWorkFlow();
+	QByteArrayMatrix	GetWorkFlow(int nTagOutType = -1);
+	QByteArrayMatrix	GetDefaultWorkFlow(int nTagOutType = XJ_TAGOUT_PTVALVSET);
 	/** @brief           工作日志*/
 	QByteArrayMatrix	GetLogs();
 	
@@ -100,10 +104,11 @@ public:
 	QByteArrayMatrix	GetLog(int nStateID);
 	QByteArrayMatrix	GetLog(int nStateID, int &iRow);
 
-	int					GetHangoutReasonType(const char* pszHangoutReason);
-	QByteArray			GetHangoutReasonName();
-	QByteArray			GetHangoutReasonName(int nHangoutReasonType);
-	QByteArray			GetHangoutReasonNameByState(int nStateID);
+	int					GetTagOutReasonType(const char* pszTagOutReason);
+	int					GetTagOutReasonTypeByState(int nStateID);
+
+	QByteArray			GetTagOutReasonName(int pszTagOutReason);
+	QByteArray			GetTagOutReasonNameByState(int nStateID);
 
 public:
 
@@ -145,7 +150,10 @@ public:
 	
 };
 
-extern const char* PTSET_KEYNAME;
+extern const char* TAGOUT_KEYNAME;
+extern const char* PTVALVSET_KEYNAME;
+extern const char* PTZONESET_KEYNAME;
+extern const char* PTSOFTSET_KEYNAME;
 
 
 #endif // QPTSETCARD_H

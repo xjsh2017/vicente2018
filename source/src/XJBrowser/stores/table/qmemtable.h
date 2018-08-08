@@ -2,6 +2,7 @@
 #define _QMEMTABLE_H
 
 #include "qbytearraymatrix.h"
+#include "XJStoreDefine.h"
 
 class QMemTablePrivate;
 class QMemTable
@@ -41,7 +42,7 @@ public:
 	int			GetKeyCount();
 	QByteArray	GetKeyValue(int iRow, int idx);
 	QByteArray	GetKeyName(int idx);
-	int			GetValueRowIndex(QByteArrayMatrix &keyVals);
+	int			GetRowIndex(QByteArrayMatrix &keyVals);
 
 	int			GetRecordCount();
 	int			GetRowCount();
@@ -49,6 +50,12 @@ public:
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
 	BOOL		SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, QByteArray val);
+
+	BOOL		HasField(const char* fieldName, int nNameType = 0);
+	BOOL		HasField(const QByteArray &fieldName, int nNameType = 0);
+	BOOL		AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldType, QByteArray initVal);
+
+	int			AddRow(QByteArrayMatrix keyVals);
 
 private:
 };

@@ -11,7 +11,7 @@
 #include "MainFrm.h"
 #include "DlgOperHis.h"
 
-#include "XJPTSetStore.h"
+#include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
 
 
@@ -2420,7 +2420,7 @@ void CPTSoftBoard::OnPTFrameOpen( WPARAM wParam, LPARAM lParam )
 			m_btnModify.ShowWindow(SW_SHOW);
 	}
 
-	m_nPTSetTimer = SetTimer(XJ_OPER_PTSOFTSET, 3*1000, NULL);
+	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
 	m_btnModify.ShowWindow(SW_HIDE);
 
 // 	CRect rcRect;
@@ -2748,7 +2748,7 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		CString str;
 		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
 		
-		CXJPTSetStore *pStore = CXJPTSetStore::GetInstance();
+		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 		QPTSetStateTable *pState = pStore->GetState();
 		
 		int nPTSetState = pState->GetStateID();
@@ -2759,7 +2759,7 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		
 		// 软压板投退按钮是否可用： 
 		if (XJ_OPER_HANGOUT == nPTSetState 
-			&& XJ_OPER_PTSOFTSET == nHangoutType
+			&& XJ_TAGOUT_PTSOFTSET == nHangoutType
 			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){
 			m_btnModify.EnableWindow(TRUE);
 		}else{
@@ -2769,7 +2769,7 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		// 软压板投退按钮是否可见
 		if (XJ_OPER_UNHANGOUT != nPTSetState 
 			&& CString(pState->GetPTID().constData()) == m_pObj->m_sID
-			&& XJ_OPER_PTSOFTSET == nHangoutType
+			&& XJ_TAGOUT_PTSOFTSET == nHangoutType
 			&& (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)))
 			m_btnModify.ShowWindow(SW_SHOW);
@@ -2778,9 +2778,9 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		
 		// 查看挂牌进度按钮是否可见
 		if (XJ_OPER_UNHANGOUT != nPTSetState && CString(pState->GetPTID().constData()) == m_pObj->m_sID
-			&& XJ_OPER_PTSOFTSET == nHangoutType){
+			&& XJ_TAGOUT_PTSOFTSET == nHangoutType){
 			m_btnViewProg.ShowWindow(SW_SHOW);
-			if (XJ_OPER_PTSOFTSET != nHangoutType)
+			if (XJ_TAGOUT_PTSOFTSET != nHangoutType)
 				m_btnViewProg.SetWindowText("查看修改进度");
 		}
 		else
@@ -2814,7 +2814,7 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		}
 		
 		// 启用定时器
-		m_nPTSetTimer = SetTimer(XJ_OPER_PTSOFTSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
 	}
 
 	if(nIDEvent == m_nRecordTimer)

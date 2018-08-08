@@ -5,14 +5,14 @@
 #include "qbytearraymatrix.h"
 
 /////////////////////////////////////////////////////////////////////////////
-// CXJPTSetStore
+// CXJTagOutStore
 
 /**
- * @defgroup 	CXJPTSetStore	定值修改内存数据
+ * @defgroup 	CXJTagOutStore	上锁挂牌内存数据
  * @{
  */ 
 /**
- * @brief       定值修改时所用到的数据结构
+ * @brief       上锁挂牌时所用到的数据结构
  * @author      WPS
  * @version     ver1.0
  * @date        09/07/18
@@ -31,20 +31,20 @@ class QPTSetDataTable;
 class QPTSetZoneDataTable;
 class QPTSetSBDataTable;
 
-class CXJPTSetStorePrivate;
-class CXJPTSetStore : public CXJRootStore
+class CXJTagOutStorePrivate;
+class CXJTagOutStore : public CXJRootStore
 {
 private:
-	static CXJPTSetStore*	m_pInstance;
-	CXJPTSetStorePrivate*	d_ptr;
+	static CXJTagOutStore*	m_pInstance;
+	CXJTagOutStorePrivate*	d_ptr;
 
 public:
-	static CXJPTSetStore *GetInstance();
+	static CXJTagOutStore *GetInstance();
 	static void ReleaseInstance();
 
 protected:
-	CXJPTSetStore();           // protected constructor used by dynamic creation
-	~CXJPTSetStore();
+	CXJTagOutStore();           // protected constructor used by dynamic creation
+	~CXJTagOutStore();
 
 // Attributes
 public:
@@ -74,18 +74,16 @@ public:
 	 *  @return 	PTSETSTORE	
 	 */
 	BOOL	Save();
-	BOOL	Save(const char *pszFilePath/* = NULL*/);
+	BOOL	SaveState(const char *pszFilePath = NULL);
+	BOOL	SaveData(const char *pszFilePath = NULL);
 	
 	/*
 	 *  @brief   	CheckStore	 检查状态机配置情况
 	 *  @param 		void
-	 *  @return 	int		-1: 配置检查失败;
-							0: 配置存在;
-							1: 配置不存在;
-							10: 配置不存在，创建失败;
-							11: 配置不存在，创建成功	
+	 *  @return 	BOOL		FALSE - 配置检查失败;
+							    TRUE  - 配置检查成功
 	 */
-	int		Check();
+	BOOL	Check();
 	
 	BOOL	RevertModify();
 
@@ -102,6 +100,9 @@ public:
 	BOOL		SetUserLoginFlag(const CString &sUserID, const CString &sUserGroupID, CString &sFlag = CString(""));
 
 	QByteArray		GetFuncID(int nStateID);
+	QByteArray		GetSubFuncID(int nStateID);
+
+	int				GetTagOutRowIdx(int nTagOutType = XJ_TAGOUT_UNDEFINE);
 
 // Implementation
 public:
