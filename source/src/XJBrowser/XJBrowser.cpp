@@ -3424,9 +3424,22 @@ BOOL CXJBrowserApp::InitInstance()
 
 	if (g_bLoginVerify)
 	{
-		CXJUserStore::GetInstance()->ReLoad();
-		CXJTagOutStore::GetInstance()->ReLoadState();
-		CXJTagOutStore::GetInstance()->Check();
+		CXJTagOutStore		*pTagOutStore = CXJTagOutStore::GetInstance();
+		CXJUserStore		*pUserStore = CXJUserStore::GetInstance();
+		QPTSetStateTable	*pTagOutState = pTagOutStore->GetState();
+
+		pUserStore->ReLoad();
+		pTagOutStore->ReLoadState();
+		pTagOutStore->Check();
+		
+//		AfxMessageBox(pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2));
+// 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT, QByteArray("run1"));
+// 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_HANGOUT, QByteArray("run2"));
+// 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_HANGOUT, QByteArray("run3"));
+// 		AfxMessageBox(pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTZONESET_STATE_2));
+// 		AfxMessageBox(pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_HANGOUT));
+// 		AfxMessageBox(pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_HANGOUT));
+		//pTagOutState->Save("c:/state.txt");
 		//AfxMessageBox(CXJTagOutStore::GetInstance()->GetState()->GetWorkFlow(XJ_TAGOUT_PTVALVSET).constData());
 		//AfxMessageBox(QByteArray::number(CXJTagOutStore::GetInstance()->GetState()->GetType()).constData());
 		//AfxMessageBox(CXJTagOutStore::GetInstance()->GetState()->GetWorkFlow().constData());

@@ -12,6 +12,7 @@
 #include "GlobalFunc.h"
 #include "DlgStationProp.h"
 #include "DLGMarked.h"
+#include "DlgTagOutSet.h"
 #include "MainFrm.h"
 
 #include "XJTagOutStore.h"
@@ -2712,7 +2713,8 @@ void CDeviceView::OnMarkDevice()
 		//ÊÇ±£»¤
 		CSecObj* pObj = (CSecObj*)pDevice;
 		pObj->RefreshConfig();
-		DLGMarked dlg;
+// 		DLGMarked dlg;
+		CDlgTagOutSet dlg;
 		dlg.m_pObj = pObj;
 		dlg.DoModal();
 	}

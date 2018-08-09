@@ -1,28 +1,29 @@
-#if !defined(AFX_DLGMARKED_H__DE5A0E73_208F_4C1A_8015_B0BE2F9940AB__INCLUDED_)
-#define AFX_DLGMARKED_H__DE5A0E73_208F_4C1A_8015_B0BE2F9940AB__INCLUDED_
+#ifndef _DLG_TAGOUT_H
+#define _DLG_TAGOUT_H
 
-#include "..\..\COMMON\xjlib.h"	// Added by ClassView
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// DLGMarked.h : header file
+#include "resource.h"
+// DlgTagOutSet.h : header file
 //
-//DLGMarked	挂牌对话框
+
+/////////////////////////////////////////////////////////////////////////////
+// CDlgTagOutSet 挂牌对话框
+
 /**
- * @defgroup 	DLGMarked	挂牌对话框设置
+ * @defgroup 	CDlgTagOutSet	挂牌对话框设置
  * @{
  */
 /**
- * @brief       描述二次设备属性
-*  @author      LY
+ * @brief       挂牌设置
+*  @author      WPS
  * @version     
- * @date        06/11/12
+ * @date        2018/08/02
 */
 
 /////////////////////////////////////////////////////////////////////////////
-// DLGMarked dialog
+// CDlgTagOutSet dialog
 
-class DLGMarked : public CDialog
+class CSecObj;
+class CDlgTagOutSet : public CDialog
 {
 // Construction
 public:
@@ -63,10 +64,10 @@ public:
 	*/
 	BOOL CanUnMark();
 
-	DLGMarked(CWnd* pParent = NULL);   // standard constructor
+	CDlgTagOutSet(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(DLGMarked)
+	//{{AFX_DATA(CDlgTagOutSet)
 	enum { IDD = IDD_DLG_TAGOUT };
 	CComboBox	m_cmbMarkReason;
 	CListCtrlEx	m_List;
@@ -75,7 +76,7 @@ public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(DLGMarked)
+	//{{AFX_VIRTUAL(CDlgTagOutSet)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -96,7 +97,7 @@ private:
 protected:
 
 	// Generated message map functions
-	//{{AFX_MSG(DLGMarked)
+	//{{AFX_MSG(CDlgTagOutSet)
 	afx_msg void OnBtnMark();
 	afx_msg void OnBtnUnmark();
 	afx_msg void OnApplySetting();
@@ -110,4 +111,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_DLGMARKED_H__DE5A0E73_208F_4C1A_8015_B0BE2F9940AB__INCLUDED_)
+#endif // !defined(_DLG_TAGOUT_H)

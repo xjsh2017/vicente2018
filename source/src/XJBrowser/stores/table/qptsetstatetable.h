@@ -74,18 +74,22 @@ public:
 	BOOL				Save(const char *pszFilePath = NULL);
 	BOOL				Check(int nTagOutType);
 	
+	QByteArray			GetTagOutValue(int iCol);
 	int					GetType();
 	QByteArray			GetTypeName();
+	int					GetLastType();
+	int					GetLastTypeName();
 	int					GetStateID();
 	QByteArray			GetPTID();
 	int					GetCPUID();
 	int					GetZoneID();
 	int					GetFlags();
+	int					GetTagOutRowIdx(int nTagOutType = XJ_TAGOUT_UNDEFINE);
 	QByteArray			GetRunnerUserID();
 	QByteArray			GetOperUserID();
 	QByteArray			GetMonitorUserID();
-	QByteArray			GetStateUserID(int nStateID);
-	QByteArray			GetWorkFlowStep(int nStateID);
+
+	QByteArray			GetWorkFlowUserID(int nTagOutType, int nStateID);
 
 	/** @brief           工作流程*/
 	QByteArrayMatrix	GetWorkFlow(int nTagOutType = -1);
@@ -93,12 +97,17 @@ public:
 	/** @brief           工作日志*/
 	QByteArrayMatrix	GetLogs();
 	
+	void				SetTagOutValue(int iCol, QByteArray &s);
 	void				SetType(int nType);
+	void				SetLastType(int nType);
 	void				SetStateID(int nID);
 	void				SetPTID(const char *pt_id);
 	void				SetCPUID(int nCPUID);
 	void				SetZoneID(int nZoneID);
 	void				SetFlags(int nFlags);
+
+	void				SetWorkFlowUserID(int nTagOutType, int nStateID, const char* pszUserID);
+	void				SetWorkFlowUserID(int nTagOutType, int nStateID, QByteArray &baUserID);
 
 	QByteArrayMatrix	AddLog(int nStateID, const char *pszUserID, int nAddType = 0);
 	QByteArrayMatrix	GetLog(int nStateID);
@@ -142,9 +151,15 @@ public:
 	~QPTSetDataTable();
 	
 public:	
-	BOOL		ReLoad();
+	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
 	BOOL		ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
+	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
 	BOOL		Save(const char *pszFilePath = NULL);
+
+	BOOL		RevertModifiy();	// 修改值列清空保存
+	BOOL		SaveModify();	// 修改值替换原值保存
+
+	void		UnitTest_01();
 
 	QPTSetStateTable*	m_pState;
 	
@@ -155,5 +170,10 @@ extern const char* PTVALVSET_KEYNAME;
 extern const char* PTZONESET_KEYNAME;
 extern const char* PTSOFTSET_KEYNAME;
 
+extern const int COL_WORKFLOW_TAGOUT_ID;
+extern const int COL_WORKFLOW_STATE_ID;
+extern const int COL_WORKFLOW_USERGROUP_ID;
+extern const int COL_WORKFLOW_ENABLE;
+extern const int COL_WORKFLOW_USER_ID;
 
 #endif // QPTSETCARD_H

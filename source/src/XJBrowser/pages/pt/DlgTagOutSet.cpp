@@ -1,51 +1,43 @@
-// DLGMarked.cpp : implementation file
+// DlgTagOutSet.cpp : implementation file
 //
 
 #include "stdafx.h"
-#include "xjbrowser.h"
-#include "DLGMarked.h"
-#include "MainFrm.h"
-
 #include "XJBrowser.h"
+#include "DlgTagOutSet.h"
 
+#include "MainFrm.h"
 #include "DlgValidateUser.h"
 
 #include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
 #include "XJUserStore.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 
 /////////////////////////////////////////////////////////////////////////////
-// DLGMarked dialog
+// CDlgTagOutSet dialog
 
-DLGMarked::DLGMarked(CWnd* pParent /*=NULL*/)
-	: CDialog(DLGMarked::IDD, pParent)
+CDlgTagOutSet::CDlgTagOutSet(CWnd* pParent /*=NULL*/)
+	: CDialog(CDlgTagOutSet::IDD, pParent)
 {
 	m_bMark = FALSE;
-	//{{AFX_DATA_INIT(DLGMarked)
+	//{{AFX_DATA_INIT(CDlgTagOutSet)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 }
 
 
-void DLGMarked::DoDataExchange(CDataExchange* pDX)
+void CDlgTagOutSet::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(DLGMarked)
+	//{{AFX_DATA_MAP(CDlgTagOutSet)
 	DDX_Control(pDX, IDC_CMB_MARKREASON, m_cmbMarkReason);
 	DDX_Control(pDX, IDC_LIST_CTRL1, m_List);
 	//}}AFX_DATA_MAP
 }
 
 
-BEGIN_MESSAGE_MAP(DLGMarked, CDialog)
-	//{{AFX_MSG_MAP(DLGMarked)
+BEGIN_MESSAGE_MAP(CDlgTagOutSet, CDialog)
+	//{{AFX_MSG_MAP(CDlgTagOutSet)
 	ON_BN_CLICKED(IDC_BTN_MARK, OnBtnMark)
 	ON_BN_CLICKED(IDC_BTN_UNMARK, OnBtnUnmark)
 	ON_BN_CLICKED(IDC_BTN_SAVE, OnApplySetting)
@@ -55,9 +47,9 @@ BEGIN_MESSAGE_MAP(DLGMarked, CDialog)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// DLGMarked message handlers
+// CDlgTagOutSet message handlers
 
-void DLGMarked::OnBtnMark() 
+void CDlgTagOutSet::OnBtnMark() 
 {
 	// TODO: Add your control notification handler code here
 	//更新挂牌状态
@@ -96,7 +88,7 @@ void DLGMarked::OnBtnMark()
 	}
 }
 
-void DLGMarked::OnBtnUnmark() 
+void CDlgTagOutSet::OnBtnUnmark() 
 {
 	// TODO: Add your control notification handler code here
 	//更新挂牌状态
@@ -108,6 +100,8 @@ void DLGMarked::OnBtnUnmark()
 	
 	CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
 	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 
 	//运行人员确认
 	CString sUser;
@@ -119,6 +113,14 @@ void DLGMarked::OnBtnUnmark()
 	if(dlgUser.DoModal() == IDOK)
 	{	
 		sUser = dlgUser.m_strUser;
+		CString authUser = pTagOutState->GetWorkFlowUserID(pTagOutState->GetType(), XJ_OPER_HANGOUT).constData();
+		if (authUser != sUser){
+			CString str;
+			str.Format("该装置已由用户[%s]挂牌，您无法进行取消挂牌操作！", authUser);
+			AfxMessageBox(str);
+			
+			return;
+		}
 		
 		//更新数据库的挂牌表
 		if (InsertDBMark())
@@ -131,7 +133,7 @@ void DLGMarked::OnBtnUnmark()
 	}
 }
 
-void DLGMarked::OnApplySetting()
+void CDlgTagOutSet::OnApplySetting()
 {
 	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
@@ -162,12 +164,12 @@ void DLGMarked::OnApplySetting()
 			m_List.SetItemText(pt.x, pt.y, strText);
 
 			int iRowFlow = m_List.GetItemData(pt.x);
-			flow.SetFieldValue(iRowFlow, 5, QByteArray(strText.GetBuffer(0)));
+			flow.SetFieldValue(iRowFlow, COL_WORKFLOW_USER_ID, QByteArray(strText.GetBuffer(0)));
 			pTagOutState->SetFieldValue(nTagOutRowIdx, "reverse1", flow);
 		}
 	}
-
-	pTagOutStore->SaveState("c:/tb_sys_config.txt");
+	//pTagOutStore->SaveState("c:/tb_sys_config.txt");
+	pTagOutStore->SaveState();
 	
 	m_List.ClearEdited();
 	((CWnd*)GetDlgItem(IDC_BTN_SAVE))->EnableWindow(FALSE);
@@ -181,7 +183,7 @@ void DLGMarked::OnApplySetting()
 		   Param2
 **************************************************************/
 //##ModelId=49B87B8A03AB
-void DLGMarked::OnClickList1(NMHDR* pNMHDR, LRESULT* pResult) 
+void CDlgTagOutSet::OnClickList1(NMHDR* pNMHDR, LRESULT* pResult) 
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( pNMHDR );
 	
@@ -234,7 +236,7 @@ void DLGMarked::OnClickList1(NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = 0;
 }
 
-BOOL DLGMarked::CanMark()
+BOOL CDlgTagOutSet::CanMark()
 {
 	BOOL bReturn = TRUE;
 	
@@ -299,11 +301,12 @@ BOOL DLGMarked::CanMark()
 	return bReturn;
 }
 
-BOOL DLGMarked::CanUnMark()
+BOOL CDlgTagOutSet::CanUnMark()
 {
 	BOOL bReturn = TRUE;
 	
 	CXJBrowserApp *pApp = (CXJBrowserApp *)AfxGetApp();
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
 	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	pStore->ReLoadState();	
 	QPTSetStateTable *pState = pStore->GetState();
@@ -323,25 +326,19 @@ BOOL DLGMarked::CanUnMark()
 		return FALSE;
 	}
 	
-	if (sRunnerUserID != pApp->m_User.m_strUSER_ID){
-		CString str;
-		str.Format("该装置已授权给用户 [%s]，您无法进行取消操作！", sRunnerUserID);
-		AfxMessageBox(str);
-		
-		return FALSE;
-	}
+// 	if (sRunnerUserID != pApp->m_User.m_strUSER_ID){
+// 		CString str;
+// 		str.Format("该装置已授权给用户 [%s]，您无法进行取消操作！", sRunnerUserID);
+// 		AfxMessageBox(str);
+// 		
+// 		return FALSE;
+// 	}
 
 	if (XJ_OPER_PTVALVSET_STATE_4 == nPTSetState){
 		CString str;
 
 		if (nFlag == 2){
-			if (XJ_TAGOUT_PTVALVSET == nType)
-				str.Format("该装置：操作员正在下发定值修改执行请求，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
-			else if (XJ_TAGOUT_PTZONESET == nType)
-				str.Format("该装置：操作员正在下发定值区切换执行请求，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
-			else if (XJ_TAGOUT_PTSOFTSET == nType)
-				str.Format("该装置：操作员正在下发软压板投退执行请求，您暂时无法取消挂牌，请稍后再试！", sRunnerUserID);
-
+			str.Format("该装置：操作员正在下[%s]执行请求，您暂时无法取消挂牌，请稍后再试！", pState->GetTypeName().constData());
 			AfxMessageBox(str, MB_OK | MB_ICONWARNING);
 
 			return FALSE;
@@ -367,7 +364,7 @@ BOOL DLGMarked::CanUnMark()
  参    数：param1   意义说明
            Param2   意义说明
 **************************************************************/
-BOOL DLGMarked::InsertDBMark()
+BOOL CDlgTagOutSet::InsertDBMark()
 {
 	ASSERT(NULL != m_pObj);
 
@@ -426,7 +423,7 @@ BOOL DLGMarked::InsertDBMark()
 			}
 			catch (...)
 			{
-				WriteLog("DLGMarked::InsertDBMark, 保存失败");
+				WriteLog("CDlgTagOutSet::InsertDBMark, 保存失败");
 				delete[] sError;
 				return FALSE;
 			}
@@ -488,7 +485,7 @@ BOOL DLGMarked::InsertDBMark()
 	}
 	catch (...)
 	{
-		WriteLog("DLGMarked::InsertDBMark, 更新失败");
+		WriteLog("CDlgTagOutSet::InsertDBMark, 更新失败");
 		delete[] sError;
 		return FALSE;
 	}
@@ -499,7 +496,7 @@ BOOL DLGMarked::InsertDBMark()
 	else
 	{
 		CString str;
-		str.Format("DLGMarked::InsertDBMark,更新失败,原因为%s", sError);
+		str.Format("CDlgTagOutSet::InsertDBMark,更新失败,原因为%s", sError);
 		WriteLog(str);
 		bReturn = FALSE;
 	}
@@ -523,7 +520,7 @@ BOOL DLGMarked::InsertDBMark()
  参    数：param1   意义说明
            Param2   意义说明
 **************************************************************/
-void DLGMarked::SetDeviceState()
+void CDlgTagOutSet::SetDeviceState()
 {
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CMainFrame* pMainFrame = (CMainFrame*)pApp->m_pMainWnd;
@@ -533,7 +530,7 @@ void DLGMarked::SetDeviceState()
 }
 
 
-void DLGMarked::OnSelchangeCmbMarkreason() 
+void CDlgTagOutSet::OnSelchangeCmbMarkreason() 
 {
 	// TODO: Add your control notification handler code here
 	
@@ -566,7 +563,7 @@ void DLGMarked::OnSelchangeCmbMarkreason()
  参    数: param1 
 		   Param2 
 **************************************************************/
-void DLGMarked::InitComBox()
+void CDlgTagOutSet::InitComBox()
 {
 	//用厂站中的数据填充列表
 	m_cmbMarkReason.ResetContent();
@@ -594,7 +591,7 @@ void DLGMarked::InitComBox()
 	//m_cmbMarkReason.SetCurSel(0);
 }
 
-BOOL DLGMarked::OnInitDialog() 
+BOOL CDlgTagOutSet::OnInitDialog() 
 {	
 	CDialog::OnInitDialog();
 	InitListStyle();
@@ -605,7 +602,7 @@ BOOL DLGMarked::OnInitDialog()
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-int DLGMarked::InitListStyle()
+int CDlgTagOutSet::InitListStyle()
 {
 	//空图形列表, 用来调整行高
 	CImageList  m_l;   
@@ -672,7 +669,7 @@ int DLGMarked::InitListStyle()
  参    数: param1 
 		   Param2 
 **************************************************************/
-BOOL DLGMarked::Comparison(CString sMarkInfo)
+BOOL CDlgTagOutSet::Comparison(CString sMarkInfo)
 {
 	//加载新数据
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
@@ -694,7 +691,7 @@ BOOL DLGMarked::Comparison(CString sMarkInfo)
 	return TRUE;
 }
 
-void DLGMarked::FillData()
+void CDlgTagOutSet::FillData()
 {
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
@@ -764,7 +761,7 @@ void DLGMarked::FillData()
 	//WriteLog("CDlgCheckPro::FillListData, 结束", XJ_LOG_LV3);
 }
 
-BOOL DLGMarked::CheckFlow()
+BOOL CDlgTagOutSet::CheckFlow()
 {
 	CString str;
 

@@ -582,7 +582,7 @@ void CHangoutWnd::ShowChannelDetail( int nChannel )
 		LONG h = 260;
 
 		m_pointPTSetModView.x = rcRect.right - w;
-		m_pointPTSetModView.y = rcRect.bottom - h;
+		m_pointPTSetModView.y = rcRect.bottom - h - 20;
 		m_bAlreadyShowOnce = true;
 	}
 	

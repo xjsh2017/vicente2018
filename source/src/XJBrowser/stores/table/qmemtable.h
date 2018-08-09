@@ -43,6 +43,7 @@ public:
 	QByteArray	GetKeyValue(int iRow, int idx);
 	QByteArray	GetKeyName(int idx);
 	int			GetRowIndex(QByteArrayMatrix &keyVals);
+	int			GetRowIndex(const char* keyVals);
 
 	int			GetRecordCount();
 	int			GetRowCount();
@@ -50,6 +51,7 @@ public:
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
 	BOOL		SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, QByteArray val);
+	BOOL		SetFieldValue(const char* keyVals, const char *szFieldName, QByteArray val);
 
 	BOOL		HasField(const char* fieldName, int nNameType = 0);
 	BOOL		HasField(const QByteArray &fieldName, int nNameType = 0);

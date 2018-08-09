@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "xjbrowser.h"
-#include "DlgCheckPro.h"
+#include "DlgDataCheck.h"
 
 #include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
@@ -15,14 +15,14 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CDlgCheckPro dialog
+// CDlgDataCheck dialog
 
 
 //##ModelId=49B87BA402E1
-CDlgCheckPro::CDlgCheckPro(CWnd* pParent /*=NULL*/, int nType)
-	: CDialog(CDlgCheckPro::IDD, pParent), m_sCPU(""), m_sZone("")
+CDlgDataCheck::CDlgDataCheck(CWnd* pParent /*=NULL*/, int nType)
+	: CDialog(CDlgDataCheck::IDD, pParent), m_sCPU(""), m_sZone("")
 {
-	//{{AFX_DATA_INIT(CDlgCheckPro)
+	//{{AFX_DATA_INIT(CDlgDataCheck)
 	m_strModify = _T("");
 	m_nType = nType;
 	//}}AFX_DATA_INIT
@@ -30,10 +30,10 @@ CDlgCheckPro::CDlgCheckPro(CWnd* pParent /*=NULL*/, int nType)
 
 
 //##ModelId=49B87BA402E4
-void CDlgCheckPro::DoDataExchange(CDataExchange* pDX)
+void CDlgDataCheck::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CDlgCheckPro)
+	//{{AFX_DATA_MAP(CDlgDataCheck)
 	DDX_Text(pDX, IDC_EDIT_CHECK, m_strModify);
 	DDX_Text(pDX, IDC_STATIC_DESC, m_strDESC);
 	DDX_Control(pDX, IDC_LIST_PTSET, m_List);
@@ -41,13 +41,13 @@ void CDlgCheckPro::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CDlgCheckPro, CDialog)
-	//{{AFX_MSG_MAP(CDlgCheckPro)
+BEGIN_MESSAGE_MAP(CDlgDataCheck, CDialog)
+	//{{AFX_MSG_MAP(CDlgDataCheck)
 	//}}AFX_MSG_MAP
     ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_PTSET, OnCustomdrawList)
 END_MESSAGE_MAP()
 
-void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
+void CDlgDataCheck::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( pNMHDR );
 	
@@ -110,26 +110,28 @@ void CDlgCheckPro::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CDlgCheckPro message handlers
+// CDlgDataCheck message handlers
 
-BOOL CDlgCheckPro::OnInitDialog() 
+BOOL CDlgDataCheck::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
 	InitListStyle();
 	
 	UpdateLabels();
+
+	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
+	QPTSetDataTable *pData = pStore->GetPTSetData();
 	
 	// TODO: Add extra initialization here
 	if (m_nType ==0)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
-		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
-		QPTSetDataTable *pData = pStore->GetPTSetData();
 		pData->ReLoad();
 	}
 	else if (m_nType ==1)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
+		pData->ReLoad();
 	}
 	else if (m_nType ==2)
 	{
@@ -146,30 +148,30 @@ BOOL CDlgCheckPro::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CDlgCheckPro::UpdateLabels()
+void CDlgDataCheck::UpdateLabels()
 {
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	CString str;
 
-	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
-	QPTSetStateTable *pState = pStore->GetState();
-	pStore->ReLoadState();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	pTagOutStore->ReLoadState();
 	
-	int nPTSetState = pState->GetStateID();
+	int nPTSetState = pTagOutState->GetStateID();
 
 	if (nPTSetState != 0){
-		m_sCPU = QByteArray::number(pState->GetCPUID()).constData();
-		m_sZone = QByteArray::number(pState->GetZoneID()).constData();
+		m_sCPU = QByteArray::number(pTagOutState->GetCPUID()).constData();
+		m_sZone = QByteArray::number(pTagOutState->GetZoneID()).constData();
 	}
 	
-	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pState->GetPTID().constData(), TYPE_SEC);
+	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pTagOutState->GetPTID().constData(), TYPE_SEC);
 	m_strDESC.Format("装置[%s]在[%s]号CPU[%s]号定值区上的定值将做如下更改："
 		, pObj->m_sName, m_sCPU, m_sZone);
 	//AfxMessageBox(m_strDESC);
 	UpdateData(FALSE);
 }
 
-int CDlgCheckPro::InitListStyle()
+int CDlgDataCheck::InitListStyle()
 {
 	//空图形列表, 用来调整行高
 	CImageList   m_l;   
@@ -282,7 +284,7 @@ int CDlgCheckPro::InitListStyle()
 	return 0;
 }
 
-void CDlgCheckPro::FillData()
+void CDlgDataCheck::FillData()
 {
 	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pState = pStore->GetState();
@@ -348,8 +350,12 @@ void CDlgCheckPro::FillData()
 		}
 		m_List.SetItemText(nIndex, 10, str);
 		val = pPTSetData->GetFieldValue(i + 1, "reserve3").constData();
-		m_List.SetItemText(nIndex, 11, val.GetFieldValue(1, 1).constData());
-		m_List.SetItemText(nIndex, 12, val.GetFieldValue(1, 2).constData());
+		QByteArray Val1 = val.GetFieldValue(1, 1);
+		QByteArray Val2 = val.GetFieldValue(1, 2);
+		if (Val2.isEmpty())
+			Val2 = Val1;
+		m_List.SetItemText(nIndex, 11, Val1.constData());
+		m_List.SetItemText(nIndex, 12, Val2.constData());
 		m_List.SetItemData(nIndex, (DWORD)NULL);
 		
 		
@@ -360,5 +366,5 @@ void CDlgCheckPro::FillData()
 	m_List.SetRedraw(TRUE);
 	
 	
-	//WriteLog("CDlgCheckPro::FillListData, 结束", XJ_LOG_LV3);
+	//WriteLog("CDlgDataCheck::FillListData, 结束", XJ_LOG_LV3);
 }

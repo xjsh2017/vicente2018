@@ -10,6 +10,7 @@
 #include "Dlg_DevRunStatusUpdate.h"
 #include "GlobalFunc.h"
 #include "DLGMarked.h"
+#include "DlgTagOutSet.h"
 #include "DraftDocument.h"
 #include "DlgDraft.h"
 /*#ifdef _DEBUG
@@ -2169,7 +2170,8 @@ void CXJBrowserView::OnMarkDevice()
 		//ÊÇ±£»¤
 		CSecObj* pObj = (CSecObj*)pDevice;
 		pObj->RefreshConfig();
-		DLGMarked dlg;
+//		DLGMarked dlg;
+		CDlgTagOutSet dlg;
 		dlg.m_pObj = pObj;
 		dlg.DoModal();
 	}

@@ -377,7 +377,7 @@ BOOL QMemTablePrivate::ExcuteSQL(const char* sql_stmt, QByteArrayMatrix &content
 	strSQL.Format("%s"
 		, sql_stmt);
 	
-	WriteLog(strSQL);
+	//WriteLog(strSQL);
 	//AfxMessageBox(strSQL);
 	
 	//进行查询
@@ -405,7 +405,7 @@ BOOL QMemTablePrivate::ExcuteSQL(const char* sql_stmt, QByteArrayMatrix &content
 		int nFieldCount = mem.GetMemFieldNum();
 		
 		str.Format("QMemTablePrivate::ExcuteSQL, 读取到%d条数据", nRowCount);
-		WriteLog(str, XJ_LOG_LV3);
+		//WriteLog(str, XJ_LOG_LV3);
 		//AfxMessageBox(str);
 		
 		content.clear();
@@ -1122,8 +1122,16 @@ int	QMemTable::GetRowIndex(QByteArrayMatrix &keyVals)
 {	
 	if (NULL == d_ptr)
 		return -1;
-
+	
 	return d_ptr->GetRowIndex(keyVals);
+}
+
+int	QMemTable::GetRowIndex(const char* keyVals)
+{	
+	if (NULL == d_ptr)
+		return -1;
+	
+	return d_ptr->GetRowIndex(QByteArrayMatrix(keyVals));
 }
 
 int	QMemTable::GetRecordCount()
@@ -1163,6 +1171,15 @@ BOOL QMemTable::SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName,
 	if (NULL == d_ptr)
 		return FALSE;
 
+	int iRow = GetRowIndex(keyVals);
+	SetFieldValue(iRow, szFieldName, val);
+}
+
+BOOL QMemTable::SetFieldValue(const char* keyVals, const char *szFieldName, QByteArray val)
+{
+	if (NULL == d_ptr)
+		return FALSE;
+	
 	int iRow = GetRowIndex(keyVals);
 	SetFieldValue(iRow, szFieldName, val);
 }

@@ -63,6 +63,8 @@ CPTSetProgView::CPTSetProgView()
 
 	m_bThreadExit = FALSE;
 	m_pThread = NULL;
+
+	CXJTagOutStore::GetInstance()->ReLoadState();
 	
 	InitializeCriticalSection(&m_CriticalSection);
 	ResetObj();
@@ -280,7 +282,7 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 			KillTimer(m_nTimer);
 
 			m_nLastPTSetType = nTagOutType;
-			AfxMessageBox("ResetObj");
+			//AfxMessageBox("ResetObj");
 			ResetObj();
 			ResetObjSize();
 

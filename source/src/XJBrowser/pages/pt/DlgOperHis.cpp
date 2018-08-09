@@ -172,7 +172,7 @@ int CDlgOperHis::InitListStyle()
 		//载入配置失败
 		//char* arColumn[11]={"序号","定值名称", "定值代码", "单位", "基准值", "组号", "条目号","步长", "最小值/最大值", "精度", "数据类型"};
 		//分配列宽,最小需求
-		for (int nCol=0; nCol < 10 ; nCol++)
+		for (int nCol=0; nCol < 11 ; nCol++)
 		{
 			lvCol.iSubItem=nCol;
 			CString colName = "";
@@ -230,10 +230,11 @@ int CDlgOperHis::InitListStyle()
 			int result = m_List.InsertColumn(nCol,&lvCol);
 		}
 		//默认隐藏第一列(序号)
+		m_List.SetColumnHide(0, TRUE);
 		m_List.SetColumnHide(1, TRUE);
 		m_List.SetColumnHide(4, TRUE);
 		m_List.SetColumnHide(7, TRUE);
-		m_List.SetColumnHide(9, TRUE);
+		//m_List.SetColumnHide(9, TRUE);
 	}
 	//设置风格
 	m_List.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
@@ -324,10 +325,10 @@ void CDlgOperHis::FillData()
 			str.Format("%d", nCount - nIndex);
 			m_List.InsertItem(nIndex, str);
 
-			for (int j = 0; j < 10; j++){
+			for (int j = 0; j < 11; j++){
 				if (0 == j){
 					str.Format("%d", nCount - nIndex);
-				}else if (9 == j){
+				}else if (10 == j){
 					str = mem.GetValue((UINT)j);
 					if (atoi(str) == 0){
 						str = "成功";

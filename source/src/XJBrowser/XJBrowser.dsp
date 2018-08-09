@@ -100,11 +100,19 @@ LINK32=link.exe
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\DlgCheckPro.cpp
+SOURCE=.\pages\pt\DlgDataCheck.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\pages\pt\DlgOperHis.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\DlgTagOutSet.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\DlgValidateUser.cpp
 # End Source File
 # Begin Source File
 
@@ -1017,11 +1025,19 @@ SOURCE=..\..\ui_common\button\XPStyleButtonST.cpp
 # PROP Default_Filter ".h"
 # Begin Source File
 
-SOURCE=.\DlgCheckPro.h
+SOURCE=.\pages\pt\DlgDataCheck.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\pages\pt\DlgOperHis.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\DlgTagOutSet.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\pt\DlgValidateUser.h
 # End Source File
 # Begin Source File
 

@@ -1,25 +1,23 @@
-#if !defined(AFX_DLGCHECK_PRO_H__48F5010D_E549_4A81_82D4_5621C482EE91__INCLUDED_)
-#define AFX_DLGCHECK_PRO_H__48F5010D_E549_4A81_82D4_5621C482EE91__INCLUDED_
+#ifndef _DLG_DATA_CHECK_H
+#define _DLG_DATA_CHECK_H
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-// DlgCheck.h : header file
+#include "resource.h"
+// DlgDataCheck.h : header file
 //
 
 /////////////////////////////////////////////////////////////////////////////
-// CDlgCheckPro dialog
+// CDlgDataCheck dialog
 
 //##ModelId=49B87BA402DF
-class CDlgCheckPro : public CDialog
+class CDlgDataCheck : public CDialog
 {
 // Construction
 public:
 	//##ModelId=49B87BA402E1
-	CDlgCheckPro(CWnd* pParent = NULL, int nType = 1);   // standard constructor
+	CDlgDataCheck(CWnd* pParent = NULL, int nType = 1);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CDlgCheckPro)
+	//{{AFX_DATA(CDlgDataCheck)
 	enum { IDD = IDD_CHECK_PRO };
 	//##ModelId=49B87BA402E3
 	CString	m_strModify;
@@ -36,7 +34,7 @@ public:
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CDlgCheckPro)
+	//{{AFX_VIRTUAL(CDlgDataCheck)
 	protected:
 	//##ModelId=49B87BA402E4
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -57,7 +55,7 @@ private:
 protected:
 
 	// Generated message map functions
-	//{{AFX_MSG(CDlgCheckPro)
+	//{{AFX_MSG(CDlgDataCheck)
 	virtual BOOL OnInitDialog();
     afx_msg void OnCustomdrawList(NMHDR*, LRESULT*);
 	//}}AFX_MSG
@@ -67,4 +65,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_DLGCHECK_PRO_H__48F5010D_E549_4A81_82D4_5621C482EE91__INCLUDED_)
+#endif // !defined(_DLG_DATA_CHECK_H)

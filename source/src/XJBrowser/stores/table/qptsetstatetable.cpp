@@ -1,17 +1,25 @@
 // qptsetstatetable.cpp : implementation file
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "qptsetstatetable.h"
 
 #include "XJStoreDefine.h"
 #include "XJTagOutStore.h"
 #include "XJBrowser.h"
 
-const char* TAGOUT_KEYNAME = "TAGOUT_STATE";
-const char* PTVALVSET_KEYNAME = "PTVALVSET_STATE";
-const char* PTZONESET_KEYNAME = "PTZONESET_STATE";
-const char* PTSOFTSET_KEYNAME = "PTSOFTSET_STATE";
+const char* TAGOUT_KEYNAME = "STATE_TAGOUT";
+const char* PTVALVSET_KEYNAME = "STATE_PTSET_VALV";
+const char* PTZONESET_KEYNAME = "STATE_PTSET_ZONE";
+const char* PTSOFTSET_KEYNAME = "STATE_PTSET_SOFT";
+
+const int COL_WORKFLOW_TAGOUT_ID = 1;
+const int COL_WORKFLOW_STATE_ID = 2;
+const int COL_WORKFLOW_USERGROUP_ID = 4;
+const int COL_WORKFLOW_ENABLE = 3;
+const int COL_WORKFLOW_USER_ID = 5;
+
+const int COL_TAGOUT_LASTTYPE = 7;
 
 ///////////////////////////////////////////////////////////////////
 //  QPTSetCard1
@@ -300,14 +308,35 @@ BOOL QPTSetStateTable::Check(int nTagOutType)
 				}
 			}
 		}
-
-		Save("c:/tb_sys_config.txt");
+		
+		Save();
+		//Save("c:/tb_sys_config.txt");
 		//AfxMessageBox("Added.");
 	}else{
 		//AfxMessageBox("Already existed.");
 	}
 
 	return ( iRow > 0 ? TRUE : FALSE);
+}
+
+QByteArray QPTSetStateTable::GetTagOutValue(int iCol)
+{
+	QByteArrayMatrix keyVals;
+	keyVals << TAGOUT_KEYNAME;
+
+	QByteArrayMatrix val = GetFieldValue(keyVals, "Value");
+	return val.GetFieldValue(1, iCol);
+}
+
+void QPTSetStateTable::SetTagOutValue(int iCol, QByteArray &s)
+{
+	QByteArrayMatrix keyVals;
+	keyVals << TAGOUT_KEYNAME;
+	
+	QByteArrayMatrix val = GetFieldValue(keyVals, "Value");
+	val.SetFieldValue(1, iCol, s);
+	
+	SetFieldValue(keyVals, "Value", val);
 }
 
 int	QPTSetStateTable::GetType()
@@ -327,7 +356,28 @@ void QPTSetStateTable::SetType(int nType)
 	
 	QByteArrayMatrix val = GetFieldValue(keyVals, "Value");
 	val.SetFieldValue(1, 1, QByteArray::number(nType));
+	
+	SetFieldValue(keyVals, "Value", val);
+}
 
+int	QPTSetStateTable::GetLastType()
+{	
+	QByteArrayMatrix keyVals;
+	keyVals << TAGOUT_KEYNAME;
+	
+	QByteArrayMatrix val = GetFieldValue(keyVals, "Value");
+	
+	return val.GetFieldValue(1, COL_TAGOUT_LASTTYPE).toInt();
+}
+
+void QPTSetStateTable::SetLastType(int nType)
+{
+	QByteArrayMatrix keyVals;
+	keyVals << TAGOUT_KEYNAME;
+	
+	QByteArrayMatrix val = GetFieldValue(keyVals, "Value");
+	val.SetFieldValue(1, COL_TAGOUT_LASTTYPE, QByteArray::number(nType));
+	
 	SetFieldValue(keyVals, "Value", val);
 }
 
@@ -425,6 +475,26 @@ int QPTSetStateTable::GetFlags()
 	return val.GetFieldValue(1, 6).toInt();
 }
 
+int QPTSetStateTable::GetTagOutRowIdx(int nTagOutType/* = XJ_TAGOUT_UNDEFINE*/)
+{
+	QByteArrayMatrix keyvals;
+	switch (nTagOutType){
+	case XJ_TAGOUT_PTVALVSET:
+		keyvals = PTVALVSET_KEYNAME;
+		break;
+	case XJ_TAGOUT_PTZONESET:
+		keyvals = PTZONESET_KEYNAME;
+		break;
+	case XJ_TAGOUT_PTSOFTSET:
+		keyvals = PTSOFTSET_KEYNAME;
+		break;
+	default:
+		keyvals = TAGOUT_KEYNAME;
+	}
+	
+	return GetRowIndex(keyvals);
+}
+
 void QPTSetStateTable::SetFlags(int nFlags)
 {
 	QByteArrayMatrix keyVals;
@@ -472,34 +542,58 @@ QByteArray QPTSetStateTable::GetMonitorUserID()
 	return log.GetFieldValue(1, 2);
 }
 
-QByteArray QPTSetStateTable::GetStateUserID(int nStateID)
+QByteArray QPTSetStateTable::GetWorkFlowUserID(int nTagOutType, int nStateID)
 {
 	QByteArray s;
 
-	QByteArrayMatrix &flow = GetWorkFlow();
-	
-	
-	int iRow = -1;
-	QByteArrayMatrix &log = GetLog(XJ_OPER_PTVALVSET_STATE_3, iRow);
-	if (iRow == -1)
+	if (-1 == nTagOutType)
+		nTagOutType = GetTagOutReasonTypeByState(nStateID);
+	if (nTagOutType == 0)
 		return s;
-	
-	return log.GetFieldValue(1, 2);
+
+	QByteArrayMatrix &flow = GetWorkFlow(nTagOutType);
+
+	for (int i = 1; i <= flow.GetRowCount(); i++){
+		int nFlowStateID = flow.GetFieldValue(i, COL_WORKFLOW_STATE_ID).toInt();
+		if (nStateID != nFlowStateID)
+			continue;
+		
+		return flow.GetFieldValue(i, COL_WORKFLOW_USER_ID);
+		break;
+	}
+
+	return s;
 }
 
-QByteArray QPTSetStateTable::GetWorkFlowStep(int nStateID)
+void QPTSetStateTable::SetWorkFlowUserID(int nTagOutType, int nStateID, const char* pszUserID)
 {
 	QByteArray s;
 	
+	if (-1 == nTagOutType)
+		nTagOutType = GetTagOutReasonTypeByState(nStateID);
+	if (nTagOutType == 0)
+		return;
+
+	QByteArrayMatrix &flow = GetWorkFlow(nTagOutType);
+	int nTagOutRowIdx = GetTagOutRowIdx(nTagOutType);
 	
-	
-	int iRow = -1;
-	QByteArrayMatrix &log = GetLog(XJ_OPER_PTVALVSET_STATE_3, iRow);
-	if (iRow == -1)
-		return s;
-	
-	return log.GetFieldValue(1, 2);
+	for (int i = 1; i <= flow.GetRowCount(); i++){
+		int nFlowStateID = flow.GetFieldValue(i, COL_WORKFLOW_STATE_ID).toInt();
+		if (nStateID != nFlowStateID)
+			continue;
+		
+		flow.SetFieldValue(i, COL_WORKFLOW_USER_ID, pszUserID);
+		
+		SetFieldValue(nTagOutRowIdx, "reverse1", flow);
+		break;
+	}
 }
+
+void QPTSetStateTable::SetWorkFlowUserID(int nTagOutType, int nStateID, QByteArray &userID)
+{
+	SetWorkFlowUserID(nTagOutType, nStateID, userID.constData());
+}
+
 
 QByteArrayMatrix QPTSetStateTable::GetWorkFlow(int nTagOutType)
 {
@@ -581,6 +675,10 @@ QByteArrayMatrix QPTSetStateTable::GetLogs()
 	QByteArrayMatrix keyVals;
 
 	int nTagOutType = GetType();
+	if (nTagOutType == XJ_TAGOUT_UNDEFINE){
+		nTagOutType = GetLastType();
+	}
+
 	switch (nTagOutType){
 	case XJ_TAGOUT_PTVALVSET:
 		keyVals << PTVALVSET_KEYNAME;
@@ -823,7 +921,10 @@ void QPTSetStateTable::Next_0(const char *pszUserID)
 
 	// 添加历史日志
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_UNHANGOUT, slog.GetFieldValue(1, 1).constData(), pszUserID);
-	
+
+	SetWorkFlowUserID(GetType(), XJ_OPER_UNHANGOUT, pszUserID);
+	SetLastType(GetType());
+
 	SetType(XJ_TAGOUT_UNDEFINE);
 	SetStateID(XJ_OPER_UNHANGOUT);
 	SetCPUID(0);
@@ -847,6 +948,7 @@ void QPTSetStateTable::Next_1(const char *pszUserID, const char *pt_id, const ch
 	SetCPUID(0);
 	SetZoneID(0);
 	SetFlags(0);
+	SetWorkFlowUserID(nType, XJ_OPER_HANGOUT, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_HANGOUT, pszUserID, 1);
 
@@ -862,6 +964,8 @@ void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *pszUs
 	SetCPUID(nCPU);
 	SetZoneID(nZone);
 
+	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_2, pszUserID);
+
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_2, pszUserID);
 	
 	Save();
@@ -876,6 +980,8 @@ void QPTSetStateTable::Next_PTSet_State_3(const char *pszUserID)
 {
 	SetStateID(XJ_OPER_PTVALVSET_STATE_3);
 	
+	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_3, pszUserID);
+	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_3, pszUserID);
 	
 	Save();
@@ -888,6 +994,8 @@ void QPTSetStateTable::Next_PTSet_State_4(const char *pszUserID)
 {
 	SetStateID(XJ_OPER_PTVALVSET_STATE_4);
 	
+	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_4, pszUserID);
+	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_4, pszUserID);
 	
 	Save();
@@ -899,6 +1007,8 @@ void QPTSetStateTable::Next_PTSet_State_4(const char *pszUserID)
 void QPTSetStateTable::Next_PTSet_State_5(const char *pszUserID)
 {
 	SetStateID(XJ_OPER_PTVALVSET_STATE_5);
+	
+	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_5, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_5, pszUserID);
 	
@@ -921,6 +1031,11 @@ void QPTSetStateTable::RevertTo_PTSet_State_1(int nFrom_PTSetStateID, const char
 	SetFieldValue(keyVals, "reverse3", log);
 	Save();
 
+	if (m_pData){
+		m_pData->RevertModifiy();
+		m_pData->Save();
+	}
+
 	CXJTagOutStore::GetInstance()->AddNewManOperator(nFrom_PTSetStateID
 		, GetTime().constData(), pszUserID, OPER_FAILD, strMs.constData());
 }
@@ -937,22 +1052,25 @@ QPTSetDataTable::~QPTSetDataTable()
 	
 }
 
-BOOL QPTSetDataTable::ReLoad()
+BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id)
 {
 	BOOL bReturn = FALSE;
 	
 	LoadInfo("tb_pt_setting_def");
 	//LoadDataAll();
 	
+	QByteArray baPTID = pt_id;
+	if (baPTID.isEmpty())
+		baPTID = m_pState->GetPTID();
 	//if (!m_card.GetPTID().isEmpty()){
 	if (1){
 		QByteArray baSQL;
 		baSQL << "SELECT * FROM tb_pt_setting_def WHERE pt_id IN ('" 
 			//<< "由由BH51"
-			<< m_pState->GetPTID()
+			<< baPTID
 			<< "')";
 		LoadData(baSQL);
-		Save("c:/tb_pt_setting_def.txt");
+		//Save("c:/tb_pt_setting_def.txt");
 	}
 	
 	return bReturn;
@@ -998,6 +1116,47 @@ BOOL QPTSetDataTable::ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_
 	return bReturn;
 }
 
+BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting)
+{
+	BOOL bReturn = FALSE;
+	
+	ReLoad(pt_id);
+	
+	int nCount = arrSetting.GetSize();
+	for (int i = 0; i < nCount; i++){
+		PT_SETTING *pts_data = (PT_SETTING*)arrSetting.GetAt(i);
+		
+		int nSettingID = atoi(pts_data->ID);
+		QByteArrayMatrix keyvals;
+		keyvals << pt_id << "," << nCPU << "," << nSettingID;
+		
+		QByteArray val = pts_data->Value.GetBuffer(0);
+		if (val.isEmpty())
+			continue;
+		
+		SetFieldValue(keyvals, "reserve3", val);
+	}
+	
+	
+	nCount = arrModifyList.GetSize();
+	for(int i = 0; i < nCount; i++)
+	{
+		STTP_DATA * sttpData = (STTP_DATA*)arrModifyList.GetAt(i);
+		
+		int nSettingID = sttpData->id;
+		int nCPUID = sttpData->nCpu;
+		QByteArrayMatrix keyvals;
+		keyvals << pt_id << "," << nCPUID << "," << nSettingID;
+		
+		QByteArrayMatrix val = GetFieldValue(keyvals, "reserve3");
+		val << ", " << sttpData->str_value.c_str();
+		
+		SetFieldValue(keyvals, "reserve3", val);
+	}
+	
+	return TRUE;
+}
+
 BOOL QPTSetDataTable::Save(const char *pszFilePath)
 {
 	BOOL bReturn = FALSE;
@@ -1017,3 +1176,54 @@ BOOL QPTSetDataTable::Save(const char *pszFilePath)
 	return bReturn;
 }
 
+BOOL QPTSetDataTable::RevertModifiy()	// 修改值列清空保存
+{
+	BOOL bReturn = FALSE;
+
+	for (int i = 1; i <= GetRowCount(); i++){
+		QByteArrayMatrix val = GetFieldValue(i, "reserve3");
+		QByteArray &old = val.GetFieldValue(1, 1);
+		
+		SetFieldValue(i, "reserve3", old);
+	}
+
+	return TRUE;
+}
+
+BOOL QPTSetDataTable::SaveModify()	// 修改值替换原值保存
+{
+	BOOL bReturn = FALSE;
+
+	for (int i = 1; i <= GetRowCount(); i++){
+		QByteArrayMatrix val = GetFieldValue(1, "reserve3");
+		QByteArray Val1 = val.GetFieldValue(1, 1);
+		QByteArray Val2 = val.GetFieldValue(1, 2);
+
+		QByteArray newVal;
+		if (!Val2.isEmpty()){
+			newVal = Val2;
+		}else{
+			newVal = Val1;
+		}
+			
+		SetFieldValue(i, "reserve3", newVal);
+	}
+	
+	return TRUE;
+}
+
+void QPTSetDataTable::UnitTest_01()
+{
+	QByteArrayMatrix keyVals;
+	
+	ReLoad();
+	
+	keyVals << "由由BH51" << keyVals.GetDelimCol()
+		<< 2 << keyVals.GetDelimCol()
+		<< 1010;
+	
+	SetFieldValue(keyVals, "reserve3", "20,19.8");
+	SetFieldValue("由由BH51,2,1011", "reserve3", "10.6");
+	SetFieldValue("由由BH51,2,1014", "reserve3", "30,52.3");
+	Save("c:/tb_pt_setting_def.txt");
+}

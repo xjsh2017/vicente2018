@@ -46,8 +46,8 @@
 
 #include "MsgView.h"	//消息输出窗口
 #include "PTSetProgView.h"
-#include "DlgCheckPro.h"
-#include "DlgValidateID.h"
+#include "DlgDataCheck.h"
+#include "DlgValidateUser.h"
 
 #include "XJTagOutStore.h"
 #include "XJUserStore.h"
@@ -92,13 +92,12 @@ UINT RefreshPTSetState(LPVOID pParam)
 		if(pFrame->m_bThreadExit)
 			break;
 
-		CXJTagOutStore *pPTSetStore = CXJTagOutStore::GetInstance();
-		pPTSetStore->ReLoadState();
-		pPTSetStore->Check();
+		CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+		pTagOutStore->ReLoadState();
+		//pTagOutStore->Check();
 
 		CXJUserStore *pUserStore = CXJUserStore::GetInstance();
-		pUserStore->ReLoad();
-		//pStore->Save();
+		//pUserStore->ReLoad();
 
 		//pView->UpdateAllObj();
 		//pView->PostMessage(THREAD_FILL_DATA, 0, 0);
@@ -3154,6 +3153,12 @@ void CMainFrame::OnAlarmSound( WPARAM wParam, LPARAM lParam )
 void CMainFrame::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
+	
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+
+	int nTagOutStateID = pTagOutState->GetStateID();
+
 	if(nIDEvent == m_nAlarmTimer)
 	{
 		//停止报警声音
@@ -3179,26 +3184,24 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 			pApp->LockUI();
 		}
 	}
-	
-	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
-	QPTSetStateTable *pState = pStore->GetState();
+
 	if (nIDEvent == m_nMsgTimer){
-		
-		int nPTSetState = pState->GetStateID();
+		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_4);
+		if (sUserID.isEmpty()){
+			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT);
+		}
 		
 		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
 			
-			int nCurPTSetModState = pState->GetStateID();
-			CString sRunnerUserID = pState->GetRunnerUserID().data();
-			// 运行人员或者超级用户
-			if (pApp->m_User.m_strUSER_ID == sRunnerUserID)
-				if (XJ_OPER_PTVALVSET_STATE_3 == nCurPTSetModState){
+			// 运行人员
+			if (pApp->m_User.m_strUSER_ID == CString(sUserID.constData()))
+				if (XJ_OPER_PTVALVSET_STATE_3 == nTagOutStateID){
 					KillTimer(m_nMsgTimer);
 					DoPtsetVerify0();
 					m_oper = 0;
-				}else if (XJ_OPER_PTVALVSET_STATE_5 == nCurPTSetModState && 0 == m_oper){
+				}else if (XJ_OPER_PTVALVSET_STATE_5 == nTagOutStateID && 0 == m_oper){
 					KillTimer(m_nMsgTimer);
 					AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
 					m_oper = 1;
@@ -3208,9 +3211,6 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 	}
 
 	if (nIDEvent == m_nTimer){
-
-		int nPTSetState = pState->GetStateID();
-
 		CString text;
 		m_wndGlobalMsgBar.GetWindowText(text);
 		QByteArray winText = text.GetBuffer(0);
@@ -3226,12 +3226,12 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		
 		if (dynText.isEmpty())
 			dynText = " -- ";
-		QByteArray baHangoutReasonType = pState->GetTypeName();
+		QByteArray baHangoutReasonType = pTagOutState->GetTypeName();
 		if (baHangoutReasonType.isEmpty())
 			baHangoutReasonType << "挂牌任务";
 		baHangoutReasonType << "监视窗口";
 
-		if (nPTSetState != XJ_OPER_UNHANGOUT)
+		if (nTagOutStateID != XJ_OPER_UNHANGOUT)
 			baHangoutReasonType << dynText;
 		m_wndGlobalMsgBar.SetWindowText(baHangoutReasonType.constData());
 		m_wndGlobalMsgBar.GetParent()->SetWindowText(baHangoutReasonType.constData());
@@ -3283,36 +3283,44 @@ void CMainFrame::DoPtsetVerify0()
 {
 	// TODO: Add your control notification handler code here
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	
+	int nTagOutStateID = pTagOutState->GetStateID();
+
 	CString strOutPut;
 	CString str;
-	CXJTagOutStore *pPTSetStore = CXJTagOutStore::GetInstance();
-	QPTSetStateTable *pPTSetState = pPTSetStore->GetState();
-
-	int nPTSetState = pPTSetState->GetStateID();
 
 	//运行人员确认
-	CDlgCheckPro dlg(this, 0);
+	CDlgDataCheck dlg(this, 0);
 	dlg.m_strModify = strOutPut;
 	CString sRunUser;
+	QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_4);
+	if (sUserID.isEmpty()){
+		sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT);
+	}
 	if(dlg.DoModal() == IDOK)
 	{
 		if(g_PTControlModel == 1)
 		{
 			//普通模式,要求运行人员验证
-			CDlgValidateID dlgID(0, 1);
-			dlgID.m_strFuncID = FUNC_XJBROWSER_CONTROL;
-			if(dlgID.DoModal() == IDOK)
+			CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
+			dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+			dlgUser.m_strUser = sUserID.constData();
+			if (!sUserID.isEmpty())
+				dlgUser.m_strAuthUserID = sUserID.constData();
+			if(dlgUser.DoModal() == IDOK)
 			{	
-				sRunUser = dlgID.m_strUser;
-				pPTSetState->Next_PTSet_State_4(sRunUser.GetBuffer(0));
+				sRunUser = dlgUser.m_strUser;
+				pTagOutState->Next_PTSet_State_4(sRunUser.GetBuffer(0));
 			}
 			else
 			{
 				// 权限不足
-				str.Format("用户%s以运行员身份验证失败：定值修改密码验证失败", pPTSetState->GetRunnerUserID().constData());
+				str.Format("用户[%s]以运行员身份验证失败：密码验证失败", sUserID.constData());
 				WriteLog(str, XJ_LOG_LV2);
-				pPTSetState->SetFlags(1);
-				pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
+				pTagOutState->SetFlags(1);
+				pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, sUserID.constData()
 						, QByteArray(str.GetBuffer(0)));
 			}
 		}
@@ -3321,9 +3329,10 @@ void CMainFrame::DoPtsetVerify0()
 	{
 		//不同意修改
 		//回复修改前的值
-		str.Format("用户%s以运行员身份验证失败：不同意修改定值修改", pPTSetState->GetRunnerUserID().constData());
-			WriteLog(str, XJ_LOG_LV2);
-		pPTSetState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, pPTSetState->GetRunnerUserID().constData()
+		str.Format("用户[%s]以运行员身份验证失败：不同意修改", sUserID.constData());
+		WriteLog(str, XJ_LOG_LV2);
+		pTagOutState->SetFlags(1);
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, sUserID.constData()
 						, QByteArray(str.GetBuffer(0)));
 	}
 	
