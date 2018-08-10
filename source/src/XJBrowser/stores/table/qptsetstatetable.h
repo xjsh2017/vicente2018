@@ -22,45 +22,6 @@ struct PT_SETTING_DATA{
 typedef CTypedPtrArray<CPtrArray, PT_SETTING_DATA*>		PT_SETTING_DATA_LIST;
 typedef CTypedPtrArray<CPtrArray, PT_SETTING*>			PT_SETTING_LIST;
 
-class QPTSetCard1 : public QByteArrayMatrix
-{
-public:
-	QPTSetCard1();
-	QPTSetCard1(const char *);
-	QPTSetCard1(const char *, const char *delim_row, const char *delim_col);
-	
-	virtual QByteArray FWrite(const char* pszFilePath = NULL);
-
-	int		GetType();
-	void	SetType(int nType);
-	int		GetStateID();
-	void	SetStateID(int nID);
-	QByteArray	GetPTID();
-	void	SetPTID(const char *pt_id);
-	int		GetCPUID();
-	void	SetCPUID(int nCPUID);
-	int		GetZoneID();
-	void	SetZoneID(int nZoneID);
-	int		GetFlags();
-	void	SetFlags(int nFlags);
-};
-
-class QLogTable1 : public QByteArrayMatrix
-{
-public:
-	QLogTable1();
-	QLogTable1(const char *);
-	QLogTable1(const char *, const char *delim_row, const char *delim_col);
-	
-	virtual QByteArray FWrite(const char* pszFilePath = NULL);
-	
-	int		GetRecordCount();
-	QByteArray	GetRecord(int iRow);
-	
-	QByteArray& Revert(int iRow);
-	QByteArray& Insert(char *pszRecord, int iLen = -1);
-
-};
 
 class QPTSetDataTable;
 class QPTSetStateTable : public QMemTable
