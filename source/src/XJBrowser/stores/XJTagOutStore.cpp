@@ -44,8 +44,9 @@ public:
 //
 CXJTagOutStorePrivate::CXJTagOutStorePrivate()
 {
-	m_data_PTSet.m_pState = &m_state;
 	m_state.m_pData = &m_data_PTSet;
+	m_data_PTSet.m_pState = &m_state;
+	m_data_PTZone.m_pState = &m_state;
 }
 
 CXJTagOutStorePrivate::~CXJTagOutStorePrivate()

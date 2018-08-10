@@ -577,6 +577,8 @@ public:
 
 	// 执行定值的修改
 	BOOL ExcutePTSet();
+	// 执行定值区的修改
+	void ExcutePTSet_Zone();
 
 	void AddValueCol( int nQueryNo );
 	void FillHisData( int nQueryNo );

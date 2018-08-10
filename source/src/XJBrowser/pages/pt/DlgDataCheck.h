@@ -15,7 +15,8 @@ class CDlgDataCheck : public CDialog
 // Construction
 public:
 	//##ModelId=49B87BA402E1
-	CDlgDataCheck(CWnd* pParent = NULL, int nType = 1, int nTagOutType = XJ_TAGOUT_PTVALVSET);   // standard constructor
+	CDlgDataCheck(CWnd* pParent = NULL, int nUserGroupType = XJ_USERGROUP_MONITOR
+		, int nTagOutType = XJ_TAGOUT_PTVALVSET);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CDlgDataCheck)

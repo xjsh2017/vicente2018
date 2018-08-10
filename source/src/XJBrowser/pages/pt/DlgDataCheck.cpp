@@ -134,7 +134,7 @@ BOOL CDlgDataCheck::OnInitDialog()
 	InitListStyle1();
 	FillData1();
 
-	if (m_nType ==0)
+	if (m_nType == XJ_USERGROUP_RUNNER)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
 		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET)
@@ -142,7 +142,7 @@ BOOL CDlgDataCheck::OnInitDialog()
 		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
 			pPTZoneData->ReLoad();
 	}
-	else if (m_nType ==1)
+	else if (m_nType == XJ_USERGROUP_MONITOR)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
 		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET)
@@ -150,7 +150,7 @@ BOOL CDlgDataCheck::OnInitDialog()
 		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
 			pPTZoneData->ReLoad();
 	}
-	else if (m_nType ==2)
+	else if (m_nType == XJ_USERGROUP_OPERATOR)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
 	}
@@ -184,6 +184,9 @@ void CDlgDataCheck::UpdateLabels1()
 		m_sZone = QByteArray::number(pTagOutState->GetZoneID()).constData();
 	
 	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pTagOutState->GetPTID().constData(), TYPE_SEC);
+
+	if (!pObj)
+		AfxMessageBox("null pObj");
 
 	if (m_nTagOutType == XJ_TAGOUT_PTVALVSET){
 		m_strDESC.Format("装置[%s]在[%s]号CPU[%s]号定值区上的定值将做如下更改："

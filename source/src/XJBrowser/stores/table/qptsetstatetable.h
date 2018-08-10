@@ -141,7 +141,7 @@ public:
 	
 public:	
 	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
-	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, QByteArray &newZoneValue);
+	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, QByteArray &oldZoneValue, QByteArray &newZoneValue);
 	BOOL		Save(const char *pszFilePath = NULL);		
 	
 	BOOL		RevertModifiy();	// 修改值列清空保存

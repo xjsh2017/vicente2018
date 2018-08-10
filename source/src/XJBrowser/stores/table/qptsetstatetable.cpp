@@ -1122,6 +1122,11 @@ QPTZoneDataTable::~QPTZoneDataTable()
 BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id)
 {
 	BOOL bReturn = FALSE;
+
+	if (!m_pState){
+		AfxMessageBox("no QPTSetStateTable instance assigned to QPTZoneDataTable");
+		return FALSE;
+	}
 	
 	LoadInfo("tb_pt_zone_def");
 	//LoadDataAll();
@@ -1144,14 +1149,16 @@ BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id)
 	return bReturn;
 }
 
-BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone, QByteArray &newZoneValue)
+BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone
+							  , QByteArray &oldZoneValue
+							  , QByteArray &newZoneValue)
 {
 	BOOL bReturn = FALSE;
 	
 	ReLoad(pt_id);
 
 	QByteArray chagVal;
-	chagVal << "1," << newZoneValue;
+	chagVal << oldZoneValue << "," << newZoneValue;
 	SetFieldValue(1, "reserve3", chagVal);
 	Save("c:/tb_pt_zone_def.txt");
 	

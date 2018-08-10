@@ -3154,6 +3154,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
 	
+	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 
@@ -3190,8 +3191,6 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		if (sUserID.isEmpty()){
 			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT);
 		}
-		
-		CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
 			
