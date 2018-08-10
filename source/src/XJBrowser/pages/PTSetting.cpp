@@ -3759,10 +3759,12 @@ void CPTSetting::ExcutePTSet_Zone()
 			WriteLog(str, XJ_LOG_LV2);
 		}
 		AfxMessageBox( StringFromID(IDS_CALL_SENDMSG_FAIL));
+
 		//回复修改前的值
 		RevertModifyValue(2);
 		m_bMonVerify = false;
 		m_bOperVerify = false;
+		UpdateControlsEnable();
 		//m_btnModifySetting.EnableWindow(false);
 		//m_btnModifyZone.EnableWindow(false);
 		//m_btnVerify2.EnableWindow(false);
@@ -3770,7 +3772,6 @@ void CPTSetting::ExcutePTSet_Zone()
 		m_sMonUser = _T("");
 
 		//回复修改前的值
-		RevertModifyValue(2);
 		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_5, sUserID.constData()
 			, QByteArray(str.GetBuffer(0)));
@@ -4736,14 +4737,9 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 		return;
 
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
-	/*
-	if (g_bVerify)
-	{
-		//验证权限,修改定值需要控制权限
-		if(!pApp->TryEnter(FUNC_XJBROWSER_CONTROL))
-			return;
-	}
-	*/
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable* pPTZoneData = pTagOutStore->GetPTZoneData();
 	
 	//检查通讯情况
 	if(!pApp->GetSTTPStatus())
@@ -4772,10 +4768,6 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 		m_sModifyZone = strText;
 
 		// 载入新值
-		CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
-		QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
-		
-		QPTZoneDataTable* pPTZoneData = pTagOutStore->GetPTZoneData();
 		pPTZoneData->ReLoad(QByteArray(m_pObj->m_sID.GetBuffer(0))
 			, atoi(m_sCPU), atoi(m_sZone)
 			, QByteArray(m_sOldZoneValue.GetBuffer(0))
@@ -4830,7 +4822,9 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 					m_sOperUser = dlgUser.m_strUser;
 					
 					pTagOutState->Next_PTSET_ZONE_STATE_2(atoi(m_sCPU), atoi(m_sZone)
-						, m_sOperUser.GetBuffer(0), m_arrModifyList, m_arrSetting);
+						, m_sOperUser.GetBuffer(0)
+						, QByteArray(m_sOldZoneValue.GetBuffer(0))
+						, QByteArray(m_sModifyZone.GetBuffer(0)));
 				}
 				else
 				{
@@ -4852,6 +4846,8 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 			//不同意修改
 			//回复修改前的值
 			RevertModifyValue(2);
+			m_bMonVerify = false;
+			m_bOperVerify = false;
 			UpdateControlsEnable();
 			return;
 		}
@@ -4875,8 +4871,6 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 				if(dlgUser.DoModal() == IDOK)
 				{
 					m_sMonUser = dlgUser.m_strUser;
-					
-					CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 					
 					pTagOutState->Next_PTSET_ZONE_STATE_3(m_sMonUser.GetBuffer(0));
 				}
@@ -4902,6 +4896,8 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 			//不同意修改
 			//回复修改前的值
 			RevertModifyValue(2);
+			m_bMonVerify = false;
+			m_bOperVerify = false;
 			UpdateControlsEnable();
 			
 			str.Format("用户[%s]以监护员身份验证失败：不同意修改", m_sMonUser);
@@ -5058,6 +5054,7 @@ void CPTSetting::OnSTTP20048( WPARAM wParam,LPARAM lParam )
 	}
 	else
 	{
+		AfxMessageBox(StringFromID(IDS_VERIFY_FAIL));
 		m_bMonVerify = false;
 		m_bOperVerify = false;
 		m_sOperUser = _T("");
@@ -5078,8 +5075,6 @@ void CPTSetting::OnSTTP20048( WPARAM wParam,LPARAM lParam )
 		// 重启定时
 		KillTimer(m_nPTSetTimer);
 		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
-
-		AfxMessageBox(StringFromID(IDS_VERIFY_FAIL));
 	}
 
 	m_bChecking = FALSE;

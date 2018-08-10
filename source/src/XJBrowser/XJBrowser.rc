@@ -2487,7 +2487,7 @@ BEGIN
                     16,165,9
     CONTROL         "List1",IDC_LIST_CTRL1,"SysListView32",LVS_REPORT | 
                     LVS_SINGLESEL | WS_BORDER | WS_TABSTOP,20,72,249,119
-    LTEXT           "请指定工作人员：",IDC_STATIC,20,56,248,9
+    LTEXT           "请指定工作人员（可选）：",IDC_STATIC,20,56,248,9
     PUSHBUTTON      "保存设置",IDC_BTN_SAVE,194,198,50,14,WS_DISABLED
 END
 

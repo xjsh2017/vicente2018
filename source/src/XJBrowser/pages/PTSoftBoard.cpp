@@ -5,13 +5,16 @@
 #include "xjbrowser.h"
 #include "PTSoftBoard.h"
 #include "DlgCheck.h"
+#include "DlgDataCheck.h"
 #include "DlgValidateID.h"
+#include "DlgValidateUser.h"
 #include "GlobalFunc.h"
 
 #include "MainFrm.h"
 #include "DlgOperHis.h"
 
 #include "XJTagOutStore.h"
+#include "XJUserStore.h"
 #include "qptsetstatetable.h"
 
 
@@ -59,6 +62,7 @@ CPTSoftBoard::CPTSoftBoard()
 	m_sCPU = "";
 	m_nNewValueIndex = 3;
 	m_nCurrentStatus = 0;
+	m_nCurrentDetailStatus = 0;
 	m_nTimer = 0;
 	m_nRecordTimer = 0;
 	m_nOPTime = 0;
@@ -1794,6 +1798,9 @@ void CPTSoftBoard::UpdateControlsEnable()
 //##ModelId=49B87B8A038A
 void CPTSoftBoard::OnBtnPtsoftModify() 
 {
+	OnBtnPtsoftModify2();
+	return;
+
 	// TODO: Add your control notification handler code here
 	//响应按钮按下操作, 召唤或取消召唤
 	m_bChecking = FALSE;
@@ -2015,6 +2022,281 @@ void CPTSoftBoard::OnBtnPtsoftModify()
 		m_bOperVerify = false;
 		UpdateControlsEnable();
 		return;
+	}
+}
+
+void CPTSoftBoard::OnBtnPtsoftModify2() 
+{
+	// TODO: Add your control notification handler code here
+	//响应按钮按下操作, 召唤或取消召唤
+	m_bChecking = FALSE;
+	CString str;
+
+	if(m_pObj == NULL)
+		return;
+
+	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTSoftDataTable* pPTSoftData = pTagOutStore->GetPTSoftData();
+
+	//检查通讯情况
+	if(!pApp->GetSTTPStatus())
+	{
+		AfxMessageBox(STTP_DISCONNECT);
+		CString strOut;
+		//收集被修改的值
+		CheckModifyData(m_arrModifyList, strOut);
+		//回复修改前的值
+		RevertModifyValue();
+		return;
+	}
+
+	if(m_nCurrentStatus == 0)
+	{
+		//空闲状态
+		//检查用户有否修改定值
+		if(m_List.m_arrEdited.GetSize() <= 0)
+		{
+			//无修改定值, 提示先修改
+			AfxMessageBox(StringFromID(IDS_TIP_EDIT_SOFT));
+			//return;
+		}
+
+		m_nOperationNum = GetOperationNum();
+		
+		//组建要修改值的链表
+		m_strOutPut = "";
+		//记录新值
+		CheckModifyData(m_arrModifyList, m_strOutPut);
+
+		// 载入新值
+		pPTSoftData->ReLoad(QByteArray(m_pObj->m_sID.GetBuffer(0))
+			, atoi(m_sCPU), m_arrModifyList, m_arrSoftBoard);
+		
+		//操作员确认
+		CDlgDataCheck dlgCheck(this, XJ_USERGROUP_OPERATOR, XJ_TAGOUT_PTSOFTSET);
+		dlgCheck.m_strModify = m_strOutPut;
+		dlgCheck.m_sCPU = m_sCPU;
+		if(dlgCheck.DoModal() == IDOK)
+		{
+			if(g_PTControlModel == 1)
+			{
+				//普通模式,要求操作员验证
+				CDlgValidateUser dlgUser(XJ_USERGROUP_OPERATOR);
+				dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+				QByteArray sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+				dlgUser.m_strUser = sUserID.constData();
+				if (!sUserID.isEmpty())
+					dlgUser.m_strAuthUserID = sUserID.constData();
+				if(dlgUser.DoModal() == IDOK)
+				{
+					if (dlgUser.m_strAuthUserID.IsEmpty()){
+						pTagOutStore->ReLoadState();
+						int nPTSetState = pTagOutState->GetStateID();
+						
+						CString str;
+						if (XJ_OPER_HANGOUT != nPTSetState){
+							CString sCurUserID = pTagOutState->GetOperUserID().constData();
+							str.Format("用户[%s]正在对该装置进行软压板投退操作 或者 该装置已取消了挂牌，请稍后再试"
+								, sCurUserID);
+							AfxMessageBox(str, MB_OK | MB_ICONWARNING);
+							
+							RevertModifyValue();
+							return;
+						}
+					}
+					m_sOperUser = dlgUser.m_strUser;
+					
+					pTagOutState->Next_PTSET_SOFT_STATE_2(atoi(m_sCPU)
+						, m_sOperUser.GetBuffer(0), m_arrModifyList, m_arrSoftBoard);
+				}
+				else
+				{
+					//无操作权限
+					//回复修改前的值
+					RevertModifyValue();
+
+					str.Format("用户[%s]以操作员身份验证失败：密码验证有误", m_sOperUser);
+					WriteLog(str, XJ_LOG_LV2);
+					pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_2, m_sOperUser.GetBuffer(0)
+						, QByteArray(str.GetBuffer(0)));
+
+					return;
+				}
+			}
+			
+		}
+		else
+		{
+			//不同意修改
+			//回复修改前的值
+			RevertModifyValue();
+			m_bMonVerify = false;
+			m_bOperVerify = false;
+			UpdateControlsEnable();
+			return;
+		}
+
+		pPTSoftData->UnitTest_01();
+
+		//监护员确认
+		CDlgDataCheck dlg1(this, XJ_USERGROUP_MONITOR, XJ_TAGOUT_PTSOFTSET);
+		dlg1.m_strModify = m_strOutPut;
+		dlg1.m_sCPU = m_sCPU;
+		if(dlg1.DoModal() == IDOK)
+		{
+			if(g_PTControlModel == 1)
+			{
+				//普通模式,要求监护员验证
+				CDlgValidateUser dlgUser(XJ_USERGROUP_MONITOR);
+				dlgUser.m_strFuncID = FUNC_XJBROWSER_CUSTODY;
+				QByteArray sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_3);
+				dlgUser.m_strUser = sUserID.constData();
+				if (!sUserID.isEmpty())
+					dlgUser.m_strAuthUserID = sUserID.constData();
+				if(dlgUser.DoModal() == IDOK)
+				{
+					m_sMonUser = dlgUser.m_strUser;
+					
+					pTagOutState->Next_PTSET_SOFT_STATE_3(m_sMonUser.GetBuffer(0));
+				}
+				else
+				{
+					m_sMonUser = dlgUser.m_strUser;
+
+					//无操作权限
+					//回复修改前的值
+					RevertModifyValue();
+
+					str.Format("用户[%s]以监护员身份验证失败：密码验证有误", m_sMonUser);
+					WriteLog(str, XJ_LOG_LV2);
+					pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_3, m_sMonUser.GetBuffer(0)
+						, QByteArray(str.GetBuffer(0)));
+
+					return;
+				}
+			}
+			
+		}
+		else
+		{
+			//不同意修改
+			//回复修改前的值
+			RevertModifyValue();
+			m_bMonVerify = false;
+			m_bOperVerify = false;
+			UpdateControlsEnable();
+
+			str.Format("用户[%s]以监护员身份验证失败：不同意修改", m_sMonUser);
+			WriteLog(str, XJ_LOG_LV2);
+			pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_3, m_sMonUser.GetBuffer(0)
+					, QByteArray(str.GetBuffer(0)));
+
+			return;
+		}
+		
+		// ExcutePTSet_Soft();
+	}
+	else if(m_nCurrentStatus == 2)
+	{
+		//软压板投退状态
+		CancelCall();
+		m_bMonVerify = false;
+		m_bOperVerify = false;
+		UpdateControlsEnable();
+	}
+	else 
+	{
+		CString strOut;
+		//收集被修改的值
+		CheckModifyData(m_arrModifyList, strOut);
+		//回复修改前的值
+		RevertModifyValue();
+		m_bMonVerify = false;
+		m_bOperVerify = false;
+		UpdateControlsEnable();
+		return;
+	}
+}
+
+void CPTSoftBoard::ExcutePTSet_Soft()
+{
+	if (0 != m_nCurrentStatus)
+		return;
+
+	if (NULL == m_pObj){
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+		RevertModifyValue();
+		return;
+	}
+
+	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	
+	CString str;
+
+	//组建报文
+	STTP_FULL_DATA sttpData;
+	pApp->m_SttpEngine.BuildDataFor20117SoftBoardModify(sttpData, m_pObj->m_sID, atoi(m_sCPU), &m_arrModifyList);
+	
+	//发送报文
+	int nReturn = pApp->m_SttpEngine.XJSTTPWrite(pApp->m_SttpHandle, sttpData);
+	//判断是否成功
+	if(nReturn != 1)
+	{
+		//失败
+		if(nReturn == -1)
+		{
+			str.Format("保护[%s]发送软压板投退报文失败,原因为连接中断", m_pObj->m_sName);
+			WriteLog(str, XJ_LOG_LV2);
+		}
+		else if(nReturn == -2)
+		{
+			str.Format("保护[%s]发送软压板投退报文失败,原因为缓存已满", m_pObj->m_sName);
+			WriteLog(str, XJ_LOG_LV2);
+		}else{
+			str.Format("保护发送软压板投退报文失败: [%s]", m_pObj->m_sName);
+			WriteLog(str, XJ_LOG_LV2);
+		}
+		AfxMessageBox(StringFromID(IDS_CALL_SENDMSG_FAIL));
+
+		//回复修改前的值
+		RevertModifyValue();
+		m_bMonVerify = false;
+		m_bOperVerify = false;
+		m_sOperUser = _T("");
+		m_sMonUser = _T("");
+		UpdateControlsEnable();
+
+		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_5, sUserID.constData()
+			, QByteArray(str.GetBuffer(0)));
+		
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+	}
+	else
+	{
+		//成功,状态改为正在软压板投退
+		m_nCurrentStatus = 2;
+		
+		m_bChecking = TRUE;
+		
+		//启动定时器
+		CDataEngine* pData = pApp->GetDataEngine();
+		int nTimeOut = pData->m_nChangeSBTimeOut;
+		m_nTimer = SetTimer(1, nTimeOut*1000, 0);
+		
+		//增加人工操作
+		//pApp->AddManOperator(FUNC_OPT_SETSOFTBOARD, m_pObj->m_sID);
+		
+		//改变控件可用性
+		UpdateControlsEnable();
+		
+		CString str;
+		str.Format("保护[%s]发送软压板投退报文成功", m_pObj->m_sName);
+		WriteLog(str, XJ_LOG_LV2);
 	}
 }
 
@@ -2748,14 +3030,20 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		CString str;
 		CXJBrowserApp *pApp = (CXJBrowserApp*)AfxGetApp();
 		
-		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
-		QPTSetStateTable *pState = pStore->GetState();
+		CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+		CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+		QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 		
-		int nPTSetState = pState->GetStateID();
-		int nHangoutType = pState->GetType();
+		int nPTSetState = pTagOutState->GetStateID();
+		int nHangoutType = pTagOutState->GetType();
 		
-		CString sRunnerUserID = pState->GetRunnerUserID().constData();
-		CString sOperUserID = pState->GetOperUserID().constData();
+		QByteArray baOperUserID;
+		QByteArray baRunUserID;
+		
+		baOperUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+		baRunUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_HANGOUT);
+		CString sRunnerUserID = baRunUserID.constData();
+		CString sOperUserID = baOperUserID.constData();
 		
 		// 软压板投退按钮是否可用： 
 		if (XJ_OPER_HANGOUT == nPTSetState 
@@ -2768,7 +3056,7 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		
 		// 软压板投退按钮是否可见
 		if (XJ_OPER_UNHANGOUT != nPTSetState 
-			&& CString(pState->GetPTID().constData()) == m_pObj->m_sID
+			&& CString(pTagOutState->GetPTID().constData()) == m_pObj->m_sID
 			&& XJ_TAGOUT_PTSOFTSET == nHangoutType
 			&& (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_OPERATOR)
 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)))
@@ -2777,7 +3065,7 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 			m_btnModify.ShowWindow(SW_HIDE);
 		
 		// 查看挂牌进度按钮是否可见
-		if (XJ_OPER_UNHANGOUT != nPTSetState && CString(pState->GetPTID().constData()) == m_pObj->m_sID
+		if (XJ_OPER_UNHANGOUT != nPTSetState && CString(pTagOutState->GetPTID().constData()) == m_pObj->m_sID
 			&& XJ_TAGOUT_PTSOFTSET == nHangoutType){
 			m_btnViewProg.ShowWindow(SW_SHOW);
 			if (XJ_TAGOUT_PTSOFTSET != nHangoutType)
@@ -2786,31 +3074,37 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		else
 			m_btnViewProg.ShowWindow(SW_HIDE);
 		
-		/*if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
-			if (4 == nPTSetState && 0 == m_nCurrentDetailStatus){	
+		if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
+			if (XJ_OPER_PTSOFTSET_STATE_3 == nPTSetState && 0 == m_nCurrentDetailStatus){
+				AfxMessageBox("监护员已验证软压板修改内容，修改内容将下发到子站，单击<确定>将执行修改"
+					, MB_OK|MB_ICONINFORMATION);	
 				m_nCurrentDetailStatus = 1;
 				
-				AfxMessageBox("运行人员已验证定值单内容，定值修改内容将下发到子站，单击<确定>将执行定值修改"
-					, MB_OK|MB_ICONINFORMATION);
-				
-				pStore->ReLoadState();
-				nPTSetState = pState->GetStateID();
-				if (0 == nPTSetState){
-					AfxMessageBox("运行人员已经取消了相应装置的挂牌，此次定值修改取消！");
+				pTagOutStore->ReLoadState();
+				nPTSetState = pTagOutState->GetStateID();
+				if (XJ_OPER_UNHANGOUT == nPTSetState){
+					AfxMessageBox("运行员已经取消了相应装置的挂牌，此次定值区修改取消！");
 					RevertModifyValue();
-					pStore->RevertModify();
+					//pStore->RevertModify();
 					m_nCurrentDetailStatus = 0;
 				}else{
-					pApp->SetRevertModifyValueFlag(2);	// 不允许此时取消挂牌操作
-					ExcutePTSet();
+					pTagOutState->SetFlags(2);		// 不允许此时取消挂牌操作
+					ExcutePTSet_Soft();
 				}
 			}
-		}*/
-		
-		if (pState->GetFlags() == 1 && CString(pState->GetPTID().constData()) == m_pObj->m_sID){
+		}
+
+		if (pTagOutState->GetFlags() == 1 && CString(pTagOutState->GetPTID().constData()) == m_pObj->m_sID
+			&& pApp->m_User.m_strUSER_ID == sOperUserID){
+			// 只有修改软压板的用户才执行界面回复操作
+			KillTimer(m_nPTSetTimer);
+
 			RevertModifyValue();
-			pState->SetFlags(0);
-			pStore->Save();
+			pTagOutState->SetFlags(0);
+			pTagOutState->Save();
+
+			// 启用定时器
+			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
 		}
 		
 		// 启用定时器

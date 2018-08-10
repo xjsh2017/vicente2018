@@ -28,9 +28,8 @@
 class QPTSetStateTable;
 
 class QPTSetDataTable;
-class QPTSetZoneDataTable;
-class QPTSetSBDataTable;
 class QPTZoneDataTable;
+class QPTSoftDataTable;
 
 class CXJTagOutStorePrivate;
 class CXJTagOutStore : public CXJRootStore
@@ -68,6 +67,9 @@ public:
 	
 	/** @brief           定值区切换数据表*/
 	QPTZoneDataTable*	GetPTZoneData();
+	
+	/** @brief           软压板投退数据表*/
+	QPTSoftDataTable*	GetPTSoftData();
 
 // Operations
 public:

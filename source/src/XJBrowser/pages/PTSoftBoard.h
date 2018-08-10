@@ -112,6 +112,8 @@ private:
 	/** @brief			查询号,最大值1000，超过1000后从0开始计数*/
 	int			m_nQueryNo;
 	CHisValueMgr	m_HisValueMgr;
+	/** @brief           当前状态. 0-空闲. 1-正在执行软压板投退*/
+	int m_nCurrentDetailStatus;
 
 private:
 	CPtrList	m_listThread;
@@ -389,12 +391,16 @@ protected:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+	// 执行软压板投退的修改
+	void ExcutePTSet_Soft();
+
 	// Generated message map functions
 	//{{AFX_MSG(CPTSoftBoard)
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnDestroy();
 	afx_msg void OnBtnPtsoftCall();
 	afx_msg void OnBtnPtsoftModify();
+	afx_msg void OnBtnPtsoftModify2();
 	afx_msg void OnBtnViewProg();
 	afx_msg void OnBtnViewHis();
 	afx_msg void OnSelchangeCmbPtsoftCpu();

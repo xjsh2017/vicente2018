@@ -57,6 +57,14 @@ private:
 	void FillData();
 	void FillData1();
 
+	/*
+	 *  @brief   	DisplayValue	 得到软压板的值显示字符串 
+	 *  @param 		[In]a param of Type  int  软压板值
+	 *  @return 	CString 显示值
+	 */
+	//##ModelId=49B87B8A0225
+	CString DisplayValue(int nValue);
+
 // Implementation
 protected:
 

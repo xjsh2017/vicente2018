@@ -125,8 +125,9 @@ BOOL CDlgDataCheck::OnInitDialog()
 
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
-	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
 	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSoftDataTable *pPTSoftData = pTagOutStore->GetPTSoftData();
 	
 	// TODO: Add extra initialization here
 	
@@ -141,6 +142,8 @@ BOOL CDlgDataCheck::OnInitDialog()
 			pPTSetData->ReLoad();
 		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
 			pPTZoneData->ReLoad();
+		else if (m_nTagOutType == XJ_TAGOUT_PTSOFTSET)
+			pPTSoftData->ReLoad();
 	}
 	else if (m_nType == XJ_USERGROUP_MONITOR)
 	{
@@ -149,6 +152,8 @@ BOOL CDlgDataCheck::OnInitDialog()
 			pPTSetData->ReLoad();
 		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
 			pPTZoneData->ReLoad();
+		else if (m_nTagOutType == XJ_TAGOUT_PTSOFTSET)
+			pPTSoftData->ReLoad();
 	}
 	else if (m_nType == XJ_USERGROUP_OPERATOR)
 	{
@@ -171,8 +176,9 @@ void CDlgDataCheck::UpdateLabels1()
 	
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
-	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
 	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSoftDataTable *pPTSoftData = pTagOutStore->GetPTSoftData();
 	pTagOutStore->ReLoadState();
 	
 	int nPTSetState = pTagOutState->GetStateID();
@@ -194,6 +200,9 @@ void CDlgDataCheck::UpdateLabels1()
 	}else if (m_nTagOutType == XJ_TAGOUT_PTZONESET){
 		m_strDESC.Format("装置[%s]在[%s]号CPU上的定值区将做如下更改："
 		, pObj->m_sName, m_sCPU);
+	}else if (m_nTagOutType == XJ_TAGOUT_PTSOFTSET){
+		m_strDESC.Format("装置[%s]在[%s]号CPU上的软压板投退将做如下更改："
+			, pObj->m_sName, m_sCPU);
 	}
 	//AfxMessageBox(m_strDESC);
 	UpdateData(FALSE);
@@ -205,6 +214,7 @@ int CDlgDataCheck::InitListStyle1()
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
 	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	QPTSoftDataTable *pPTSoftData = pTagOutStore->GetPTSoftData();
 	
 	//空图形列表, 用来调整行高
 	CImageList   m_l;   
@@ -286,6 +296,40 @@ int CDlgDataCheck::InitListStyle1()
 				if (showCols.valueContains(iCol))
 					m_List.SetColumnHide(iCol, FALSE);
 			}
+		}else if (m_nTagOutType == XJ_TAGOUT_PTSOFTSET){
+			nCols = pPTSoftData->GetFieldCount() + 3;  // 增加3列： 序号、原状态、新状态
+			
+			showCols << "0,3,4"
+				<< "," << nCols - 2 
+				<< "," << nCols - 1;
+			
+			lenCols << "50,80,180,80,80";
+			
+			//AfxMessageBox(showCols.constData());
+			
+			for (int iCol = 0; iCol < nCols; iCol++){
+				lvCol.cx = 80;
+				
+				int nShowColsIdx = showCols.valueIndexOf(iCol);
+				if (nShowColsIdx > 0){
+					lvCol.cx = lenCols.GetFieldValue(1, nShowColsIdx).toInt();
+				}
+				
+				if (iCol == 0){
+					lvCol.pszText = "序号";
+				}else if (iCol == nCols - 2){
+					lvCol.pszText = "原状态";
+				}else if (iCol == nCols - 1){
+					lvCol.pszText = "新状态";
+				}else{
+					lvCol.pszText = pPTSoftData->GetFieldName(iCol, XJ::LANG_CHS).data();
+				}
+				int result = m_List.InsertColumn(iCol, &lvCol);
+				m_List.SetColumnHide(iCol, TRUE);
+				
+				if (showCols.valueContains(iCol))
+					m_List.SetColumnHide(iCol, FALSE);
+			}
 		}
 	}
 	//设置风格
@@ -299,6 +343,7 @@ void CDlgDataCheck::FillData1()
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
 	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	QPTSoftDataTable *pPTSoftData = pTagOutStore->GetPTSoftData();
 	
 	//填充数据时禁止刷新
 	m_List.SetRedraw(FALSE);
@@ -369,6 +414,50 @@ void CDlgDataCheck::FillData1()
 			
 			nIndex++;
 		}
+	}else if (m_nTagOutType == XJ_TAGOUT_PTSOFTSET){
+		nRowCount = pPTSoftData->GetRowCount();
+		nFieldCount = pPTSoftData->GetFieldCount() + 3;
+		
+		nIndex = 0;
+		for(int i = 1; i <= nRowCount; i ++)
+		{
+			str.Format("%d", nIndex + 1);
+			m_List.InsertItem(nIndex, str); //ID
+			
+			for (int j = 1; j < nFieldCount; j++){
+				str = pPTSoftData->GetFieldValue(i, j).constData();
+				m_List.SetItemText(nIndex, j, str);
+				
+				if (j == nFieldCount - 2){
+					QByteArrayMatrix val = pPTSoftData->GetFieldValue(i, "reserve3");
+
+					CString strShow;
+					QByteArray s = val.GetFieldValue(1, 1);
+					if (s.isEmpty())
+						strShow = "";
+					else{
+						strShow = DisplayValue(s.toInt());
+					}
+					m_List.SetItemText(nIndex, j, strShow);
+				}else if(j == nFieldCount - 1){
+					QByteArrayMatrix val = pPTSoftData->GetFieldValue(i, "reserve3");
+
+					CString strShow;
+					QByteArray s = val.GetFieldValue(1, 2);
+					if (s.isEmpty())
+						strShow = m_List.GetItemText(nIndex, j - 1);
+					else
+						strShow = DisplayValue(s.toInt());
+
+					m_List.SetItemText(nIndex, j, strShow);
+				}
+			}
+			
+			m_List.SetItemData(nIndex, (DWORD)NULL);
+			
+			
+			nIndex++;
+		}
 	}
 	
 	//恢复刷新
@@ -378,6 +467,36 @@ void CDlgDataCheck::FillData1()
 	
 	//WriteLog("CDlgDataCheck::FillListData, 结束", XJ_LOG_LV3);
 }
+
+CString CDlgDataCheck::DisplayValue( int nValue )
+{
+	//软压板值显示风格: 0: 1/0, 1: ON/OFF, 3: 投/退.
+	if(0 == g_PTSoftStyle)
+	{
+		if(1 == nValue)
+			return "1";
+		else if(0 == nValue)
+			return "0";
+	}
+	if(1 == g_PTSoftStyle)
+	{
+		if(1 == nValue)
+			return "ON";
+		else if(0 == nValue)
+			return "OFF";
+	}
+	if(2 == g_PTSoftStyle)
+	{
+		if(1 == nValue)
+			return StringFromID(IDS_CASE_COMMISSIONING);
+		else if(0 == nValue)
+			return StringFromID(IDS_CASE_CEASING);
+	}
+	CString str;
+	str.Format("%d", nValue);
+	return str;
+}
+
 
 void CDlgDataCheck::UpdateLabels()
 {

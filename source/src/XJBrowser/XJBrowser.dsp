@@ -127,6 +127,14 @@ SOURCE=.\pages\pt\PTSetProgView.cpp
 SOURCE=.\pages\pt\PTSetStateItem.cpp
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\pages\PTSetting.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\PTSoftBoard.cpp
+# End Source File
 # End Group
 # Begin Group "stores"
 
@@ -702,15 +710,7 @@ SOURCE=.\PTOSCList.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PTSetting.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\PTSheet.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PTSoftBoard.cpp
 # End Source File
 # Begin Source File
 
@@ -1052,6 +1052,14 @@ SOURCE=.\pages\pt\PTSetProgView.h
 SOURCE=.\pages\pt\PTSetStateItem.h
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\pages\PTSetting.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pages\PTSoftBoard.h
+# End Source File
 # End Group
 # Begin Group "stores "
 
@@ -1651,15 +1659,7 @@ SOURCE=.\PTOSCList.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\PTSetting.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\PTSheet.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PTSoftBoard.h
 # End Source File
 # Begin Source File
 

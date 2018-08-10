@@ -21,9 +21,12 @@ struct PT_SETTING_DATA{
 };
 typedef CTypedPtrArray<CPtrArray, PT_SETTING_DATA*>		PT_SETTING_DATA_LIST;
 typedef CTypedPtrArray<CPtrArray, PT_SETTING*>			PT_SETTING_LIST;
+typedef CTypedPtrArray<CPtrArray, PT_SOFTBOARD*>		PT_SOFTBOARD_LIST;
 
 
 class QPTSetDataTable;
+class QPTZoneDataTable;
+class QPTSoftDataTable;
 class QPTSetStateTable : public QMemTable
 {
 public:
@@ -91,6 +94,7 @@ public:
 	void		Next_0(const char *pszUserID);
 	void		Next_1(const char *pszUserID, const char *pt_id, const char * pszHangoutReason);
 
+	// 定值修改
 	void		Next_PTSet_State_2(int nCPU, int nZone, const char *pszUserID
 								, const MODIFY_LIST &arrModifyList
 								, const PT_SETTING_LIST &arrSetting);
@@ -98,17 +102,28 @@ public:
 	void		Next_PTSet_State_4(const char *pszUserID);
 	void		Next_PTSet_State_5(const char *pszUserID);
 
+	// 定值组切换
 	void		Next_PTSET_ZONE_STATE_2(int nCPU, int nZone, const char *pszUserID
-								, const MODIFY_LIST &arrModifyList
-								, const PT_SETTING_LIST &arrSetting);
+								, QByteArray &oldZoneValue, QByteArray &newZoneValue);
 	void		Next_PTSET_ZONE_STATE_3(const char *pszUserID);
 	void		Next_PTSET_ZONE_STATE_4(const char *pszUserID);
 	void		Next_PTSET_ZONE_STATE_5(const char *pszUserID);
 
+	// 软压板投退
+	void		Next_PTSET_SOFT_STATE_2(int nCPU, const char *pszUserID
+								, const MODIFY_LIST &arrModifyList
+								, const PT_SOFTBOARD_LIST &arrSoftBoard);
+	void		Next_PTSET_SOFT_STATE_3(const char *pszUserID);
+	void		Next_PTSET_SOFT_STATE_4(const char *pszUserID);
+	void		Next_PTSET_SOFT_STATE_5(const char *pszUserID);
+
+
 	void		RevertTo_PTSet_State_1(int nFrom_PTSetStateID, const char* pszUserID, QByteArray &strMsg = QByteArray());
 
 public:
-	QPTSetDataTable*	m_pData;
+	QPTSetDataTable*	m_pData_Valv;
+	QPTZoneDataTable*	m_pData_Zone;
+	QPTSoftDataTable*	m_pData_Soft;
 
 };
 
@@ -121,7 +136,8 @@ public:
 public:	
 	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
 	BOOL		ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
-	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
+	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone
+						, const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
 	BOOL		Save(const char *pszFilePath = NULL);		
 
 	BOOL		RevertModifiy();	// 修改值列清空保存
@@ -142,6 +158,27 @@ public:
 public:	
 	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
 	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, QByteArray &oldZoneValue, QByteArray &newZoneValue);
+	BOOL		Save(const char *pszFilePath = NULL);		
+	
+	BOOL		RevertModifiy();	// 修改值列清空保存
+	BOOL		SaveModify();	// 修改值替换原值保存
+	
+	void		UnitTest_01();
+	
+	QPTSetStateTable*	m_pState;
+	
+};
+
+class QPTSoftDataTable : public QMemTable
+{
+public:
+	QPTSoftDataTable();
+	~QPTSoftDataTable();
+	
+public:	
+	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
+	BOOL		ReLoad(QByteArray &pt_id, int nCPU
+							, const MODIFY_LIST &arrModifyList, const PT_SOFTBOARD_LIST &arrSoftBoard);
 	BOOL		Save(const char *pszFilePath = NULL);		
 	
 	BOOL		RevertModifiy();	// 修改值列清空保存

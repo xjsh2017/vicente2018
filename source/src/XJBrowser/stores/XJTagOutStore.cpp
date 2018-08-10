@@ -22,8 +22,11 @@ public:
 	/** @brief           定值修改数据表*/
 	QPTSetDataTable		m_data_PTSet;
 
-	/** @brief           定值区修改数据表*/
+	/** @brief           定值组切换数据表*/
 	QPTZoneDataTable	m_data_PTZone;
+	
+	/** @brief           软压板投退数据表*/
+	QPTSoftDataTable	m_data_PTSoft;
 
 	BOOL		ReLoadState();
 	int			CheckState(int nTagOutType);
@@ -44,9 +47,13 @@ public:
 //
 CXJTagOutStorePrivate::CXJTagOutStorePrivate()
 {
-	m_state.m_pData = &m_data_PTSet;
+	m_state.m_pData_Valv = &m_data_PTSet;
+	m_state.m_pData_Zone = &m_data_PTZone;
+	m_state.m_pData_Soft = &m_data_PTSoft;
+
 	m_data_PTSet.m_pState = &m_state;
 	m_data_PTZone.m_pState = &m_state;
+	m_data_PTSoft.m_pState = &m_state;
 }
 
 CXJTagOutStorePrivate::~CXJTagOutStorePrivate()
@@ -331,6 +338,15 @@ QPTZoneDataTable* CXJTagOutStore::GetPTZoneData()
 	
 	return &(d_ptr->m_data_PTZone);
 }
+
+QPTSoftDataTable* CXJTagOutStore::GetPTSoftData()
+{
+	if (NULL == d_ptr)
+		return NULL;
+	
+	return &(d_ptr->m_data_PTSoft);
+}
+
 
 
 BOOL CXJTagOutStore::RevertModify()
