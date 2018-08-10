@@ -22,6 +22,9 @@ public:
 	/** @brief           定值修改数据表*/
 	QPTSetDataTable		m_data_PTSet;
 
+	/** @brief           定值区修改数据表*/
+	QPTZoneDataTable	m_data_PTZone;
+
 	BOOL		ReLoadState();
 	int			CheckState(int nTagOutType);
 	BOOL		Check(int nTagOutType);
@@ -318,6 +321,14 @@ QPTSetDataTable* CXJTagOutStore::GetPTSetData()
 		return NULL;
 	
 	return &(d_ptr->m_data_PTSet);
+}
+
+QPTZoneDataTable* CXJTagOutStore::GetPTZoneData()
+{
+	if (NULL == d_ptr)
+		return NULL;
+	
+	return &(d_ptr->m_data_PTZone);
 }
 
 

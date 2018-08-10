@@ -13,13 +13,13 @@ private:
 public:
 	QMemTable();
 	QMemTable(int nTableID);
-	QMemTable(const char* table_name, int nType = 0);
+	QMemTable(const char* table_name, int nNameType = XJ::LANG_ENG);
 	~QMemTable();
 
 	QByteArray FWrite(const char *pszFilePath = NULL);
 	
 	BOOL		LoadInfo(int nTableID);
-	BOOL		LoadInfo(const char* table_name, int nNameType = 0);
+	BOOL		LoadInfo(const char* table_name, int nNameType = XJ::LANG_ENG);
 	BOOL		LoadData(const char* sql_stmt);
 	BOOL		LoadData(QByteArray &sql_stmt);
 	BOOL		LoadDataAll();
@@ -27,17 +27,17 @@ public:
 	BOOL		SaveData();
 	
 	int			GetTableID();
-	QByteArray	GetTableName(int nNameType = 0);
+	QByteArray	GetTableName(int nNameType = XJ::LANG_ENG);
 
 	int			GetFieldCount();
-	QByteArray	GetFieldName(int fieldID, int nType = 0);
-	int			GetFieldIndex(const char *szFieldName, int nNameType = 0);
-	int			GetFieldDataType(int fieldID);
+	QByteArray	GetFieldName(int iCol, int nNameType = XJ::LANG_ENG);
+	int			GetFieldIndex(const char *szFieldName, int nNameType = XJ::LANG_ENG);
+	int			GetFieldDataType(int iCol);
 
 	QByteArray	GetFieldValue(int iRow, int iCol);
-	QByteArray	GetFieldValue(int iRow, const char *szFieldName, int nNameType = 0);
+	QByteArray	GetFieldValue(int iRow, const char *szFieldName, int nNameType = XJ::LANG_ENG);
 	QByteArray	GetFieldValue(QByteArrayMatrix keyVals, int iCol);
-	QByteArray	GetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, int nNameType = 0);
+	QByteArray	GetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, int nNameType = XJ::LANG_ENG);
 
 	int			GetKeyCount();
 	QByteArray	GetKeyValue(int iRow, int idx);
@@ -53,8 +53,8 @@ public:
 	BOOL		SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, QByteArray val);
 	BOOL		SetFieldValue(const char* keyVals, const char *szFieldName, QByteArray val);
 
-	BOOL		HasField(const char* fieldName, int nNameType = 0);
-	BOOL		HasField(const QByteArray &fieldName, int nNameType = 0);
+	BOOL		HasField(const char* fieldName, int nNameType = XJ::LANG_ENG);
+	BOOL		HasField(const QByteArray &fieldName, int nNameType = XJ::LANG_ENG);
 	BOOL		AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldType, QByteArray initVal);
 
 	int			AddRow(QByteArrayMatrix keyVals);

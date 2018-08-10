@@ -573,6 +573,7 @@ public:
 	void OnBtnPtsetModify1();
 	void OnBtnPtsetZoneModify1();
 	void OnBtnPtsetModify2();
+	void OnBtnPtsetZoneModify2();
 
 	// 执行定值的修改
 	BOOL ExcutePTSet();

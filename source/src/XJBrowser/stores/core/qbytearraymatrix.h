@@ -90,6 +90,18 @@ public:
 	void				SetDelimRow(QByteArray delim) { m_delim_row = delim; }
 	void				SetDelimCol(QByteArray delim) { m_delim_col = delim; }
 
+	int					valueIndexOf(QByteArray &s, int from = 0);
+	int					valueIndexOf(const char *pszVal, int from = 0);
+	int					valueIndexOf(int numVal, int from = 0);
+
+	int					valueCount(QByteArray &s);
+	int					valueCount(const char *pszVal);
+	int					valueCount(int numVal);
+
+	bool				valueContains(QByteArray &s);
+	bool				valueContains(const char *pszVal);
+	bool				valueContains(int numVal);
+
 private:
 	QByteArray	m_delim_row;
 	QByteArray	m_delim_col;

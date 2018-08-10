@@ -7,6 +7,9 @@
 #include <fstream>
 using namespace std;
 
+#define XJ_NAMESPACE_BEGIN  namespace XJ{
+#define XJ_NAMESPACE_END	}
+
 #define PT_ID_LEN 20
 #define MAX_FIELD_VALE_LEN 256
 
@@ -108,6 +111,19 @@ enum FIELD_DISP_TYPE_ENUM
 		DBI_DISP_TYPE_FORMULASTRING= 14,
 		DBI_DISP_TYPE_BINARY  =      15
 };
+
+XJ_NAMESPACE_BEGIN
+
+enum LANG_TYPE_ENUM
+{
+	LANG_ENG		=		0,
+		LANG_CHS		=		1,
+		
+		
+		LAN_CNT
+};
+
+XJ_NAMESPACE_END
 
 
 extern QByteArray GetTime(int nType = 0);

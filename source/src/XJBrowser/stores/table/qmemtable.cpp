@@ -15,7 +15,7 @@ class QMemTablePrivate
 public:
 	QMemTablePrivate();
 	QMemTablePrivate(int nTableID);
-	QMemTablePrivate(const char* table_name, int nNameType = 0);
+	QMemTablePrivate(const char* table_name, int nNameType = XJ::LANG_ENG);
     ~QMemTablePrivate();
 	
 	/** @brief           表ID*/
@@ -49,29 +49,30 @@ public:
 	BOOL		LoadInfo(int nTableID);
 	/*
 	 *  @brief   	LoadInfo	 从tb_table_info、tb_field_info 载入表信息、字段信息 
-	 *  @param 		[In] nTableID	表数字ID
+	 *  @param 		[In] table_name	表名 
+	 *  @param 		[In] nNameType	表名类型：英文、中文、法文、德文等
 	 *  @return 	BOOL
 	 */
-	BOOL		LoadInfo(const char* table_name, int nType = 0);
+	BOOL		LoadInfo(const char* table_name, int nNameType = XJ::LANG_ENG, bool bForceReLoad = false);
 	BOOL		LoadData(const char* sql_stm);
 	BOOL		LoadDataAll();
 	
 	BOOL		SaveData();
 	
 	int			GetTableID();
-	QByteArray	GetTableName(int nNameType = 0);
+	QByteArray	GetTableName(int nNameType = XJ::LANG_ENG);
 
 	int			GetFieldCount();
-	QByteArray	GetFieldName(int fieldID, int nType = 0);
-	int			GetFieldIndex(const char *szFieldName, int nNameType = 0);
-	int			GetFieldDataType(int fieldID);
+	QByteArray	GetFieldName(int iCol, int nNameType = XJ::LANG_ENG);
+	int			GetFieldIndex(const char *szFieldName, int nNameType = XJ::LANG_ENG);
+	int			GetFieldDataType(int iCol);
 
 	QByteArray	GetFieldValue(int iRow, int iCol);
-	QByteArray	GetFieldValue(int iRow, const char *szFieldName, int nNameType = 0);
+	QByteArray	GetFieldValue(int iRow, const char *szFieldName, int nNameType = XJ::LANG_ENG);
 
 	int			GetKeyCount();
 	QByteArray	GetKeyValue(int iRow, int idx);
-	QByteArray	GetKeyName(int idx, int nNameType = 0);
+	QByteArray	GetKeyName(int idx, int nNameType = XJ::LANG_ENG);
 	int			GetKeyIndex(int idx);
 	int			GetRowIndex(QByteArrayMatrix &keyVals);
 
@@ -83,8 +84,8 @@ public:
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
 	
-	BOOL		HasField(const char* fieldName, int nNameType = 0);
-	BOOL		HasField(const QByteArray &fieldName, int nNameType = 0);
+	BOOL		HasField(const char* fieldName, int nNameType = XJ::LANG_ENG);
+	BOOL		HasField(const QByteArray &fieldName, int nNameType = XJ::LANG_ENG);
 	BOOL		AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldType, QByteArray initVal);
 
 	int			AddRowData(QByteArrayMatrix keyVals);
@@ -107,7 +108,7 @@ QMemTablePrivate::QMemTablePrivate(int nTableID)
 	m_nTableID = nTableID;
 }
 
-QMemTablePrivate::QMemTablePrivate(const char* table_name, int nType/* = 0*/)
+QMemTablePrivate::QMemTablePrivate(const char* table_name, int nNameType/* = XJ::LANG_ENG*/)
 {
 	init();
 }
@@ -175,11 +176,28 @@ BOOL QMemTablePrivate::LoadInfo(int nTableID)
 	return TRUE;
 }
 
-BOOL QMemTablePrivate::LoadInfo(const char* table_name, int nNameType/* = 0*/)
+BOOL QMemTablePrivate::LoadInfo(const char* table_name, int nNameType/* = XJ::LANG_ENG*/, bool bForceReLoad/* = false*/)
 {
 	BOOL bReturn = FALSE;
+
+	if (!table_name || QByteArray(table_name).trimmed().isEmpty())
+		return FALSE;
+	
+	bool bReLoad = false;
+	if (qstrcmp(table_name,GetTableName().constData()) != 0)
+		bReLoad = true;	// 表名不一致，重载表信息
+
+	if (bForceReLoad)
+		bReLoad = true;
+
+	if (!bReLoad)
+		return FALSE;
 	
 	CString strSQL;
+
+// 	QByteArray msg;
+// 	msg << "reload table: " << table_name;
+// 	AfxMessageBox(msg.constData());
 	
 	strSQL.Format("SELECT * FROM tb_field_info WHERE table_id = %d"
 		, 10000);
@@ -192,7 +210,7 @@ BOOL QMemTablePrivate::LoadInfo(const char* table_name, int nNameType/* = 0*/)
 		return bReturn;
 	
 	switch(nNameType){
-	case 0: // english name
+	case XJ::LANG_ENG: // english name
 		{
 			// 载入表信息
 			strSQL.Format("SELECT * FROM tb_table_info WHERE table_id = (SELECT table_id FROM tb_table_info WHERE table_name_eng = '%s')"
@@ -207,7 +225,7 @@ BOOL QMemTablePrivate::LoadInfo(const char* table_name, int nNameType/* = 0*/)
 				return bReturn;
 		}
 		break;
-	case 1:	// chinese name
+	case XJ::LANG_CHS:	// chinese name
 		{
 			// 载入表信息
 			strSQL.Format("SELECT * FROM tb_table_info WHERE table_id = (SELECT table_id FROM tb_table_info WHERE table_name_chn = '%s')"
@@ -443,15 +461,15 @@ int QMemTablePrivate::GetTableID()
 	return m_nTableID;
 }
 
-QByteArray QMemTablePrivate::GetTableName(int nNameType/* = 0*/)
+QByteArray QMemTablePrivate::GetTableName(int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray sReturn;
 	
 	switch (nNameType){
-	case 0:
+	case XJ::LANG_ENG:
 		return m_info_table.GetFieldValue(1, 2);
 		break;
-	case 1:
+	case XJ::LANG_CHS:
 		return m_info_table.GetFieldValue(1, 3);
 		break;
 	}
@@ -464,23 +482,23 @@ int	QMemTablePrivate::GetFieldCount()
 	return m_info_field.GetRows();
 }
 
-QByteArray QMemTablePrivate::GetFieldName(int fieldID, int nType)
+QByteArray QMemTablePrivate::GetFieldName(int iCol, int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray sReturn;
 	
-	switch (nType){
-	case 0:	// english name
-		return m_info_field.GetFieldValue(fieldID, 3);
+	switch (nNameType){
+	case XJ::LANG_ENG:
+		return m_info_field.GetFieldValue(iCol, 3);
 		break;
-	case 1:	// chinese name
-		return m_info_field.GetFieldValue(fieldID, 4);
+	case XJ::LANG_CHS:
+		return m_info_field.GetFieldValue(iCol, 4);
 		break;
 	}
 	
 	return sReturn;
 }
 
-int QMemTablePrivate::GetFieldIndex(const char *szFieldName, int nNameType/* = 0*/)
+int QMemTablePrivate::GetFieldIndex(const char *szFieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	int nReturn = -1;
 
@@ -489,13 +507,22 @@ int QMemTablePrivate::GetFieldIndex(const char *szFieldName, int nNameType/* = 0
 
 	int nRows = m_info_field.GetRows();
 	int nColIdx = 2;
-	int nNameIdx = 3;
-	if (nNameType != 0)
+	
+	int nNameIdx = -1;
+	switch (nNameType){
+	case XJ::LANG_ENG:
+		nNameIdx = 3;
+		break;
+	case XJ::LANG_CHS:
 		nNameIdx = 4;
+		break;
+	default:
+		nNameIdx = 3;
+	}
 
 	for (int i = 1; i <= nRows; i++){
 		if (m_info_field.GetFieldValue(i, nNameIdx) != szFieldName)
-				continue;
+			continue;
 
 		return m_info_field.GetFieldValue(i, nColIdx).toInt();
 	}
@@ -503,9 +530,9 @@ int QMemTablePrivate::GetFieldIndex(const char *szFieldName, int nNameType/* = 0
 	return nReturn;
 }
 
-int	QMemTablePrivate::GetFieldDataType(int fieldID)
+int	QMemTablePrivate::GetFieldDataType(int iCol)
 {
-	return m_info_field.GetFieldValue(fieldID, 5).toInt();
+	return m_info_field.GetFieldValue(iCol, 5).toInt();
 }
 
 QByteArray QMemTablePrivate::GetFieldValue(int iRow, int iCol)
@@ -556,13 +583,21 @@ QByteArray QMemTablePrivate::GetKeyValue(int iRow, int idx)
 	return GetFieldValue(iRow, nFieldIdx);
 }
 
-QByteArray QMemTablePrivate::GetKeyName(int idx, int nNameType/* = 0*/)
+QByteArray QMemTablePrivate::GetKeyName(int idx, int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray s;
 
-	int iCol = 3;
-	if (nNameType != 0)
+	int iCol = -1;
+	switch (nNameType){
+	case XJ::LANG_ENG:
+		iCol = 3;
+		break;
+	case XJ::LANG_CHS:
 		iCol = 4;
+		break;
+	default:
+		iCol = 3;
+	}
 	
 	GetKeyCount();
 	if (idx > m_key_row_idx.size() || idx < 1)
@@ -667,7 +702,7 @@ BOOL QMemTablePrivate::SetFieldValue(int iRow, const char *szFieldName, QByteArr
 	return SetFieldValue(iRow, iCol, val);
 }
 
-BOOL QMemTablePrivate::HasField(const char* fieldName, int nNameType/* = 0*/)
+BOOL QMemTablePrivate::HasField(const char* fieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	BOOL bReturn = TRUE;
 
@@ -677,7 +712,7 @@ BOOL QMemTablePrivate::HasField(const char* fieldName, int nNameType/* = 0*/)
 	return bReturn;
 }
 
-BOOL QMemTablePrivate::HasField(const QByteArray &fieldName, int nNameType/* = 0*/)
+BOOL QMemTablePrivate::HasField(const QByteArray &fieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	return HasField(fieldName.constData(), nNameType);
 }
@@ -694,6 +729,7 @@ BOOL QMemTablePrivate::AddField(const char* fieldName, FIELD_TYPE_ENUM enFieldTy
 
 	line << m_nTableID << m_info_field.GetDelimCol()
 		<< GetNextFieldIndex() << m_info_field.GetDelimCol()
+		<< fieldName << m_info_field.GetDelimCol()
 		<< fieldName;
 	m_info_field.AppendRow(line);
 	
@@ -844,8 +880,8 @@ QMemTable::QMemTable(int nTableID)
 {
 }
 
-QMemTable::QMemTable(const char* table_name, int nType/* = 0*/)
-	: d_ptr(new QMemTablePrivate(table_name, nType))
+QMemTable::QMemTable(const char* table_name, int nNameType/* = XJ::LANG_ENG*/)
+	: d_ptr(new QMemTablePrivate(table_name, nNameType))
 {
 }
 
@@ -941,7 +977,7 @@ BOOL QMemTable::LoadInfo(int nTableID)
 	return d_ptr->LoadInfo(nTableID);
 }
 
-BOOL QMemTable::LoadInfo(const char* table_name, int nNameType/* = 0*/)
+BOOL QMemTable::LoadInfo(const char* table_name, int nNameType/* = XJ::LANG_ENG*/)
 {
 	BOOL bReturn = FALSE;
 	if (NULL == d_ptr)
@@ -995,7 +1031,7 @@ int QMemTable::GetTableID()
 	return d_ptr->GetTableID();
 }
 
-QByteArray QMemTable::GetTableName(int nNameType/* = 0*/)
+QByteArray QMemTable::GetTableName(int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray sReturn;
 	if (NULL == d_ptr)
@@ -1012,17 +1048,17 @@ int	QMemTable::GetFieldCount()
 	return d_ptr->GetFieldCount();
 }
 
-QByteArray QMemTable::GetFieldName(int fieldID, int nType)
+QByteArray QMemTable::GetFieldName(int iCol, int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray sReturn;
 
 	if (NULL == d_ptr)
 		return sReturn;
 
-	return d_ptr->GetFieldName(fieldID, nType);
+	return d_ptr->GetFieldName(iCol, nNameType);
 }
 
-int QMemTable::GetFieldIndex(const char *szFieldName, int nNameType)
+int QMemTable::GetFieldIndex(const char *szFieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	if (NULL == d_ptr)
 		return -1;
@@ -1030,12 +1066,12 @@ int QMemTable::GetFieldIndex(const char *szFieldName, int nNameType)
 	return d_ptr->GetFieldIndex(szFieldName, nNameType);
 }
 
-int	QMemTable::GetFieldDataType(int fieldID)
+int	QMemTable::GetFieldDataType(int iCol)
 {
 	if (NULL == d_ptr)
 		return -1;
 
-	return d_ptr->GetFieldDataType(fieldID);
+	return d_ptr->GetFieldDataType(iCol);
 }
 
 QByteArray QMemTable::GetFieldValue(int iRow, int iCol)
@@ -1048,7 +1084,7 @@ QByteArray QMemTable::GetFieldValue(int iRow, int iCol)
 	return d_ptr->GetFieldValue(iRow, iCol);
 }
 
-QByteArray QMemTable::GetFieldValue(int iRow, const char *szFieldName, int nNameType)
+QByteArray QMemTable::GetFieldValue(int iRow, const char *szFieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray sReturn;
 	
@@ -1068,7 +1104,7 @@ QByteArray QMemTable::GetFieldValue(QByteArrayMatrix keyVals, int iCol)
 	return GetFieldValue(iRow, iCol);
 }
 
-QByteArray QMemTable::GetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, int nNameType/* = 0*/)
+QByteArray QMemTable::GetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	QByteArray s;
 	int iRow = GetRowIndex(keyVals);
@@ -1184,7 +1220,7 @@ BOOL QMemTable::SetFieldValue(const char* keyVals, const char *szFieldName, QByt
 	SetFieldValue(iRow, szFieldName, val);
 }
 
-BOOL QMemTable::HasField(const char* fieldName, int nNameType/* = 0*/)
+BOOL QMemTable::HasField(const char* fieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	if (NULL == d_ptr)
 		return FALSE;
@@ -1192,7 +1228,7 @@ BOOL QMemTable::HasField(const char* fieldName, int nNameType/* = 0*/)
 	return d_ptr->HasField(fieldName, nNameType);
 }
 
-BOOL QMemTable::HasField(const QByteArray &fieldName, int nNameType/* = 0*/)
+BOOL QMemTable::HasField(const QByteArray &fieldName, int nNameType/* = XJ::LANG_ENG*/)
 {
 	if (NULL == d_ptr)
 		return FALSE;

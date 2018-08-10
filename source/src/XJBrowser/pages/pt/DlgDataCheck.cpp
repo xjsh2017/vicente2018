@@ -19,13 +19,15 @@ static char THIS_FILE[] = __FILE__;
 
 
 //##ModelId=49B87BA402E1
-CDlgDataCheck::CDlgDataCheck(CWnd* pParent /*=NULL*/, int nType)
+CDlgDataCheck::CDlgDataCheck(CWnd* pParent /*=NULL*/, int nType, int nTagOutType)
 	: CDialog(CDlgDataCheck::IDD, pParent), m_sCPU(""), m_sZone("")
 {
 	//{{AFX_DATA_INIT(CDlgDataCheck)
 	m_strModify = _T("");
 	m_nType = nType;
 	//}}AFX_DATA_INIT
+
+	m_nTagOutType = nTagOutType;
 }
 
 
@@ -50,6 +52,10 @@ END_MESSAGE_MAP()
 void CDlgDataCheck::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( pNMHDR );
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
 	
     // Take the default processing unless we set this to something else below.
     *pResult = 0;
@@ -83,7 +89,8 @@ void CDlgDataCheck::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 		int nRowIdx = static_cast<int> (pLVCD->nmcd.dwItemSpec); //行索引
 		int nColIdx = pLVCD->iSubItem; //列索引
         
-        if ( 12 == nColIdx )
+		int nCols = m_List.GetHeaderCtrl()->GetItemCount();
+        if ( nColIdx == nCols - 1 )
 		{
 			//值
 			CString strValue = m_List.GetItemText(nRowIdx, nColIdx);
@@ -115,23 +122,33 @@ void CDlgDataCheck::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 BOOL CDlgDataCheck::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	InitListStyle();
-	
-	UpdateLabels();
 
-	CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
-	QPTSetDataTable *pData = pStore->GetPTSetData();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
 	
 	// TODO: Add extra initialization here
+	
+	UpdateLabels1();
+	InitListStyle1();
+	FillData1();
+
 	if (m_nType ==0)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
-		pData->ReLoad();
+		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET)
+			pPTSetData->ReLoad();
+		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
+			pPTZoneData->ReLoad();
 	}
 	else if (m_nType ==1)
 	{
 		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
-		pData->ReLoad();
+		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET)
+			pPTSetData->ReLoad();
+		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
+			pPTZoneData->ReLoad();
 	}
 	else if (m_nType ==2)
 	{
@@ -141,11 +158,222 @@ BOOL CDlgDataCheck::OnInitDialog()
 	{
 		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
 	}
-
-	FillData();
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
+}
+
+
+void CDlgDataCheck::UpdateLabels1()
+{
+	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+	CString str;
+	
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	pTagOutStore->ReLoadState();
+	
+	int nPTSetState = pTagOutState->GetStateID();
+	
+	if (m_sCPU.IsEmpty())
+		m_sCPU = QByteArray::number(pTagOutState->GetCPUID()).constData();
+
+	if (m_sZone.IsEmpty())
+		m_sZone = QByteArray::number(pTagOutState->GetZoneID()).constData();
+	
+	CSecObj* pObj = (CSecObj*)pApp->GetDataEngine()->FindDevice(pTagOutState->GetPTID().constData(), TYPE_SEC);
+
+	if (m_nTagOutType == XJ_TAGOUT_PTVALVSET){
+		m_strDESC.Format("装置[%s]在[%s]号CPU[%s]号定值区上的定值将做如下更改："
+		, pObj->m_sName, m_sCPU, m_sZone);
+	}else if (m_nTagOutType == XJ_TAGOUT_PTZONESET){
+		m_strDESC.Format("装置[%s]在[%s]号CPU上的定值区将做如下更改："
+		, pObj->m_sName, m_sCPU);
+	}
+	//AfxMessageBox(m_strDESC);
+	UpdateData(FALSE);
+}
+
+int CDlgDataCheck::InitListStyle1()
+{
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	
+	//空图形列表, 用来调整行高
+	CImageList   m_l;   
+	m_l.Create(1,g_ListItemHeight,TRUE|ILC_COLOR32,1,0);   
+	m_List.SetImageList(&m_l,LVSIL_SMALL);
+	//先查找UIConfig配置文件中是否有此列表的列信息
+	//如果有,按配置文件的信息来设置列
+	//如果没有,按默认来设置列,并保存到配置文件
+	LV_COLUMN lvCol;
+	lvCol.mask=LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	lvCol.fmt=LVCFMT_LEFT;
+	{
+		int nCols = 0;
+		QByteArrayMatrix showCols;
+		QByteArrayMatrix lenCols;
+		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET){
+			nCols = pPTSetData->GetFieldCount() + 3;	// 增加3列： 序号、原值、新值
+			
+			showCols << "0,3,7"
+				<< "," << nCols - 2 
+				<< "," << nCols - 1;
+
+			lenCols << "50,60,180,80,80";
+			
+			for (int iCol = 0; iCol < nCols; iCol++){
+				lvCol.cx = 80;
+				
+				int nShowColsIdx = showCols.valueIndexOf(iCol);
+				if (nShowColsIdx > 0){
+					lvCol.cx = lenCols.GetFieldValue(1, nShowColsIdx).toInt();
+				}
+				
+				if (iCol == 0){
+					lvCol.pszText = "序号";
+				}else if (iCol == nCols - 2){
+					lvCol.pszText = "原值";
+				}else if (iCol == nCols - 1){
+					lvCol.pszText = "新值";
+				}else{
+					lvCol.pszText = pPTSetData->GetFieldName(iCol, XJ::LANG_CHS).data();
+				}
+				int result = m_List.InsertColumn(iCol, &lvCol);
+				m_List.SetColumnHide(iCol, TRUE);
+
+				if (showCols.valueContains(iCol))
+					m_List.SetColumnHide(iCol, FALSE);
+			}
+		}else if (m_nTagOutType == XJ_TAGOUT_PTZONESET){
+			nCols = pPTZoneData->GetFieldCount() + 3;  // 增加3列： 序号、原区号、新区号
+			
+			showCols << "0,3,4"
+				<< "," << nCols - 2 
+				<< "," << nCols - 1;
+			
+			lenCols << "50,80,180,80,80";
+
+			//AfxMessageBox(showCols.constData());
+
+			for (int iCol = 0; iCol < nCols; iCol++){
+				lvCol.cx = 80;
+				
+				int nShowColsIdx = showCols.valueIndexOf(iCol);
+				if (nShowColsIdx > 0){
+					lvCol.cx = lenCols.GetFieldValue(1, nShowColsIdx).toInt();
+				}
+
+				if (iCol == 0){
+					lvCol.pszText = "序号";
+				}else if (iCol == nCols - 2){
+					lvCol.pszText = "原区号";
+				}else if (iCol == nCols - 1){
+					lvCol.pszText = "新区号";
+				}else{
+					lvCol.pszText = pPTZoneData->GetFieldName(iCol, XJ::LANG_CHS).data();
+				}
+				int result = m_List.InsertColumn(iCol, &lvCol);
+				m_List.SetColumnHide(iCol, TRUE);
+
+				if (showCols.valueContains(iCol))
+					m_List.SetColumnHide(iCol, FALSE);
+			}
+		}
+	}
+	//设置风格
+	m_List.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
+	return 0;
+}
+
+void CDlgDataCheck::FillData1()
+{
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	
+	//填充数据时禁止刷新
+	m_List.SetRedraw(FALSE);
+	//EnterCriticalSection(&m_CriticalOper);  
+	int nIndex = 0;
+	int nRowCount = 0;
+	int nFieldCount = 0;
+	CString str;
+	if(m_nTagOutType == XJ_TAGOUT_PTVALVSET){
+		nRowCount = pPTSetData->GetRowCount();
+		nFieldCount = pPTSetData->GetFieldCount() + 3;
+		
+		nIndex = 0;
+		for(int i = 1; i <= nRowCount; i ++)
+		{
+			str.Format("%d", nIndex + 1);
+			m_List.InsertItem(nIndex, str); //ID
+			
+			for (int j = 1; j < nFieldCount; j++){
+				str = pPTSetData->GetFieldValue(i, j).constData();
+				m_List.SetItemText(nIndex, j, str);
+				
+				if (j == nFieldCount - 2){
+					QByteArrayMatrix val = pPTSetData->GetFieldValue(i, "reserve3");
+					m_List.SetItemText(nIndex, j, val.GetFieldValue(1, 1).constData());
+				}else if(j == nFieldCount - 1){
+					QByteArrayMatrix val = pPTSetData->GetFieldValue(i, "reserve3");
+					QByteArray s = val.GetFieldValue(1, 2);
+					if (s.isEmpty())
+						s = val.GetFieldValue(1, 1);
+					m_List.SetItemText(nIndex, j, s.constData());
+				}
+			}
+			
+			m_List.SetItemData(nIndex, (DWORD)NULL);
+			
+			
+			nIndex++;
+		}
+	}else if (m_nTagOutType == XJ_TAGOUT_PTZONESET){
+		nRowCount = pPTZoneData->GetRowCount();
+		nFieldCount = pPTZoneData->GetFieldCount() + 3;
+
+		nIndex = 0;
+		for(int i = 1; i <= nRowCount; i ++)
+		{
+			str.Format("%d", nIndex + 1);
+			m_List.InsertItem(nIndex, str); //ID
+
+			for (int j = 1; j < nFieldCount; j++){
+				str = pPTZoneData->GetFieldValue(i, j).constData();
+				m_List.SetItemText(nIndex, j, str);
+
+				if (j == nFieldCount - 2){
+					QByteArrayMatrix val = pPTZoneData->GetFieldValue(i, "reserve3");
+					m_List.SetItemText(nIndex, j, val.GetFieldValue(1, 1).constData());
+				}else if(j == nFieldCount - 1){
+					QByteArrayMatrix val = pPTZoneData->GetFieldValue(i, "reserve3");
+					QByteArray s = val.GetFieldValue(1, 2);
+					if (s.isEmpty())
+						s = val.GetFieldValue(1, 1);
+					m_List.SetItemText(nIndex, j, s.constData());
+				}
+			}
+
+			m_List.SetItemData(nIndex, (DWORD)NULL);
+			
+			
+			nIndex++;
+		}
+	}
+	
+	//恢复刷新
+	//LeaveCriticalSection(&m_CriticalOper);
+	m_List.SetRedraw(TRUE);
+	
+	
+	//WriteLog("CDlgDataCheck::FillListData, 结束", XJ_LOG_LV3);
 }
 
 void CDlgDataCheck::UpdateLabels()

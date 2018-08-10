@@ -137,6 +137,13 @@ public:
 	void		Next_PTSet_State_4(const char *pszUserID);
 	void		Next_PTSet_State_5(const char *pszUserID);
 
+	void		Next_PTSET_ZONE_STATE_2(int nCPU, int nZone, const char *pszUserID
+								, const MODIFY_LIST &arrModifyList
+								, const PT_SETTING_LIST &arrSetting);
+	void		Next_PTSET_ZONE_STATE_3(const char *pszUserID);
+	void		Next_PTSET_ZONE_STATE_4(const char *pszUserID);
+	void		Next_PTSET_ZONE_STATE_5(const char *pszUserID);
+
 	void		RevertTo_PTSet_State_1(int nFrom_PTSetStateID, const char* pszUserID, QByteArray &strMsg = QByteArray());
 
 public:
@@ -154,13 +161,33 @@ public:
 	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
 	BOOL		ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
 	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting);
-	BOOL		Save(const char *pszFilePath = NULL);
+	BOOL		Save(const char *pszFilePath = NULL);		
 
 	BOOL		RevertModifiy();	// 修改值列清空保存
 	BOOL		SaveModify();	// 修改值替换原值保存
 
 	void		UnitTest_01();
 
+	QPTSetStateTable*	m_pState;
+	
+};
+
+class QPTZoneDataTable : public QMemTable
+{
+public:
+	QPTZoneDataTable();
+	~QPTZoneDataTable();
+	
+public:	
+	BOOL		ReLoad(QByteArray &pt_id = QByteArray());
+	BOOL		ReLoad(QByteArray &pt_id, int nCPU, int nZone, QByteArray &newZoneValue);
+	BOOL		Save(const char *pszFilePath = NULL);		
+	
+	BOOL		RevertModifiy();	// 修改值列清空保存
+	BOOL		SaveModify();	// 修改值替换原值保存
+	
+	void		UnitTest_01();
+	
 	QPTSetStateTable*	m_pState;
 	
 };

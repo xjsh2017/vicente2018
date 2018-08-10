@@ -2,6 +2,7 @@
 #define _DLG_DATA_CHECK_H
 
 #include "resource.h"
+#include "XJStoreDefine.h"
 // DlgDataCheck.h : header file
 //
 
@@ -14,7 +15,7 @@ class CDlgDataCheck : public CDialog
 // Construction
 public:
 	//##ModelId=49B87BA402E1
-	CDlgDataCheck(CWnd* pParent = NULL, int nType = 1);   // standard constructor
+	CDlgDataCheck(CWnd* pParent = NULL, int nType = 1, int nTagOutType = XJ_TAGOUT_PTVALVSET);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CDlgDataCheck)
@@ -28,6 +29,7 @@ public:
 	CString m_sCPU;
 	CString m_sZone;
 	int	m_nType;
+	int				m_nTagOutType;
 
 	MODIFY_LIST	m_arrModifyList;
 
@@ -47,9 +49,12 @@ private:
 	*/
 	//##ModelId=49B87B8C009C
 	int	InitListStyle();
+	int	InitListStyle1();
 	void UpdateLabels();
+	void UpdateLabels1();
 
 	void FillData();
+	void FillData1();
 
 // Implementation
 protected:

@@ -3416,7 +3416,7 @@ void CPTSetting::OnBtnPtsetModify2()
 			//AfxMessageBox("CPTSetting::OnBtnPtsetModify1.DEBUG");
 			//无修改定值, 提示先修改
 			AfxMessageBox( StringFromID(IDS_TIP_EDIT_SETTING));
-			return;
+			//return;
 		}
 
 		//组建要修改值的链表
@@ -4312,7 +4312,8 @@ void CPTSetting::OnBtnPtsetZoneModify()
 	}
 	else
 	{
-		OnBtnPtsetZoneModify1();
+		//OnBtnPtsetZoneModify1();
+		OnBtnPtsetZoneModify2();
 	}
 }
 
@@ -4454,6 +4455,317 @@ void CPTSetting::OnBtnPtsetZoneModify1()
 			//回复修改前的值
 			RevertModifyValue(2);
 			UpdateControlsEnable();
+			return;
+		}
+
+		//组建预校报文
+		STTP_FULL_DATA sttpData;
+		if (m_pObj->m_bNewDevice)
+		{
+			bool bRun = false;
+			bool bEdit = false;
+			for (int j = 0; j < m_ListZone.GetItemCount(); j++)
+			{
+				CString str = m_ListZone.GetItemText(j, 6);
+				if (str.Find("*") != -1)
+				{
+					CString strItem = m_ListZone.GetItemText(j, 0);
+					if (strItem.Find(StringFromID(IDS_COMMON_RUN)) != -1)
+					{
+						bRun = true;
+					}
+					else if (strItem.Find(StringFromID(IDS_COMMON_EDIT)) != -1)
+					{
+						bEdit = true;
+					}
+				}
+			}
+
+			int nId = -1;
+			CSecCPU* pCpu = NULL;
+			for(int k = 0; k < m_pObj->m_arrCPU.GetSize(); k++)
+			{
+				pCpu = m_pObj->m_arrCPU[k];
+				if (pCpu->code == atoi(m_sCPU))
+				{
+					break;
+				}
+			}
+			MYASSERT(pCpu);
+			CTypedPtrArray<CPtrArray, PT_ZONE*>& arrZONE =  pCpu->m_arrZONE;
+			for (int i = 0;  i < arrZONE.GetSize(); i++)
+			{
+				PT_ZONE * ptz = arrZONE[i];
+				if (ptz->zone_name.Find(StringFromID(IDS_COMMON_EDIT)) != -1 && bEdit)
+				{
+					nId = ptz->code;
+					break;
+				}
+				else if (ptz->zone_name.Find(StringFromID(IDS_COMMON_RUN)) != -1 && bRun)
+				{
+					nId = ptz->code;
+					break;
+				}
+			}
+
+			if (nId == -1)
+			{
+				AfxMessageBox( StringFromID(IDS_TIP_ZONEID_ERROR));
+				return;
+			}
+			pApp->m_SttpEngine.BuildDataFor20169SettingChange(sttpData, m_pObj->m_sID, atoi(m_sCPU), atoi(strText), nId);
+		}
+		else
+		{
+			pApp->m_SttpEngine.BuildDataFor20047SettingChange(sttpData, m_pObj->m_sID, atoi(m_sCPU), atoi(strText));
+		}
+		
+		
+		//发送报文
+		int nReturn = pApp->m_SttpEngine.XJSTTPWrite(pApp->m_SttpHandle, sttpData);
+		//判断是否成功
+		if(nReturn != 1)
+		{
+			//失败
+			if(nReturn == -1)
+			{
+				CString str;
+				str.Format("保护[%s]发送定值组切换报文失败,原因为连接中断", m_pObj->m_sName);
+				WriteLog(str, XJ_LOG_LV2);
+			}
+			else if(nReturn == -2)
+			{
+				CString str;
+				str.Format("保护[%s]发送定值组切换报文失败,原因为缓存已满", m_pObj->m_sName);
+				WriteLog(str, XJ_LOG_LV2);
+			}
+			AfxMessageBox( StringFromID(IDS_CALL_SENDMSG_FAIL));
+			//回复修改前的值
+			RevertModifyValue(2);
+			m_bMonVerify = false;
+			m_bOperVerify = false;
+			//m_btnModifySetting.EnableWindow(false);
+			//m_btnModifyZone.EnableWindow(false);
+			//m_btnVerify2.EnableWindow(false);
+			m_sOperUser = _T("");
+			m_sMonUser = _T("");
+		}
+		else
+		{
+			//成功,状态改为正在修改定值组
+			m_bChecking = TRUE;
+
+			m_nCurrentStatus = 4;
+			UpdateControlsEnable();
+
+			//启动定时器
+			CDataEngine* pData = pApp->GetDataEngine();
+			int nTimeOut = pData->m_nChangeZoneTimeOut;
+			m_nTimer = SetTimer(1, nTimeOut*1000, 0);
+			//增加人工操作日志
+			//pApp->AddManOperator(FUNC_OPT_CHANGEZONE, m_pObj->m_sName);
+
+			//修改控件可用性
+			UpdateControlsEnable();
+
+			CString str;
+			str.Format("保护[%s]发送定值组切换报文成功", m_pObj->m_sName);
+			WriteLog(str, XJ_LOG_LV2);
+		}
+	}
+	else if(m_nCurrentStatus == 4)
+	{
+		//正在修改定值区, 取消
+		CancelCall();
+	}
+	else
+	{
+		//正在其它操作
+		return;
+	}
+} 
+
+void CPTSetting::OnBtnPtsetZoneModify2()
+{
+	m_bOperTow = false;
+	m_nModifySettingOrModifyZone = 0;
+	m_bChecking = FALSE;
+
+	if(m_pObj == NULL)
+		return;
+
+	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	/*
+	if (g_bVerify)
+	{
+		//验证权限,修改定值需要控制权限
+		if(!pApp->TryEnter(FUNC_XJBROWSER_CONTROL))
+			return;
+	}
+	*/
+	
+	//检查通讯情况
+	if(!pApp->GetSTTPStatus())
+	{
+		AfxMessageBox(STTP_DISCONNECT);
+		return;
+	}
+
+	if(m_nCurrentStatus == 0)
+	{
+		m_bMonVerify = false;
+		m_bOperVerify = false;
+		//空闲状态
+		//更新控件绑定的变量值
+		UpdateData(TRUE);
+
+		if(m_ListZone.m_arrEdited.GetSize() == 0)
+		{
+			AfxMessageBox( StringFromID(IDS_TIP_SELECT_ZONE));
+			return;
+		}
+		CPoint ptItem = m_ListZone.m_arrEdited.GetAt(0);
+		CString strText = m_ListZone.GetItemText(ptItem.x, ptItem.y);
+		strText = strText.Left(strText.Find("*", 0));
+
+		m_sModifyZone = strText;
+
+		// 载入新值
+		CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+		QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+		
+		QPTZoneDataTable* pPTZoneData = pTagOutStore->GetPTZoneData();
+		pPTZoneData->ReLoad(QByteArray(m_pObj->m_sID.GetBuffer(0))
+			, atoi(m_sCPU), atoi(m_sZone), QByteArray(m_sModifyZone.GetBuffer(0)));
+
+		m_nOperationNum = GetOperationNum();
+
+		//要求用户确认
+		CString str;
+		str.Format("%s:%s, %s:%s, %s %s %s %s %s?", StringFromID(IDS_MODEL_RELAY),m_pObj->m_sName, StringFromID(IDS_MODEL_CPU),m_sCPU, 
+			StringFromID(IDS_SECPROP_ZONE), StringFromID(IDS_COMMON_FROM), m_sOldZoneValue, StringFromID(IDS_COMMON_CHANGETO),strText);
+		//m_sOldZoneValue = _T("");
+		/*if (AfxMessageBox(str, MB_OKCANCEL) != IDOK)
+		{
+			UpdateControlsEnable();
+			return;
+		}*/
+
+		//操作员确认
+		CDlgDataCheck dlgCheck(this, 2, XJ_TAGOUT_PTZONESET);
+		dlgCheck.m_strModify = str;
+		dlgCheck.m_sCPU = m_sCPU;
+		dlgCheck.m_sZone = m_sZone;
+		if(dlgCheck.DoModal() == IDOK)
+		{
+			if(g_PTControlModel == 1)
+			{
+				//普通模式,要求操作员验证
+				CDlgValidateUser dlgUser(XJ_USERGROUP_OPERATOR);
+				dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+				QByteArray sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
+				dlgUser.m_strUser = sUserID.constData();
+				if (!sUserID.isEmpty())
+					dlgUser.m_strAuthUserID = sUserID.constData();
+				if(dlgUser.DoModal() == IDOK)
+				{
+					if (dlgUser.m_strAuthUserID.IsEmpty()){
+						pTagOutStore->ReLoadState();
+						int nPTSetState = pTagOutState->GetStateID();
+						
+						CString str;
+						if (XJ_OPER_HANGOUT != nPTSetState){
+							CString sCurUserID = pTagOutState->GetOperUserID().constData();
+							str.Format("用户[%s]正在对该装置进行定值区切换操作 或者 该装置已取消了挂牌，请稍后再试"
+								, sCurUserID);
+							AfxMessageBox(str, MB_OK | MB_ICONWARNING);
+							
+							RevertModifyValue();
+							return;
+						}
+					}
+					m_sOperUser = dlgUser.m_strUser;
+					
+					pTagOutState->Next_PTSET_ZONE_STATE_2(atoi(m_sCPU), atoi(m_sZone)
+						, m_sOperUser.GetBuffer(0), m_arrModifyList, m_arrSetting);
+				}
+				else
+				{
+					//无操作权限
+					//回复修改前的值
+					RevertModifyValue(2);
+
+					str.Format("用户[%s]以操作员身份验证失败：密码验证有误", m_sOperUser);
+					WriteLog(str, XJ_LOG_LV2);
+					pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_2, m_sOperUser.GetBuffer(0)
+						, QByteArray(str.GetBuffer(0)));
+
+					return;
+				}
+			}			
+		}
+		else
+		{
+			//不同意修改
+			//回复修改前的值
+			RevertModifyValue(2);
+			UpdateControlsEnable();
+			return;
+		}
+
+		//监护员确认
+		CDlgDataCheck dlg1(this, 1, XJ_TAGOUT_PTZONESET);
+		dlg1.m_strModify = str;
+		dlg1.m_sCPU = m_sCPU;
+		dlg1.m_sZone = m_sZone;
+		if(dlg1.DoModal() == IDOK)
+		{
+			if(g_PTControlModel == 1)
+			{
+				//普通模式,要求监护员验证
+				CDlgValidateUser dlgUser(XJ_USERGROUP_MONITOR);
+				dlgUser.m_strFuncID = FUNC_XJBROWSER_CUSTODY;
+				QByteArray sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_3);
+				dlgUser.m_strUser = sUserID.constData();
+				if (!sUserID.isEmpty())
+					dlgUser.m_strAuthUserID = sUserID.constData();
+				if(dlgUser.DoModal() == IDOK)
+				{
+					m_sMonUser = dlgUser.m_strUser;
+					
+					CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+					
+					pTagOutState->Next_PTSET_ZONE_STATE_3(m_sMonUser.GetBuffer(0));
+				}
+				else
+				{
+					m_sMonUser = dlgUser.m_strUser;
+
+					//无操作权限
+					//回复修改前的值
+					RevertModifyValue(2);
+
+					str.Format("用户[%s]以监护员身份验证失败：密码验证有误", m_sMonUser);
+					WriteLog(str, XJ_LOG_LV2);
+					pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_3, m_sMonUser.GetBuffer(0)
+						, QByteArray(str.GetBuffer(0)));
+					
+					return;
+				}
+			}
+		}
+		else
+		{
+			//不同意修改
+			//回复修改前的值
+			RevertModifyValue(2);
+			UpdateControlsEnable();
+			
+			str.Format("用户[%s]以监护员身份验证失败：不同意修改", m_sMonUser);
+			WriteLog(str, XJ_LOG_LV2);
+			pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_3, m_sMonUser.GetBuffer(0)
+					, QByteArray(str.GetBuffer(0)));
+
 			return;
 		}
 

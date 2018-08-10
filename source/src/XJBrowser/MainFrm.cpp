@@ -97,7 +97,7 @@ UINT RefreshPTSetState(LPVOID pParam)
 		//pTagOutStore->Check();
 
 		CXJUserStore *pUserStore = CXJUserStore::GetInstance();
-		//pUserStore->ReLoad();
+		pUserStore->ReLoad();
 
 		//pView->UpdateAllObj();
 		//pView->PostMessage(THREAD_FILL_DATA, 0, 0);

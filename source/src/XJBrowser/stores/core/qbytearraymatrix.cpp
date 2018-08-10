@@ -291,3 +291,77 @@ void QByteArrayMatrix::SetFieldValue(int iRow, int iCol, const QByteArray &s)
 	replace(m_from, m_end - m_from, s);
 }
 
+int QByteArrayMatrix::valueIndexOf(QByteArray &s, int from)
+{
+	return valueIndexOf(s.constData(), from);
+}
+
+int QByteArrayMatrix::valueIndexOf(int numVal, int from)
+{
+	return valueIndexOf(QByteArray::number(numVal).constData(), from);
+}
+
+int QByteArrayMatrix::valueIndexOf(const char *pszVal, int from)
+{
+	int nReturn = -1;
+
+	int iCols = GetFieldCount();
+	int nCount = 0;
+	for (int i = 1; i <= iCols; i++){
+		if (QByteArray(pszVal) != GetFieldValue(1, i))
+			continue;
+
+		nCount++;
+
+		if (nCount > from){
+			nReturn = i;
+			break;
+		}
+	}
+
+	return nReturn;
+}
+
+int QByteArrayMatrix::valueCount(QByteArray &s)
+{
+	return valueCount(s.constData());
+}
+
+int QByteArrayMatrix::valueCount(int numVal)
+{
+	return valueCount(QByteArray::number(numVal).constData());
+}
+
+int QByteArrayMatrix::valueCount(const char *pszVal)
+{
+	int nReturn = -1;
+
+	int iCols = GetFieldCount();
+	int nCount = 0;
+	for (int i = 1; i <= iCols; i++){
+		if (QByteArray(pszVal) != GetFieldValue(1, i))
+			continue;
+		
+		nCount++;
+	}
+	nReturn = nCount;
+
+	return nReturn;
+}
+
+bool QByteArrayMatrix::valueContains(QByteArray &s)
+{
+	return valueContains(s.constData());
+}
+
+bool QByteArrayMatrix::valueContains(int numVal)
+{
+	return valueContains(QByteArray::number(numVal).constData());
+}
+
+bool QByteArrayMatrix::valueContains(const char *pszVal)
+{
+	bool bReturn = false;
+
+	return (valueIndexOf(pszVal) > 0);
+}

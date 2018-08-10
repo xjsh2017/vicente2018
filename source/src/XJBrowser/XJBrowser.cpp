@@ -3431,7 +3431,7 @@ BOOL CXJBrowserApp::InitInstance()
 		pUserStore->ReLoad();
 		pTagOutStore->ReLoadState();
 		pTagOutStore->Check();
-		
+
 //		AfxMessageBox(pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2));
 // 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT, QByteArray("run1"));
 // 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_HANGOUT, QByteArray("run2"));
