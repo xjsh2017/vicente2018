@@ -43,8 +43,87 @@ BEGIN_MESSAGE_MAP(CDlgTagOutSet, CDialog)
 	ON_BN_CLICKED(IDC_BTN_SAVE, OnApplySetting)
 	ON_CBN_SELCHANGE(IDC_CMB_MARKREASON, OnSelchangeCmbMarkreason)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_CTRL1, OnClickList1)
+    ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_CTRL1, OnCustomdrawList)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+
+void CDlgTagOutSet::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
+{
+	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( pNMHDR );
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	QPTZoneDataTable *pPTZoneData = pTagOutStore->GetPTZoneData();
+	QPTSetDataTable *pPTSetData = pTagOutStore->GetPTSetData();
+	
+    // Take the default processing unless we set this to something else below.
+    *pResult = 0;
+	
+    // First thing - check the draw stage. If it's the control's prepaint
+    // stage, then tell Windows we want messages for every item.
+	
+    if ( CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage )
+	{
+        *pResult = CDRF_NOTIFYITEMDRAW;
+	}
+    else if ( CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage )
+	{
+        // This is the notification message for an item.  We'll request
+        // notifications before each subitem's prepaint stage.
+		
+        *pResult = CDRF_NOTIFYSUBITEMDRAW;
+	}
+    else if ( (CDDS_ITEMPREPAINT | CDDS_SUBITEM) == pLVCD->nmcd.dwDrawStage )
+	{
+        // This is the prepaint stage for a subitem. Here's where we set the
+        // item's text and background colors. Our return value will tell 
+        // Windows to draw the subitem itself, but it will use the new colors
+        // we set here.
+        // The text color will cycle through red, green, and light blue.
+        // The background color will be light blue for column 0, red for
+        // column 1, and black for column 2.
+		
+        COLORREF crText, crBkgnd;
+		
+		int nRowIdx = static_cast<int> (pLVCD->nmcd.dwItemSpec); //行索引
+		int nColIdx = pLVCD->iSubItem; //列索引
+        
+		int nCols = m_List.GetHeaderCtrl()->GetItemCount();
+//         if ( nColIdx == nCols - 1 )
+// 		{
+// 			//值
+// 			CString strValue = m_List.GetItemText(nRowIdx, nColIdx);
+// 			CString strOldValue = m_List.GetItemText(nRowIdx, nColIdx - 1);
+// 			
+// 			//去除两边空格
+// 			strValue.TrimLeft();
+// 			strValue.TrimRight();
+// 			strOldValue.TrimLeft();
+// 			strOldValue.TrimRight();
+// 			
+// 			if (strValue != strOldValue){
+// 				crText = RGB(255,0,0);
+// 				
+// 				pLVCD->clrText = crText;
+// 			}
+// 		}
+		
+		if (nColIdx == 0){
+			crBkgnd = RGB(212,207,200);
+			crBkgnd = RGB(224,221,216);
+			pLVCD->clrTextBk = crBkgnd;
+		}else if (1 == nColIdx){
+			crBkgnd = RGB(244,244,244);
+			pLVCD->clrTextBk = crBkgnd;
+		}else{
+			crBkgnd = RGB(255,255,255);
+			pLVCD->clrTextBk = crBkgnd;
+		}
+		
+        // Tell Windows to paint the control itself.
+        *pResult = CDRF_DODEFAULT;
+	}
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CDlgTagOutSet message handlers

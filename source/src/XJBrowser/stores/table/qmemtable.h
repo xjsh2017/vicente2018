@@ -59,6 +59,10 @@ public:
 
 	int			AddRow(QByteArrayMatrix keyVals);
 
+	BOOL		EnterReadLock();
+	BOOL		ReleaseReadLock();
+	BOOL		IsReadLock();
+
 private:
 };
 

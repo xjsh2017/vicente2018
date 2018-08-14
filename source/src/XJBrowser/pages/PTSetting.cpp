@@ -18,6 +18,7 @@
 
 #include "XJTagOutStore.h"
 #include "XJUserStore.h"
+#include "XJUtilsStore.h"
 #include "qptsetstatetable.h"
 
 /*#ifdef _DEBUG
@@ -27,6 +28,8 @@ static char THIS_FILE[] = __FILE__;
 #endif*/
 
 #define CURRENT_ZONE	99
+
+const int PTSET_TIMER_LEN = 2;
 
 UINT PTSettingLoad(LPVOID pParam)
 {
@@ -3416,7 +3419,7 @@ void CPTSetting::OnBtnPtsetModify2()
 			//AfxMessageBox("CPTSetting::OnBtnPtsetModify1.DEBUG");
 			//无修改定值, 提示先修改
 			AfxMessageBox( StringFromID(IDS_TIP_EDIT_SETTING));
-			//return;
+			return;
 		}
 
 		//组建要修改值的链表
@@ -3507,6 +3510,7 @@ void CPTSetting::OnBtnPtsetModify2()
 		dlg1.m_arrModifyList.Copy(m_arrModifyList);
 		dlg1.m_sZone = m_sZone;
 		dlg1.m_sCPU = m_sCPU;
+		//pPTSetData->ReLoad(pTagOutState->GetPTID(), atoi(m_sCPU), atoi(m_sZone), m_arrModifyList, m_arrSetting);
 		if(dlg1.DoModal() == IDOK)
 		{
 			if(g_PTControlModel == 1)
@@ -3578,7 +3582,7 @@ BOOL CPTSetting::ExcutePTSet()
 	BOOL bReturn = TRUE;
 
 	if (NULL == m_pObj){
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 		RevertModifyValue();
 		return FALSE;
 	}
@@ -3630,7 +3634,7 @@ BOOL CPTSetting::ExcutePTSet()
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_5, sUserID.constData()
 					, QByteArray(str.GetBuffer(0)));
 
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 
 		bReturn = FALSE;
 	}
@@ -3666,7 +3670,7 @@ void CPTSetting::ExcutePTSet_Zone()
 		return;
 	
 	if (NULL == m_pObj){
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 		RevertModifyValue(2);
 		return;
 	}
@@ -3747,15 +3751,15 @@ void CPTSetting::ExcutePTSet_Zone()
 		CString str;
 		if(nReturn == -1)
 		{
-			str.Format("保护[%s]发送定值组切换报文失败,原因为连接中断", m_pObj->m_sName);
+			str.Format("保护[%s]发送定值组切换执行报文失败,原因为连接中断", m_pObj->m_sName);
 			WriteLog(str, XJ_LOG_LV2);
 		}
 		else if(nReturn == -2)
 		{
-			str.Format("保护[%s]发送定值组切换报文失败,原因为缓存已满", m_pObj->m_sName);
+			str.Format("保护[%s]发送定值组切换执行报文失败,原因为缓存已满", m_pObj->m_sName);
 			WriteLog(str, XJ_LOG_LV2);
 		}else{
-			str.Format("保护发送定值组切换报文失败: [%s]", m_pObj->m_sName);
+			str.Format("保护发送定值组切换执行报文失败: [%s]", m_pObj->m_sName);
 			WriteLog(str, XJ_LOG_LV2);
 		}
 		AfxMessageBox( StringFromID(IDS_CALL_SENDMSG_FAIL));
@@ -3776,7 +3780,7 @@ void CPTSetting::ExcutePTSet_Zone()
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_5, sUserID.constData()
 			, QByteArray(str.GetBuffer(0)));
 		
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 	}
 	else
 	{
@@ -4179,7 +4183,7 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 				
 				// 重启定时
 				KillTimer(m_nPTSetTimer);
-				m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+				m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 				
 				AfxMessageBox(StringFromID(IDS_CALL_SENDMSG_FAIL));
 
@@ -4202,7 +4206,7 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 
 			// 重启定时
 			KillTimer(m_nPTSetTimer);
-			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 		}*/
 	}
 	else
@@ -4228,7 +4232,7 @@ void CPTSetting::OnSTTP20052( WPARAM wParam,LPARAM lParam )
 
 		// 重启定时
 		KillTimer(m_nPTSetTimer);
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 	}
 
 	m_bChecking = FALSE;
@@ -4405,8 +4409,10 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 	}
 	else
 	{
+		//失败
 		CString str;
 		str = StringFromID(IDS_EXECUTE_MODIFYSETTING_FAIL);
+
 		m_bMonVerify = false;
 		m_bOperVerify = false;
 		//失败
@@ -4424,7 +4430,7 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		AfxMessageBox(str);
 	}
 
-	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 }
 
 /*************************************************************
@@ -4898,12 +4904,13 @@ void CPTSetting::OnBtnPtsetZoneModify2()
 			RevertModifyValue(2);
 			m_bMonVerify = false;
 			m_bOperVerify = false;
+			m_nCurrentStatus = 0;
 			UpdateControlsEnable();
 			
 			str.Format("用户[%s]以监护员身份验证失败：不同意修改", m_sMonUser);
 			WriteLog(str, XJ_LOG_LV2);
 			pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_3, m_sMonUser.GetBuffer(0)
-					, QByteArray(str.GetBuffer(0)));
+				, QByteArray(str.GetBuffer(0)));
 
 			return;
 		}
@@ -5034,7 +5041,7 @@ void CPTSetting::OnSTTP20048( WPARAM wParam,LPARAM lParam )
 				
 				// 重启定时
 				KillTimer(m_nPTSetTimer);
-				m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+				m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 
 				return;
 			}
@@ -5074,7 +5081,7 @@ void CPTSetting::OnSTTP20048( WPARAM wParam,LPARAM lParam )
 		
 		// 重启定时
 		KillTimer(m_nPTSetTimer);
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 	}
 
 	m_bChecking = FALSE;
@@ -5093,6 +5100,8 @@ void CPTSetting::OnSTTP20170( WPARAM wParam,LPARAM lParam )
 	}
 
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 	
 	//取得报文
 	STTP_FULL_DATA * pSttpData = (STTP_FULL_DATA*)lParam;
@@ -5197,12 +5206,24 @@ void CPTSetting::OnSTTP20170( WPARAM wParam,LPARAM lParam )
 					CString str;
 					str.Format("保护[%s]发送定值切换执行报文失败,原因为缓存已满", m_pObj->m_sName);
 					WriteLog(str, XJ_LOG_LV2);
+				}else{
+					CString str;
+					str.Format("保护发送定值切换执行报文失败: [%s]", m_pObj->m_sName);
+					WriteLog(str, XJ_LOG_LV2);
 				}
 				AfxMessageBox(StringFromID(IDS_CALL_SENDMSG_FAIL));
 
 				//改变状态
 				m_nCurrentStatus = 0;
 				UpdateControlsEnable();
+
+				RevertModifyValue();
+				QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2);
+				pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_5, sUserID.constData()
+							, QByteArray(str.GetBuffer(0)));
+				
+				m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
+
 				return;
 			}
 			//开启修改超时定时器
@@ -5220,6 +5241,11 @@ void CPTSetting::OnSTTP20170( WPARAM wParam,LPARAM lParam )
 	else
 	{
 		//失败
+		CString str;
+		str.Format("%s", "定值组切换预校失败");
+		WriteLog(str);
+		AfxMessageBox(str);
+		
 		//修改状态为空闲
 		m_bMonVerify = false;
 		m_bOperVerify = false;
@@ -5227,7 +5253,15 @@ void CPTSetting::OnSTTP20170( WPARAM wParam,LPARAM lParam )
 		m_sMonUser = _T("");
 		m_nCurrentStatus = 0;
 		UpdateControlsEnable();
-		AfxMessageBox(StringFromID(IDS_VERIFY_SWITCHZONE_FAIL));
+		RevertModifyValue();
+		//AfxMessageBox(StringFromID(IDS_VERIFY_SWITCHZONE_FAIL));
+
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_5, m_sOperUser.GetBuffer(0)
+			, QByteArray(str.GetBuffer(0)));
+		
+		// 重启定时
+		KillTimer(m_nPTSetTimer);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 	}
 }
 
@@ -5245,6 +5279,8 @@ void CPTSetting::OnSTTP20056( WPARAM wParam,LPARAM lParam )
 		return;
 	
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 	
 	//检查是处于定值切换状态
 	if(m_nCurrentStatus != 4)
@@ -5297,19 +5333,39 @@ void CPTSetting::OnSTTP20056( WPARAM wParam,LPARAM lParam )
 		m_ListZone.SetItemText(0, 6, m_sCurrentZone);
 		UpdateData(FALSE);
 		m_ListZone.ClearEdited();
+
+		// 修改状态机
+		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_5);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
+		pTagOutState->Next_PTSET_ZONE_STATE_5(sUserID.constData());
+		m_nCurrentDetailStatus = 0;
+
 		//成功
 		AfxMessageBox(StringFromID(IDS_EXECUTE_SWITCHZONE_SUCCESS));
 	}
 	else
 	{
 		//失败
+		CString str;
+		str = StringFromID(IDS_EXECUTE_SWITCHZONE_FAIL);
+
 		m_bMonVerify = false;
 		m_bOperVerify = false;
 		m_sOperUser = _T("");
 		m_sMonUser = _T("");
 		//回复修改前的值
 		RevertModifyValue(2);
-		AfxMessageBox(StringFromID(IDS_EXECUTE_SWITCHZONE_FAIL));
+
+		// 修改状态机
+		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_5);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_5, sUserID.constData()
+			, QByteArray(str.GetBuffer(0)));
+		m_nCurrentDetailStatus = 0;
+
+		AfxMessageBox(str);
 	}
 
 	//修改状态
@@ -5409,6 +5465,7 @@ void CPTSetting::OnSTTP20172( WPARAM wParam,LPARAM lParam )
 		//成功
 		m_ListZone.ClearEdited();
 		AfxMessageBox(StringFromID(IDS_EXECUTE_SWITCHZONE_SUCCESS));
+		AfxMessageBox("20172");
 	}
 	else
 	{
@@ -5508,7 +5565,7 @@ void CPTSetting::OnPTFrameOpen( WPARAM wParam, LPARAM lParam )
 		}
 	}
 
-	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 	m_btnModifySetting.ShowWindow(SW_HIDE);
 	m_btnModifyZone.ShowWindow(SW_HIDE);
 	m_btnViewPTSetProg.ShowWindow(SW_HIDE);
@@ -6383,7 +6440,8 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		// 定值修改按钮是否可用： 
 		if (XJ_OPER_HANGOUT == nPTSetState 
 			&& XJ_TAGOUT_PTVALVSET == nHangoutType
-			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){
+			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID
+			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER))){
 			m_btnModifySetting.EnableWindow(TRUE);
 		}else{
 			m_btnModifySetting.EnableWindow(FALSE);
@@ -6392,7 +6450,8 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		// 定值区切换按钮是否可用：
 		if (XJ_OPER_HANGOUT == nPTSetState 
 			&& XJ_TAGOUT_PTZONESET == nHangoutType
-			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){
+			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID
+			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER))){
 			m_btnModifyZone.EnableWindow(TRUE);
 		}else{
 			m_btnModifyZone.EnableWindow(FALSE);
@@ -6429,9 +6488,12 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		}
 		else
 			m_btnViewPTSetProg.ShowWindow(SW_HIDE);
+		
+		QByteArray &thisComputer = CXJUtilsStore::GetInstance()->GetComputerName();
+		if (5 == m_pObj->m_nRunStatu/* && pApp->m_User.m_strUSER_ID == sOperUserID*/){
 
-		if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
-			if (XJ_OPER_PTVALVSET_STATE_4 == nPTSetState && 0 == m_nCurrentDetailStatus){
+			if (XJ_OPER_PTVALVSET_STATE_4 == nPTSetState && 0 == m_nCurrentDetailStatus
+				&& pTagOutState->GetLog(XJ_OPER_PTVALVSET_STATE_2).GetFieldValue(1, 4) == thisComputer){
 				AfxMessageBox("运行员已验证定值单修改内容，修改内容将下发到子站，单击<确定>将执行修改"
 					, MB_OK|MB_ICONINFORMATION);	
 				m_nCurrentDetailStatus = 1;
@@ -6449,7 +6511,8 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 				}
 			}
 
-			if (XJ_OPER_PTZONESET_STATE_3 == nPTSetState && 0 == m_nCurrentDetailStatus){
+			if (XJ_OPER_PTZONESET_STATE_3 == nPTSetState && 0 == m_nCurrentDetailStatus
+				&& pTagOutState->GetLog(XJ_OPER_PTZONESET_STATE_2).GetFieldValue(1, 4) == thisComputer){
 				AfxMessageBox("监护员已验证定值区修改内容，修改内容将下发到子站，单击<确定>将执行修改"
 					, MB_OK|MB_ICONINFORMATION);	
 				m_nCurrentDetailStatus = 1;
@@ -6469,8 +6532,9 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 		}
 		
 		if (pTagOutState->GetFlags() == 1 && CString(pTagOutState->GetPTID().constData()) == m_pObj->m_sID
-			&& pApp->m_User.m_strUSER_ID == sOperUserID){
-			// 只有修改定值的用户才执行界面回复操作
+			//&& pApp->m_User.m_strUSER_ID == sOperUserID
+			&& pTagOutState->GetLog(XJ_OPER_PTSOFTSET_STATE_2).GetFieldValue(1, 4) == thisComputer){
+			// 只有修改定值的用户的工作站才执行界面回复操作
 			KillTimer(m_nPTSetTimer);
 			
 			if (XJ_TAGOUT_PTVALVSET){
@@ -6483,11 +6547,11 @@ void CPTSetting::OnTimer(UINT nIDEvent)
 			//AfxMessageBox("RevertModifyValue");
 			
 			// 启用定时器
-			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 		}
 		
 		// 启用定时器
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTVALVSET, PTSET_TIMER_LEN*1000, NULL);
 	}
 
 	if(nIDEvent == m_nRecordTimer)
@@ -6796,7 +6860,6 @@ void CPTSetting::RevertModifyValue(int nType, int nFlag)
 		}
 		//清除修改标记
 		m_List.ClearEdited();
-		m_nCurrentDetailStatus = 0;
 	}
 	else if(nType == 2)
 	{
@@ -6815,6 +6878,7 @@ void CPTSetting::RevertModifyValue(int nType, int nFlag)
 		}
 		m_ListZone.ClearEdited();
 	}
+	m_nCurrentDetailStatus = 0;
 
 }
 

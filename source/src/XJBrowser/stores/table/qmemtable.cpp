@@ -39,6 +39,9 @@ public:
 	/** @brief           主键字段在字段定义表中的位置*/
 	vector<int>			m_key_row_idx;
 
+	/** @brief           读锁*/
+	bool				m_bReadLock;
+
 public:
 	void		init();
 	/*
@@ -95,6 +98,11 @@ public: // SQL DML DDL
 	QByteArray	BuildSQL_INSERT(int iRow);
 	BOOL		ExcuteSQL(const char* sql_stmt, QByteArrayMatrix &content);
 
+public:
+	BOOL		EnterReadLock();
+	BOOL		ReleaseReadLock();
+	BOOL		IsReadLock();
+
 };
 
 QMemTablePrivate::QMemTablePrivate()
@@ -141,7 +149,34 @@ void QMemTablePrivate::init()
 
 	m_data.SetDelimRow("$$!");
 	m_data.SetDelimCol("##!");
+
+	m_bReadLock = false;
 }
+
+BOOL QMemTablePrivate::EnterReadLock()
+{
+	BOOL bReturn = FALSE;
+
+	if (m_bReadLock)
+		return FALSE;
+
+	m_bReadLock = true;
+
+	return TRUE;
+}
+
+BOOL QMemTablePrivate::ReleaseReadLock()
+{
+	m_bReadLock = false;
+
+	return TRUE;
+}
+
+BOOL QMemTablePrivate::IsReadLock()
+{
+	return m_bReadLock ? TRUE : FALSE;
+}
+
 
 BOOL QMemTablePrivate::LoadInfo(int nTableID)
 {
@@ -1250,4 +1285,28 @@ int QMemTable::AddRow(QByteArrayMatrix keyVals)
 		return -1;
 
 	return d_ptr->AddRowData(keyVals);
+}
+
+BOOL QMemTable::EnterReadLock()
+{
+	if (NULL == d_ptr)
+		return FALSE;
+	
+	return d_ptr->EnterReadLock();
+}
+
+BOOL QMemTable::ReleaseReadLock()
+{
+	if (NULL == d_ptr)
+		return FALSE;
+	
+	return d_ptr->ReleaseReadLock();
+}
+
+BOOL QMemTable::IsReadLock()
+{
+	if (NULL == d_ptr)
+		return FALSE;
+
+	return d_ptr->IsReadLock();
 }

@@ -366,7 +366,7 @@ void CXJTagOutStore::AddNewManOperator(int nStateID, const char* szTime, CString
 	CString strTime = szTime;
 
 	CString str;
-	str.Format("strMsg: %s", strMsg);
+	str.Format("FunID: %s", FunID);
 	//AfxMessageBox(str);
 	if (strMsg.IsEmpty())
 	{
@@ -640,7 +640,7 @@ QByteArray CXJTagOutStore::GetFuncID(int nStateID)
 
 	//QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
 	QByteArray opReasonTypeName = d_ptr->m_state.GetTagOutReasonNameByState(nStateID);
-	if (opReasonTypeName.isEmpty())
+	if (opReasonTypeName.trimmed().isEmpty())
 		opReasonTypeName = d_ptr->m_state.GetTypeName();
 
 	baReturn << opReasonTypeName << " | "

@@ -6,12 +6,13 @@
 
 #include "XJStoreDefine.h"
 #include "XJTagOutStore.h"
+#include "XJUtilsStore.h"
 #include "XJBrowser.h"
 
 const char* NAME_TB_SYS_CFG = "tb_sys_config";
 const char* NAME_TB_PT_SOFTBOARD_DEF = "tb_pt_softboard_def";
 
-const char* SAVE_PATH_TB_PT_SOFTBOARD_DEF = "c:/tb_pt_softboard_def";
+const char* SAVE_PATH_TB_PT_SOFTBOARD_DEF = "c:/tb_pt_softboard_def.txt";
 
 const char* TAGOUT_KEYNAME = "STATE_TAGOUT";
 const char* PTVALVSET_KEYNAME = "STATE_PTSET_VALV";
@@ -40,6 +41,9 @@ QPTSetStateTable::~QPTSetStateTable()
 BOOL QPTSetStateTable::ReLoad()
 {
 	BOOL bReturn = FALSE;
+
+	if (IsReadLock())
+		return FALSE;
 	
 	LoadInfo("tb_sys_config");
 	LoadDataAll();
@@ -525,13 +529,16 @@ QByteArrayMatrix QPTSetStateTable::AddLog(int nStateID, const char *pszUserID, i
 	}
 	QByteArrayMatrix logs = GetFieldValue(keyVals, "reverse3");
 
+	QByteArray &computerName = CXJUtilsStore::GetInstance()->GetComputerName();
+
 	s.SetDelimRow(logs.GetDelimRow());
 	s.SetDelimCol(logs.GetDelimCol());
 
 	if (nAddType != 0){
 		s << GetTime() << s.GetDelimCol() 
 			<< pszUserID << s.GetDelimCol() 
-			<< nStateID;
+			<< nStateID << s.GetDelimCol()
+			<< computerName;
 
 		SetFieldValue(keyVals, "reverse3", s);
 
@@ -546,10 +553,12 @@ QByteArrayMatrix QPTSetStateTable::AddLog(int nStateID, const char *pszUserID, i
 
 		logs.SetFieldValue(iRowLog, 1, GetTime());
 		logs.SetFieldValue(iRowLog, 2, QByteArray(pszUserID));
+		logs.SetFieldValue(iRowLog, 4, computerName);
 	}else{
 		s << GetTime() << logs.GetDelimCol() 
 			<< pszUserID << logs.GetDelimCol() 
-			<< nStateID;
+			<< nStateID << s.GetDelimCol()
+			<< computerName;
 		logs.AppendRow(s);
 	}
 
@@ -723,6 +732,8 @@ void QPTSetStateTable::Next_0(const char *pszUserID)
 {
 	if (NULL == pszUserID)
 		return;
+	
+	EnterReadLock();
 
 	// 添加工作进度
 	QByteArrayMatrix slog = AddLog(XJ_OPER_UNHANGOUT, pszUserID);
@@ -741,12 +752,16 @@ void QPTSetStateTable::Next_0(const char *pszUserID)
 	//RevertModify();	 // 数据库恢复原值
 	
 	Save();
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_1(const char *pszUserID, const char *pt_id, const char * pszHangoutReason)
 {
 	if (NULL == pt_id || NULL == pszUserID)
 		return;
+	
+	EnterReadLock();
 
 	int nType = GetTagOutReasonType(pszHangoutReason);
 	
@@ -763,11 +778,20 @@ void QPTSetStateTable::Next_1(const char *pszUserID, const char *pt_id, const ch
 	Save();
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_HANGOUT, slog.GetFieldValue(1, 1).constData(), pszUserID);
+		
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *pszUserID
 									   , const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting)
 {
+	EnterReadLock();
+
+	if (NULL != m_pData_Valv){
+		m_pData_Valv->ReLoad(GetPTID(), nCPU, nZone, arrModifyList, arrSetting);
+		m_pData_Valv->Save();
+	}
+
 	SetStateID(XJ_OPER_PTVALVSET_STATE_2);
 	SetCPUID(nCPU);
 	SetZoneID(nZone);
@@ -777,16 +801,17 @@ void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *pszUs
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_2, pszUserID);
 	
 	Save();
-
-	if (m_pData_Valv)
-		m_pData_Valv->ReLoad(GetPTID(), nCPU, nZone, arrModifyList, arrSetting);
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTVALVSET_STATE_2
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSet_State_3(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTVALVSET_STATE_3);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_3, pszUserID);
@@ -797,10 +822,14 @@ void QPTSetStateTable::Next_PTSet_State_3(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTVALVSET_STATE_3
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSet_State_4(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTVALVSET_STATE_4);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_4, pszUserID);
@@ -811,10 +840,14 @@ void QPTSetStateTable::Next_PTSet_State_4(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTVALVSET_STATE_4
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSet_State_5(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTVALVSET_STATE_5);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_5, pszUserID);
@@ -825,13 +858,22 @@ void QPTSetStateTable::Next_PTSet_State_5(const char *pszUserID)
 
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTVALVSET_STATE_5
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_ZONE_STATE_2(int nCPU, int nZone, const char *pszUserID
 										  , QByteArray &oldZoneValue, QByteArray &newZoneValue)
 {
+	EnterReadLock();
+
+	if (m_pData_Zone){
+		m_pData_Zone->ReLoad(GetPTID(), nCPU, nZone, oldZoneValue, newZoneValue);
+		m_pData_Zone->Save();
+	}
+
 	SetStateID(XJ_OPER_PTZONESET_STATE_2);
-// 	SetCPUID(nCPU);
+ 	SetCPUID(nCPU);
 // 	SetZoneID(nZone);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_2, pszUserID);
@@ -840,15 +882,16 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_2(int nCPU, int nZone, const char *
 	
 	Save();
 	
-	if (m_pData_Zone)
-		m_pData_Zone->ReLoad(GetPTID(), nCPU, nZone, oldZoneValue, newZoneValue);
-	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTZONESET_STATE_2
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_ZONE_STATE_3(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTZONESET_STATE_3);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_3, pszUserID);
@@ -859,10 +902,14 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_3(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTZONESET_STATE_3
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_ZONE_STATE_4(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTZONESET_STATE_4);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_4, pszUserID);
@@ -873,10 +920,14 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_4(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTZONESET_STATE_4
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_ZONE_STATE_5(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTZONESET_STATE_5);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_5, pszUserID);
@@ -887,12 +938,21 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_5(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTZONESET_STATE_5
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_SOFT_STATE_2(int nCPU, const char *pszUserID
 											   , const MODIFY_LIST &arrModifyList
 								, const PT_SOFTBOARD_LIST &arrSoftBoard)
 {
+	EnterReadLock();
+
+	if (m_pData_Soft){
+		m_pData_Soft->ReLoad(GetPTID(), nCPU, arrModifyList, arrSoftBoard);
+		m_pData_Soft->Save();
+	}
+
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_2);
 	SetCPUID(nCPU);
 	//SetZoneID(nZone);
@@ -903,15 +963,16 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_2(int nCPU, const char *pszUserID
 	
 	Save();
 	
-	if (m_pData_Soft)
-		m_pData_Soft->ReLoad(GetPTID(), nCPU, arrModifyList, arrSoftBoard);
-	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSOFTSET_STATE_2
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_SOFT_STATE_3(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_3);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_3, pszUserID);
@@ -922,10 +983,14 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_3(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSOFTSET_STATE_3
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_SOFT_STATE_4(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_4);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_4, pszUserID);
@@ -936,10 +1001,14 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_4(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSOFTSET_STATE_4
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::Next_PTSET_SOFT_STATE_5(const char *pszUserID)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_5);
 	
 	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_5, pszUserID);
@@ -950,14 +1019,19 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_5(const char *pszUserID)
 	
 	CXJTagOutStore::GetInstance()->AddNewManOperator(XJ_OPER_PTSOFTSET_STATE_5
 		, slog.GetFieldValue(1, 1).constData(), pszUserID);
+	
+	ReleaseReadLock();
 }
 
 void QPTSetStateTable::RevertTo_PTSet_State_1(int nFrom_PTSetStateID, const char* pszUserID, QByteArray &strMs)
 {
+	EnterReadLock();
+
 	SetStateID(XJ_OPER_HANGOUT);
 
 	int nPTSetType = GetType();
 	QByteArrayMatrix log = GetLog(XJ_OPER_HANGOUT);
+	//AfxMessageBox(log.constData());
 	
 	QByteArrayMatrix keyVals;
 	int nTagOutType = GetType();
@@ -1002,6 +1076,8 @@ void QPTSetStateTable::RevertTo_PTSet_State_1(int nFrom_PTSetStateID, const char
 
 	CXJTagOutStore::GetInstance()->AddNewManOperator(nFrom_PTSetStateID
 		, GetTime().constData(), pszUserID, OPER_FAILD, strMs.constData());
+	
+	ReleaseReadLock();
 }
 
 ////////////////////////////////////////////////////////////
@@ -1019,6 +1095,9 @@ QPTSetDataTable::~QPTSetDataTable()
 BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id)
 {
 	BOOL bReturn = FALSE;
+
+	if (IsReadLock())
+		return FALSE;
 	
 	LoadInfo("tb_pt_setting_def");
 	//LoadDataAll();
@@ -1043,6 +1122,9 @@ BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id)
 BOOL QPTSetDataTable::ReLoad(const MODIFY_LIST &arrModifyList, const PT_SETTING_LIST &arrSetting)
 {
 	BOOL bReturn = FALSE;
+	
+	if (IsReadLock())
+		return FALSE;
 
 	ReLoad();
 
@@ -1084,6 +1166,9 @@ BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIF
 {
 	BOOL bReturn = FALSE;
 	
+	if (IsReadLock())
+		return FALSE;
+	
 	ReLoad(pt_id);
 	
 	int nCount = arrSetting.GetSize();
@@ -1117,6 +1202,8 @@ BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIF
 		
 		SetFieldValue(keyvals, "reserve3", val);
 	}
+
+	//Save();
 	
 	return TRUE;
 }
@@ -1214,6 +1301,9 @@ BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id)
 		return FALSE;
 	}
 	
+	if (IsReadLock())
+		return FALSE;
+
 	LoadInfo("tb_pt_zone_def");
 	//LoadDataAll();
 	
@@ -1240,6 +1330,9 @@ BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone
 							  , QByteArray &newZoneValue)
 {
 	BOOL bReturn = FALSE;
+	
+	if (IsReadLock())
+		return FALSE;
 	
 	ReLoad(pt_id);
 
@@ -1341,6 +1434,9 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id)
 		AfxMessageBox("no QPTSetStateTable instance assigned to QPTSoftDataTable");
 		return FALSE;
 	}
+
+	if (IsReadLock())
+		return FALSE;
 	
 	LoadInfo(NAME_TB_PT_SOFTBOARD_DEF);
 	//LoadDataAll();
@@ -1369,6 +1465,9 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id, int nCPU
 {
 	BOOL bReturn = FALSE;
 	
+	if (IsReadLock())
+		return FALSE;
+
 	ReLoad(pt_id);
 
 	int nCount = arrSoftBoard.GetSize();
@@ -1387,6 +1486,7 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id, int nCPU
 	}
 	
 	nCount = arrModifyList.GetSize();
+	//AfxMessageBox(QByteArray::number(nCount).constData());
 	for(int i = 0; i < nCount; i++)
 	{
 		STTP_DATA * sttpData = (STTP_DATA*)arrModifyList.GetAt(i);
@@ -1394,7 +1494,7 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id, int nCPU
 		int nID = sttpData->id;
 		int nCPUID = sttpData->nCpu;
 		QByteArrayMatrix keyvals;
-		keyvals << pt_id << "," << nCPUID << "," << nID;
+		keyvals << pt_id << "," << nCPU << "," << nID;
 		
 		QByteArrayMatrix val = GetFieldValue(keyvals, "reserve3");
 		val << ", " << sttpData->str_value.c_str();

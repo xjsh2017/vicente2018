@@ -84,7 +84,7 @@ void CDlgDataCheck::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
         // The background color will be light blue for column 0, red for
         // column 1, and black for column 2.
 		
-        COLORREF crText/*, crBkgnd*/;
+        COLORREF crText, crBkgnd;
 
 		int nRowIdx = static_cast<int> (pLVCD->nmcd.dwItemSpec); //行索引
 		int nColIdx = pLVCD->iSubItem; //列索引
@@ -104,11 +104,21 @@ void CDlgDataCheck::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 
 			if (strValue != strOldValue){
 				crText = RGB(255,0,0);
-				//crBkgnd = RGB(128,128,255);
 				
 				pLVCD->clrText = crText;
-				//pLVCD->clrTextBk = crBkgnd;
 			}
+		}
+
+		if (nColIdx == 0){
+			crBkgnd = RGB(212,207,200);
+			crBkgnd = RGB(224,221,216);
+			pLVCD->clrTextBk = crBkgnd;
+		}else if (nColIdx == nCols - 1 || nColIdx == nCols - 2){
+			crBkgnd = RGB(255,255,255);
+			pLVCD->clrTextBk = crBkgnd;
+		}else{
+			crBkgnd = RGB(244,244,244);
+			pLVCD->clrTextBk = crBkgnd;
 		}
 
         // Tell Windows to paint the control itself.
@@ -130,10 +140,6 @@ BOOL CDlgDataCheck::OnInitDialog()
 	QPTSoftDataTable *pPTSoftData = pTagOutStore->GetPTSoftData();
 	
 	// TODO: Add extra initialization here
-	
-	UpdateLabels1();
-	InitListStyle1();
-	FillData1();
 
 	if (m_nType == XJ_USERGROUP_RUNNER)
 	{
@@ -163,6 +169,10 @@ BOOL CDlgDataCheck::OnInitDialog()
 	{
 		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
 	}
+
+	UpdateLabels1();
+	InitListStyle1();
+	FillData1();
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -218,7 +228,7 @@ int CDlgDataCheck::InitListStyle1()
 	
 	//空图形列表, 用来调整行高
 	CImageList   m_l;   
-	m_l.Create(1,g_ListItemHeight,TRUE|ILC_COLOR32,1,0);   
+	m_l.Create(1,g_ListItemHeight,TRUE|ILC_COLOR32,1,0); 
 	m_List.SetImageList(&m_l,LVSIL_SMALL);
 	//先查找UIConfig配置文件中是否有此列表的列信息
 	//如果有,按配置文件的信息来设置列
@@ -237,7 +247,7 @@ int CDlgDataCheck::InitListStyle1()
 				<< "," << nCols - 2 
 				<< "," << nCols - 1;
 
-			lenCols << "50,60,180,80,80";
+			lenCols << "36,60,180,80,80";
 			
 			for (int iCol = 0; iCol < nCols; iCol++){
 				lvCol.cx = 80;
@@ -269,7 +279,7 @@ int CDlgDataCheck::InitListStyle1()
 				<< "," << nCols - 2 
 				<< "," << nCols - 1;
 			
-			lenCols << "50,80,180,80,80";
+			lenCols << "36,80,180,80,80";
 
 			//AfxMessageBox(showCols.constData());
 
@@ -303,7 +313,7 @@ int CDlgDataCheck::InitListStyle1()
 				<< "," << nCols - 2 
 				<< "," << nCols - 1;
 			
-			lenCols << "50,80,180,80,80";
+			lenCols << "36,80,180,80,80";
 			
 			//AfxMessageBox(showCols.constData());
 			

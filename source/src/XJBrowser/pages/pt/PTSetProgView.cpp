@@ -16,6 +16,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+const int PROG_TIMER_LEN = 1;
+
 /////////////////////////////////////////////////////////////////////////////
 // CPTSetProgView
 
@@ -107,7 +109,7 @@ void CPTSetProgView::OnInitialUpdate()
 	sizeTotal.cx = sizeTotal.cy = 90;
 	SetScrollSizes(MM_TEXT, sizeTotal);
 	
-	m_nTimer = SetTimer(501, 3*1000, 0);
+	m_nTimer = SetTimer(501, PROG_TIMER_LEN*1000, 0);
 	//StartThread();
 }
 
@@ -259,6 +261,9 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 		//关闭定时器
 		//KillTimer(m_nTimer);
 
+		if (FALSE == IsWindowVisible())
+			return;
+
 		CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 		
 		CXJTagOutStore *pStore = CXJTagOutStore::GetInstance();
@@ -273,11 +278,13 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 		if (nTagOutState < 0 || pState->GetPTID().isEmpty())
 			return;
 		
+		int nCount = pState->GetWorkFlow().GetRowCount();
 		if (-1 == m_nLastPTSetType){
 			m_nLastPTSetType = nTagOutType;
 		}
-		if (m_nLastPTSetType != nTagOutType
+		if ((m_nLastPTSetType != nTagOutType
 			&& m_nLastPTSetType == XJ_TAGOUT_UNDEFINE)
+			|| (IsWindowVisible() && nCount > 0 && nCount != m_items.GetSize()))
 		{
 			KillTimer(m_nTimer);
 
@@ -286,7 +293,7 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 			ResetObj();
 			ResetObjSize();
 
-			m_nTimer = SetTimer(501, 3*1000, 0);
+			m_nTimer = SetTimer(501, PROG_TIMER_LEN*1000, 0);
 		}
 		int n1 = m_nLastPTSetType - XJ_TAGOUT_UNDEFINE;
 		int n2 = nTagOutType - XJ_TAGOUT_UNDEFINE;
@@ -331,7 +338,7 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 				break;
 			}
 		}
-		m_nTimer = SetTimer(501, 3*1000, 0);
+		m_nTimer = SetTimer(501, PROG_TIMER_LEN*1000, 0);
 
 		if (bResize)
 			ResetObjSize();
@@ -350,7 +357,7 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 			m_pHeadItem->SetContent(str);
 		}
 
-		int nCount = log.GetRecordCount();
+		nCount = log.GetRecordCount();
 		for (i = 0; i < m_items.GetSize(); i++){
 			CPTSetStateItem *item = m_items.GetAt(i);
 			if (!item){
@@ -370,9 +377,10 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 
 				item->SetMarked(TRUE);
 				
-				sContent.Format(" 执行时间：[ %s ]：执行用户：[ %s ]"
+				sContent.Format(" 执行时间：[ %s ]，执行用户：[ %s ]，工作站：[ %s ]"
 					, log.GetFieldValue(j, 1).constData()
-					, log.GetFieldValue(j, 2).constData());
+					, log.GetFieldValue(j, 2).constData()
+					, log.GetFieldValue(j, 4).constData());
 
 				item->SetContent(sContent);
 				
@@ -381,7 +389,7 @@ void CPTSetProgView::OnTimer(UINT nIDEvent)
 		}
 		
 		Invalidate();
-		m_nTimer = SetTimer(501, 3*1000, 0);
+		m_nTimer = SetTimer(501, PROG_TIMER_LEN*1000, 0);
 	}
 
 	CScrollView::OnTimer(nIDEvent);

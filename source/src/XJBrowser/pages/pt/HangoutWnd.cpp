@@ -18,6 +18,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+const int TIMER_LEN = 1;
+
 
 CHangoutWndPane::CHangoutWndPane( CPoint pt, CSize sz )
 {
@@ -398,7 +400,7 @@ void CHangoutWnd::OnTimer(UINT nIDEvent)
 			KillTimer(m_nTimer);
 			//SetStation(m_pStation);
 			RefreshData();
-			m_nTimer = SetTimer(801, 3*1000, NULL);
+			m_nTimer = SetTimer(801, TIMER_LEN*1000, NULL);
 		}
 	}
 }
@@ -578,7 +580,7 @@ void CHangoutWnd::ShowChannelDetail( int nChannel )
 		m_pointPTSetModView.y = rcRect.top - 18;
 
 	}else{
-		LONG w = 700;
+		LONG w = 800;
 		LONG h = 260;
 
 		m_pointPTSetModView.x = rcRect.right - w;
@@ -606,7 +608,7 @@ void CHangoutWnd::SetStation( CStationObj* pStation )
 {
 	m_pStation = pStation;
 	KillTimer(m_nTimer);
-	m_nTimer = SetTimer(801, 3*1000, NULL);
+	m_nTimer = SetTimer(801, TIMER_LEN*1000, NULL);
 	//RefreshData();
 }
 

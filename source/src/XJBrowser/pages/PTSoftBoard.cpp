@@ -15,6 +15,7 @@
 
 #include "XJTagOutStore.h"
 #include "XJUserStore.h"
+#include "XJUtilsStore.h"
 #include "qptsetstatetable.h"
 
 
@@ -23,6 +24,8 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+const int PTSETSOFT_TIMER_LEN = 2;
 
 UINT PTSoftBoardLoad(LPVOID pParam)
 {
@@ -2060,7 +2063,7 @@ void CPTSoftBoard::OnBtnPtsoftModify2()
 		{
 			//无修改定值, 提示先修改
 			AfxMessageBox(StringFromID(IDS_TIP_EDIT_SOFT));
-			//return;
+			return;
 		}
 
 		m_nOperationNum = GetOperationNum();
@@ -2069,10 +2072,13 @@ void CPTSoftBoard::OnBtnPtsoftModify2()
 		m_strOutPut = "";
 		//记录新值
 		CheckModifyData(m_arrModifyList, m_strOutPut);
+//		AfxMessageBox(m_strOutPut);
 
 		// 载入新值
+// 		str.Format("cpu: %s", m_sCPU);
+// 		AfxMessageBox(str);
 		pPTSoftData->ReLoad(QByteArray(m_pObj->m_sID.GetBuffer(0))
-			, atoi(m_sCPU), m_arrModifyList, m_arrSoftBoard);
+			, atoi(m_sCPU.GetBuffer(0)), m_arrModifyList, m_arrSoftBoard);
 		
 		//操作员确认
 		CDlgDataCheck dlgCheck(this, XJ_USERGROUP_OPERATOR, XJ_TAGOUT_PTSOFTSET);
@@ -2226,7 +2232,7 @@ void CPTSoftBoard::ExcutePTSet_Soft()
 		return;
 
 	if (NULL == m_pObj){
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
 		RevertModifyValue();
 		return;
 	}
@@ -2249,15 +2255,15 @@ void CPTSoftBoard::ExcutePTSet_Soft()
 		//失败
 		if(nReturn == -1)
 		{
-			str.Format("保护[%s]发送软压板投退报文失败,原因为连接中断", m_pObj->m_sName);
+			str.Format("保护[%s]发送软压板投退执行报文失败,原因为连接中断", m_pObj->m_sName);
 			WriteLog(str, XJ_LOG_LV2);
 		}
 		else if(nReturn == -2)
 		{
-			str.Format("保护[%s]发送软压板投退报文失败,原因为缓存已满", m_pObj->m_sName);
+			str.Format("保护[%s]发送软压板投退执行报文失败,原因为缓存已满", m_pObj->m_sName);
 			WriteLog(str, XJ_LOG_LV2);
 		}else{
-			str.Format("保护发送软压板投退报文失败: [%s]", m_pObj->m_sName);
+			str.Format("保护发送软压板投退执行报文失败: [%s]", m_pObj->m_sName);
 			WriteLog(str, XJ_LOG_LV2);
 		}
 		AfxMessageBox(StringFromID(IDS_CALL_SENDMSG_FAIL));
@@ -2274,7 +2280,7 @@ void CPTSoftBoard::ExcutePTSet_Soft()
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_5, sUserID.constData()
 			, QByteArray(str.GetBuffer(0)));
 		
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
 	}
 	else
 	{
@@ -2379,6 +2385,7 @@ void CPTSoftBoard::CheckModifyData( MODIFY_LIST& modifyList, CString& strOut )
 		STTP_DATA * sttpData = new STTP_DATA;
 		//写入软压板ID
 		sttpData->id = atoi(pts->ID);
+		sttpData->nCpu = atoi(m_sCPU);
 
 		strOutput += pts->ID + "\t";
 		strOutput += pts->Name + StringFromID(IDS_COMMON_FROM)+" -> ";
@@ -2434,6 +2441,8 @@ void CPTSoftBoard::OnSTTP20118( WPARAM wParam,LPARAM lparam )
 		return;
 	
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 	
 	//检查是处于软压板投退状态
 	if(m_nCurrentStatus != 2)
@@ -2491,6 +2500,7 @@ void CPTSoftBoard::OnSTTP20118( WPARAM wParam,LPARAM lparam )
 	
 	CString strOutput = m_strOutPut;
 	
+	CString str;
 	//请求确认
 	if(pSttpData->sttp_body.nStatus == 0)
 	{
@@ -2516,14 +2526,15 @@ void CPTSoftBoard::OnSTTP20118( WPARAM wParam,LPARAM lparam )
 				//失败
 				if(nReturn == -1)
 				{
-					CString str;
 					str.Format("保护[%s]发送软压板投退执行报文失败,原因为连接中断", m_pObj->m_sName);
 					WriteLog(str, XJ_LOG_LV2);
 				}
 				else if(nReturn == -2)
 				{
-					CString str;
 					str.Format("保护[%s]发送软压板投退执行报文失败,原因为缓存已满", m_pObj->m_sName);
+					WriteLog(str, XJ_LOG_LV2);
+				}else{
+					str.Format("保护发送软压板投退执行报文失败: [%]", m_pObj->m_sName);
 					WriteLog(str, XJ_LOG_LV2);
 				}
 				AfxMessageBox(StringFromID(IDS_CALL_SENDMSG_FAIL));
@@ -2533,6 +2544,14 @@ void CPTSoftBoard::OnSTTP20118( WPARAM wParam,LPARAM lparam )
 				//回复修改前的值
 				RevertModifyValue();
 				UpdateControlsEnable();
+
+				pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_5, m_sOperUser.GetBuffer(0)
+					, QByteArray(str.GetBuffer(0)));
+				
+				// 重启定时
+				KillTimer(m_nPTSetTimer);
+				m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
+
 				return;
 			}
 			//启动定时器
@@ -2554,6 +2573,11 @@ void CPTSoftBoard::OnSTTP20118( WPARAM wParam,LPARAM lparam )
 	else
 	{
 		//失败
+		CString str;
+		str.Format("%s", "软压板投退预校失败");
+		WriteLog(str);
+		AfxMessageBox(str);
+
 		strOutput += StringFromID(IDS_VERIFY_MODIFYSOFT_FAIL);
 		m_bMonVerify = false;
 		m_bOperVerify = false;
@@ -2564,7 +2588,14 @@ void CPTSoftBoard::OnSTTP20118( WPARAM wParam,LPARAM lparam )
 		//回复修改前的值
 		RevertModifyValue();
 		//提示用户操作结果
-		AfxMessageBox(strOutput, MB_OK);
+		//AfxMessageBox(strOutput, MB_OK);
+
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_5, m_sOperUser.GetBuffer(0)
+			, QByteArray(str.GetBuffer(0)));
+		
+		// 重启定时
+		KillTimer(m_nPTSetTimer);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
 	}
 	UpdateControlsEnable();
 
@@ -2702,7 +2733,7 @@ void CPTSoftBoard::OnPTFrameOpen( WPARAM wParam, LPARAM lParam )
 			m_btnModify.ShowWindow(SW_SHOW);
 	}
 
-	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+	m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
 	m_btnModify.ShowWindow(SW_HIDE);
 
 // 	CRect rcRect;
@@ -3048,7 +3079,8 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		// 软压板投退按钮是否可用： 
 		if (XJ_OPER_HANGOUT == nPTSetState 
 			&& XJ_TAGOUT_PTSOFTSET == nHangoutType
-			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID)){
+			&& (sOperUserID.IsEmpty() || pApp->m_User.m_strUSER_ID == sOperUserID
+			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER))){
 			m_btnModify.EnableWindow(TRUE);
 		}else{
 			m_btnModify.EnableWindow(FALSE);
@@ -3074,8 +3106,10 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		else
 			m_btnViewProg.ShowWindow(SW_HIDE);
 		
-		if (5 == m_pObj->m_nRunStatu && pApp->m_User.m_strUSER_ID == sOperUserID){
-			if (XJ_OPER_PTSOFTSET_STATE_3 == nPTSetState && 0 == m_nCurrentDetailStatus){
+		QByteArray &thisComputer = CXJUtilsStore::GetInstance()->GetComputerName();
+		if (5 == m_pObj->m_nRunStatu/* && pApp->m_User.m_strUSER_ID == sOperUserID*/){
+			if (XJ_OPER_PTSOFTSET_STATE_3 == nPTSetState && 0 == m_nCurrentDetailStatus
+				&& pTagOutState->GetLog(XJ_OPER_PTSOFTSET_STATE_2).GetFieldValue(1, 4) == thisComputer){
 				AfxMessageBox("监护员已验证软压板修改内容，修改内容将下发到子站，单击<确定>将执行修改"
 					, MB_OK|MB_ICONINFORMATION);	
 				m_nCurrentDetailStatus = 1;
@@ -3095,8 +3129,9 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 		}
 
 		if (pTagOutState->GetFlags() == 1 && CString(pTagOutState->GetPTID().constData()) == m_pObj->m_sID
-			&& pApp->m_User.m_strUSER_ID == sOperUserID){
-			// 只有修改软压板的用户才执行界面回复操作
+			//&& pApp->m_User.m_strUSER_ID == sOperUserID
+			&& pTagOutState->GetLog(XJ_OPER_PTSOFTSET_STATE_2).GetFieldValue(1, 4) == thisComputer){
+			// 只有修改软压板的用户的工作站才执行界面回复操作
 			KillTimer(m_nPTSetTimer);
 
 			RevertModifyValue();
@@ -3104,11 +3139,11 @@ void CPTSoftBoard::OnTimer(UINT nIDEvent)
 			pTagOutState->Save();
 
 			// 启用定时器
-			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+			m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
 		}
 		
 		// 启用定时器
-		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, 3*1000, NULL);
+		m_nPTSetTimer = SetTimer(XJ_TAGOUT_PTSOFTSET, PTSETSOFT_TIMER_LEN*1000, NULL);
 	}
 
 	if(nIDEvent == m_nRecordTimer)
@@ -3295,6 +3330,7 @@ void CPTSoftBoard::RevertModifyValue()
 	}
 	//清除修改标记
 	m_List.ClearEdited();
+	m_nCurrentDetailStatus = 0;
 }
 
 /*************************************************************

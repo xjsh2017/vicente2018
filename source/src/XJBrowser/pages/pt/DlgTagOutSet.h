@@ -104,6 +104,7 @@ protected:
 	afx_msg void OnSelchangeCmbMarkreason();
 	afx_msg void OnClickList1(NMHDR* pNMHDR, LRESULT* pResult);
 	virtual BOOL OnInitDialog();
+    afx_msg void OnCustomdrawList(NMHDR*, LRESULT*);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

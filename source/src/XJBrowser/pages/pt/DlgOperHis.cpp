@@ -81,7 +81,7 @@ void CDlgOperHis::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
         // The background color will be light blue for column 0, red for
         // column 1, and black for column 2.
 		
-        COLORREF crText/*, crBkgnd*/;
+        COLORREF crText, crBkgnd;
 
 		int nRowIdx = static_cast<int> (pLVCD->nmcd.dwItemSpec); //行索引
 		int nColIdx = pLVCD->iSubItem; //列索引
@@ -105,6 +105,15 @@ void CDlgOperHis::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
 				pLVCD->clrText = crText;
 				//pLVCD->clrTextBk = crBkgnd;
 			}
+		}
+
+		if (nColIdx == 0){
+			crBkgnd = RGB(212,207,200);
+			crBkgnd = RGB(224,221,216);
+			pLVCD->clrTextBk = crBkgnd;
+		}else{
+			crBkgnd = RGB(244,244,244);
+			pLVCD->clrTextBk = crBkgnd;
 		}
 
         // Tell Windows to paint the control itself.
@@ -230,7 +239,7 @@ int CDlgOperHis::InitListStyle()
 			int result = m_List.InsertColumn(nCol,&lvCol);
 		}
 		//默认隐藏第一列(序号)
-		m_List.SetColumnHide(0, TRUE);
+		//m_List.SetColumnHide(0, TRUE);
 		m_List.SetColumnHide(1, TRUE);
 		m_List.SetColumnHide(4, TRUE);
 		m_List.SetColumnHide(7, TRUE);

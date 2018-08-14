@@ -51,10 +51,13 @@
 
 #include "XJTagOutStore.h"
 #include "XJUserStore.h"
+#include "XJUtilsStore.h"
 #include "qptsetstatetable.h"
 
 
 #define PTSET_REFRESHTIME	3000
+
+const int MSG_TIMER_LEN = 2;
 
 UINT CreateGeoThread(LPVOID pParam)
 {
@@ -624,7 +627,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	
 	m_nTimer = SetTimer(10, 1*1000, NULL);
 	// 启动定值修改状态机刷新线程
-	m_nMsgTimer = SetTimer(201, 3*1000, NULL);
+	m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
 	StartThread();
 	
 	//	DrawMenuBar();
@@ -699,7 +702,7 @@ int CMainFrame::InitDockWindows()
 	}
 	// 浮动的Bar
 	if(!m_wndGlobalMsgBar.Create(this, 102, StringFromID(IDS_WINDOW_MSG),
-		CSize(700,260), CBRS_BOTTOM | CBRS_SIZE_DYNAMIC))
+		CSize(800,260), CBRS_BOTTOM | CBRS_SIZE_DYNAMIC))
 	{
 		TRACE("failed to create msgbar\n");
 		return -1;
@@ -3187,25 +3190,40 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 	}
 
 	if (nIDEvent == m_nMsgTimer){
-		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_4);
-		if (sUserID.isEmpty()){
-			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT);
-		}
-		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
-			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
-			
-			// 运行人员
-			if (pApp->m_User.m_strUSER_ID == CString(sUserID.constData()))
-				if (XJ_OPER_PTVALVSET_STATE_3 == nTagOutStateID){
-					KillTimer(m_nMsgTimer);
-					DoPtsetVerify0();
-					m_oper = 0;
-				}else if (XJ_OPER_PTVALVSET_STATE_5 == nTagOutStateID && 0 == m_oper){
-					KillTimer(m_nMsgTimer);
-					AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
-					m_oper = 1;
-					m_nMsgTimer = SetTimer(201, 3*1000, NULL);
-				}
+// 		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_4);
+// 		if (sUserID.isEmpty()){
+// 			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT);
+// 		}
+// 		if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)
+// 			|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)){
+// 			
+// 			// 运行人员
+// 			if (pApp->m_User.m_strUSER_ID == CString(sUserID.constData()))
+// 				if (XJ_OPER_PTVALVSET_STATE_3 == nTagOutStateID){
+// 					KillTimer(m_nMsgTimer);
+// 					DoPtsetVerify0();
+// 					m_oper = 0;
+// 				}else if (XJ_OPER_PTVALVSET_STATE_5 == nTagOutStateID && 0 == m_oper){
+// 					KillTimer(m_nMsgTimer);
+// 					AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
+// 					m_oper = 1;
+// 					m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
+// 				}
+// 		}
+
+		QByteArray &thisComputer = CXJUtilsStore::GetInstance()->GetComputerName();
+		if (XJ_TAGOUT_PTVALVSET == pTagOutState->GetType()
+			&& pTagOutState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 4) == thisComputer){
+			if (XJ_OPER_PTVALVSET_STATE_3 == nTagOutStateID){
+				KillTimer(m_nMsgTimer);
+				DoPtsetVerify0();
+				m_oper = 0;
+			}else if (XJ_OPER_PTVALVSET_STATE_5 == nTagOutStateID && 0 == m_oper){
+				KillTimer(m_nMsgTimer);
+				AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
+				m_oper = 1;
+				m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
+			}
 		}
 	}
 
@@ -3291,7 +3309,7 @@ void CMainFrame::DoPtsetVerify0()
 	CString str;
 
 	//运行人员确认
-	CDlgDataCheck dlg(this, 0);
+	CDlgDataCheck dlg(this, XJ_USERGROUP_RUNNER, XJ_TAGOUT_PTVALVSET);
 	dlg.m_strModify = strOutPut;
 	CString sRunUser;
 	QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_4);
@@ -3336,7 +3354,7 @@ void CMainFrame::DoPtsetVerify0()
 	}
 	
 	KillTimer(m_nMsgTimer);
-	m_nMsgTimer = SetTimer(201, 3*1000, NULL);
+	m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
 }
 
 /*************************************************************

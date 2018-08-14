@@ -24,6 +24,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif*/
 
+const int VIEW_TIMER_LEN = 2;
 
 /////////////////////////////////////////////////////////////////////////////
 // CDeviceView
@@ -179,7 +180,7 @@ void CDeviceView::OnInitialUpdate()
 		m_List.SetBkColor(g_ListSpaceColor3);
 	}
 	
-	m_nTimer = SetTimer(101, 3*1000, 0);
+	m_nTimer = SetTimer(101, VIEW_TIMER_LEN*1000, 0);
 }
 
 /*************************************************************
@@ -3336,7 +3337,7 @@ void CDeviceView::OnTimer(UINT nIDEvent)
 					pView->SetDeviceCol(pObj);
 				}
 				
-				m_nTimer = SetTimer(101, 3*1000, 0);
+				m_nTimer = SetTimer(101, VIEW_TIMER_LEN*1000, 0);
 			}
 		}
 

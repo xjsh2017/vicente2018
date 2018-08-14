@@ -191,6 +191,10 @@ SOURCE=.\stores\XJTagOutStore.cpp
 
 SOURCE=.\stores\XJUserStore.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJUtilsStore.cpp
+# End Source File
 # End Group
 # Begin Source File
 
@@ -1115,6 +1119,10 @@ SOURCE=.\stores\XJTagOutStore.h
 # Begin Source File
 
 SOURCE=.\stores\XJUserStore.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\XJUtilsStore.h
 # End Source File
 # End Group
 # Begin Source File
