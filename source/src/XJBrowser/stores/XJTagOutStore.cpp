@@ -7,6 +7,21 @@
 #include "XJBrowser.h"
 #include "qptsetstatetable.h"
 #include "XJUserStore.h"
+#include "qtabledefine.h"
+
+class QTagOutReasonTable : public QMemTable
+{
+public:
+	QTagOutReasonTable();
+	~QTagOutReasonTable();
+
+public:	
+	BOOL		ReLoad();
+	BOOL		Save(const char *pszFilePath = NULL);
+
+	BOOL		CheckReason();
+
+};
 
 ////////////////////////////////////////////////////////////
 
@@ -18,6 +33,9 @@ public:
 	
 	/** @brief           挂牌状态机*/
 	QPTSetStateTable	m_state;
+	
+	/** @brief           挂牌原因表*/
+	QTagOutReasonTable	m_tb_reason;
 
 	/** @brief           定值修改数据表*/
 	QPTSetDataTable		m_data_PTSet;
@@ -31,6 +49,7 @@ public:
 	BOOL		ReLoadState();
 	int			CheckState(int nTagOutType);
 	BOOL		Check(int nTagOutType);
+	BOOL		CheckReason();
 	
 public:	
 	BOOL		Save();
@@ -41,6 +60,97 @@ public:
 };
 
 
+////////////////////////////////////////////////////////////
+// QTagOutReasonTable
+//
+QTagOutReasonTable::QTagOutReasonTable()
+{
+}
+
+QTagOutReasonTable::~QTagOutReasonTable()
+{
+	
+}
+
+BOOL QTagOutReasonTable::ReLoad()
+{
+	BOOL bReturn = FALSE;
+	
+	LoadInfo(XJ::NAME_TB_TAGOUT_REASON);
+	LoadDataAll();
+	//Save(SAVE_PATH_TB_TAGOUT_REASON);
+	
+	return bReturn;
+}
+
+BOOL QTagOutReasonTable::Save(const char *pszFilePath)
+{
+	BOOL bReturn = FALSE;
+	
+	if (SaveData())
+		bReturn = TRUE;
+	
+	if (NULL != pszFilePath)
+		FWrite(pszFilePath);
+	
+	return bReturn;
+}
+
+BOOL QTagOutReasonTable::CheckReason()
+{
+	QByteArray val;
+
+	ReLoad();
+
+	int nRowCount = GetRowCount();
+	int nIndex = nRowCount;
+
+	QByteArrayMatrix &colReason = GetCol(2);
+// 	QByteArrayMatrix &colID = GetCol(1);
+// 	int nMaxIndex = 0;
+// 	for (int i = 1; i <= nRowCount; i++){
+// 		nMaxIndex = qMax(nMaxIndex, colID.GetFieldValue(1, i).toInt());
+// 	}
+// 	nIndex = nMaxIndex + 1;
+
+	int iRow = 1;
+	
+	QByteArrayMatrix keyvals;
+	if (!colReason.valueContains(REASON_PTSET_VALV)){
+		//AfxMessageBox("no valv reason");
+		keyvals << nIndex;
+		iRow = AddRow(keyvals);
+		SetFieldValue(nIndex + 1, "note", REASON_PTSET_VALV);
+		
+		nIndex++;
+		keyvals.clear();
+	}
+	
+	if (!colReason.valueContains(REASON_PTSET_ZONE)){
+		//AfxMessageBox("no zone reason");
+		keyvals << nIndex;
+		iRow = AddRow(keyvals);
+		SetFieldValue(nIndex + 1, "note", REASON_PTSET_ZONE);
+		
+		nIndex++;
+		keyvals.clear();
+	}
+
+	if (!colReason.valueContains(REASON_PTSET_SOFT)){
+		//AfxMessageBox("no soft reason");
+		keyvals << nIndex;
+		iRow = AddRow(keyvals);
+		SetFieldValue(nIndex + 1, "note", REASON_PTSET_SOFT);
+		
+		nIndex++;
+		keyvals.clear();
+	}
+		
+	//Save(SAVE_PATH_TB_TAGOUT_REASON);
+	Save();
+
+	return ( iRow > 0 ? TRUE : FALSE);
+}
 
 ////////////////////////////////////////////////////////////
 // CXJTagOutStorePrivate
@@ -86,6 +196,12 @@ BOOL CXJTagOutStorePrivate::Check(int nTagOutType)
 {
 	return m_state.Check(nTagOutType);
 }
+
+BOOL CXJTagOutStorePrivate::CheckReason()
+{
+	return m_tb_reason.CheckReason();
+}
+
 /*
  *  @brief   	CheckStore	 检查状态机配置情况
  *  @param 		void
@@ -311,6 +427,7 @@ BOOL CXJTagOutStore::Check()
  	d_ptr->Check(XJ_TAGOUT_PTVALVSET);
  	d_ptr->Check(XJ_TAGOUT_PTZONESET);
  	d_ptr->Check(XJ_TAGOUT_PTSOFTSET);
+	d_ptr->CheckReason();
 
 	return TRUE;
 }
@@ -567,6 +684,19 @@ void CXJTagOutStore::AddNewManOperator( CString FunID, CString Act, CString strT
 
 QByteArray CXJTagOutStore::GetFuncID(int nStateID)
 {
+	QByteArray name = CXJUserStore::GetInstance()->GetFuncID(nStateID);	
+	QByteArray opReasonTypeName = d_ptr->m_state.GetTagOutReasonNameByState(nStateID);
+	if (opReasonTypeName.trimmed().isEmpty())
+		opReasonTypeName = d_ptr->m_state.GetTypeName();
+	if (nStateID == XJ_OPER_HANGOUT){
+		name = opReasonTypeName;
+		name << "：" << "挂牌";
+	}else if (nStateID == XJ_OPER_UNHANGOUT){
+		name = opReasonTypeName;
+		name << "：" << "取消挂牌";
+	}
+	return name;
+
 	QByteArray baReturn;
 
 	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
@@ -639,12 +769,10 @@ QByteArray CXJTagOutStore::GetFuncID(int nStateID)
 	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_5, szState[5]));
 
 	//QByteArray opReasonTypeName = d_ptr->m_state.GetHangoutReasonName();
-	QByteArray opReasonTypeName = d_ptr->m_state.GetTagOutReasonNameByState(nStateID);
-	if (opReasonTypeName.trimmed().isEmpty())
-		opReasonTypeName = d_ptr->m_state.GetTypeName();
-
-	baReturn << opReasonTypeName << " | "
-		<< baUserGroupName << ": "
+	baReturn << opReasonTypeName 
+		//<< " | "
+		//<< baUserGroupName 
+		<< ": "
 		<< mapFunc[nStateID];
 
 	return baReturn;

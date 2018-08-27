@@ -17,6 +17,7 @@
 
 #include "XJTagOutStore.h"
 #include "qptsetstatetable.h"
+#include "XJUserStore.h"
 
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
@@ -850,11 +851,13 @@ void CDeviceView::OnContextMenu(CWnd* pWnd, CPoint point)
 			//CString strTemp;
 			//strTemp.Format("UserID: %s, UserGroupID: %s",pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID);
 			//AfxMessageBox(strTemp);
-			if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)
-				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)){
-			}else{
+// 			if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)
+// 				|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)){
+// 			}else{
+// 				Menu.DeleteMenu(ID_MARK_DEVICE, MF_BYCOMMAND);
+// 			}
+			if (!CXJUserStore::GetInstance()->hasFuncID(XJ_OPER_HANGOUT, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
 				Menu.DeleteMenu(ID_MARK_DEVICE, MF_BYCOMMAND);
-			}
 	
 			pMenu ->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON, point.x, point.y, this);	
 		}
@@ -2713,6 +2716,13 @@ void CDeviceView::OnMarkDevice()
 	{
 		//是保护
 		CSecObj* pObj = (CSecObj*)pDevice;
+
+		QByteArray msg;
+		msg << "是否对 [ " << pObj->m_sName.GetBuffer(0) << "] 进行挂牌设置";
+		int n = AfxMessageBox(msg.constData(), MB_YESNO | MB_ICONQUESTION);
+		if (n == IDNO){
+			return;
+		}
 		pObj->RefreshConfig();
 // 		DLGMarked dlg;
 		CDlgTagOutSet dlg;

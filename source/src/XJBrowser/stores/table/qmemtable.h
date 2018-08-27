@@ -48,6 +48,9 @@ public:
 	int			GetRecordCount();
 	int			GetRowCount();
 
+	QByteArrayMatrix GetRow(int iRow);
+	QByteArrayMatrix GetCol(int iCol);
+
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
 	BOOL		SetFieldValue(int iRow, const char *szFieldName, QByteArray val);
 	BOOL		SetFieldValue(QByteArrayMatrix keyVals, const char *szFieldName, QByteArray val);

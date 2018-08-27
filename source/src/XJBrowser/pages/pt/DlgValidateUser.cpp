@@ -26,6 +26,7 @@ CDlgValidateUser::CDlgValidateUser(CWnd* pParent /*=NULL*/)
 	m_strFuncID = "";
 	m_nValidateType = -1;
 	m_strComUserID = "";
+	m_nFuncID = -1;
 }
 
 
@@ -84,6 +85,31 @@ BOOL CDlgValidateUser::OnInitDialog()
 	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
 	QByteArray &baGroupName = pUserStore->GetUserGroupName(m_nUserGroupType);
 
+	switch (m_nFuncID){
+//	case XJ_FUNC_XJBROWSER_TAGOUT:
+	case XJ_OPER_HANGOUT:
+	case XJ_OPER_PTVALVSET_STATE_4:
+	case XJ_OPER_PTZONESET_STATE_4:
+	case XJ_OPER_PTSOFTSET_STATE_4:
+		baGroupName = "挂牌员";
+		break;
+//	case XJ_FUNC_XJBROWSER_CONTROL:
+	case XJ_OPER_PTVALVSET_STATE_2:
+	case XJ_OPER_PTZONESET_STATE_2:
+	case XJ_OPER_PTSOFTSET_STATE_2:
+		baGroupName = "操作员";
+		break;
+	case XJ_FUNC_XJBROWSER_CUSTODY:
+	case XJ_OPER_PTVALVSET_STATE_3:
+	case XJ_OPER_PTZONESET_STATE_3:
+	case XJ_OPER_PTSOFTSET_STATE_3:
+		baGroupName = "监护员";
+		break;
+	default:
+		baGroupName = "";
+		break;
+	}
+
 	QByteArray title = baGroupName;
 	title << "身份验证";
 	SetWindowText(title.constData());
@@ -96,7 +122,7 @@ BOOL CDlgValidateUser::OnInitDialog()
 		OnOK();
 #endif
 	}
-	FillUserName();
+	FillUserName2();
 
 	if (!m_strAuthUserID.IsEmpty()){
 		m_strUser = m_strAuthUserID;
@@ -127,6 +153,8 @@ void CDlgValidateUser::FillUserName()
 	if(pCmb == NULL)
 		return;
 	pCmb->ResetContent();
+	//pCmb->ModifyStyle(CBS_DROPDOWN, CBS_DROPDOWNLIST);
+	((CEdit*)pCmb->GetWindow(GW_CHILD))->SetReadOnly();
 	//身份验证
 	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
 	
@@ -136,6 +164,28 @@ void CDlgValidateUser::FillUserName()
 	
 	for (int i = 1; i <= arrlist.GetRowCount(); i++){
 		pCmb->AddString(arrlist.GetFieldValue(i, 1).constData());
+	}
+}
+void CDlgValidateUser::FillUserName2()
+{
+	CComboBox* pCmb = (CComboBox*)GetDlgItem(IDC_CMB_USERNAME);
+	if(pCmb == NULL)
+		return;
+	pCmb->ResetContent();
+	((CEdit*)pCmb->GetWindow(GW_CHILD))->SetReadOnly();
+	//身份验证
+	CXJBrowserApp* pApp = (CXJBrowserApp*)AfxGetApp();
+	
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+	QByteArrayMatrix arrlist = pUserStore->BuildComboxUserList2(m_nFuncID);
+	arrlist.SetDelimRow(";");
+	
+	for (int i = 1; i <= arrlist.GetRowCount(); i++){
+		QByteArray &user_id = arrlist.GetFieldValue(i, 1);
+		if (m_excludeUserList.valueContains(user_id))
+			continue;
+
+		pCmb->AddString(user_id.constData());
 	}
 }
 
@@ -304,4 +354,12 @@ void CDlgValidateUser::OnOK()
 		return;
 	}
 	EndDialog(IDOK);
+}
+
+void CDlgValidateUser::OnCancel() 
+{
+	if(!UpdateData())
+		return;
+
+	EndDialog(IDCANCEL);
 }

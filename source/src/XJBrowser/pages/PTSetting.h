@@ -114,6 +114,7 @@ private:
 	int			m_nOPTime;
 	/** @brief           定值（区）修改定时*/
 	int			m_nPTSetTimer;
+	bool		m_bBlockPTSetTimer;
 	/** @brief           是否能按组显示*/
 	//##ModelId=49B87B8B03C8
 	BOOL		m_bCanGroup;

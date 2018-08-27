@@ -13,6 +13,8 @@
 #include "DlgTagOutSet.h"
 #include "DraftDocument.h"
 #include "DlgDraft.h"
+#include "qbytearray.h"
+#include "XJUserStore.h"
 /*#ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -1056,11 +1058,13 @@ void CXJBrowserView::OnRButtonDown(UINT nFlags, CPoint point)
 	//CString strTemp;
 	//strTemp.Format("UserID: %s, UserGroupID: %s",pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID);
 	//AfxMessageBox(strTemp);
-	if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)
-		|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)){
-	}else{
+// 	if (pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_RUNNER)
+// 		|| pApp->m_User.m_strGROUP_ID == StringFromID(IDS_USERGROUP_SUPER)){
+// 	}else{
+// 		mnuPop.DeleteMenu(ID_MARK_DEVICE, MF_BYCOMMAND);
+// 	}
+	if (!CXJUserStore::GetInstance()->hasFuncID(XJ_OPER_HANGOUT, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
 		mnuPop.DeleteMenu(ID_MARK_DEVICE, MF_BYCOMMAND);
-	}
 
 	pSubmenu=mnuPop.GetSubMenu(0);
 
@@ -2169,6 +2173,14 @@ void CXJBrowserView::OnMarkDevice()
 	{
 		//是保护
 		CSecObj* pObj = (CSecObj*)pDevice;
+
+		QByteArray msg;
+		msg << "是否对 [ " << pObj->m_sName.GetBuffer(0) << "] 进行挂牌设置";
+		int n = AfxMessageBox(msg.constData(), MB_YESNO | MB_ICONQUESTION);
+		if (n == IDNO){
+			return;
+		}
+
 		pObj->RefreshConfig();
 //		DLGMarked dlg;
 		CDlgTagOutSet dlg;

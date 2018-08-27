@@ -223,6 +223,8 @@ private:
 	BOOL ReportStationInitResult(CString sStationID, int nInitType, int nResult);
 	
 	void DoPtsetVerify0();
+	void DoPtZoneVerify0();
+	void DoPtSoftVerify0();
 	void StartThread();
 	void EndThread();
 

@@ -29,7 +29,7 @@ public:
 	CString m_strDESC;
 	CString m_sCPU;
 	CString m_sZone;
-	int	m_nType;
+	int				m_nType;
 	int				m_nTagOutType;
 
 	MODIFY_LIST	m_arrModifyList;

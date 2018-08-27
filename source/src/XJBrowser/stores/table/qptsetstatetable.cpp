@@ -8,11 +8,7 @@
 #include "XJTagOutStore.h"
 #include "XJUtilsStore.h"
 #include "XJBrowser.h"
-
-const char* NAME_TB_SYS_CFG = "tb_sys_config";
-const char* NAME_TB_PT_SOFTBOARD_DEF = "tb_pt_softboard_def";
-
-const char* SAVE_PATH_TB_PT_SOFTBOARD_DEF = "c:/tb_pt_softboard_def.txt";
+#include "qtabledefine.h"
 
 const char* TAGOUT_KEYNAME = "STATE_TAGOUT";
 const char* PTVALVSET_KEYNAME = "STATE_PTSET_VALV";
@@ -21,11 +17,16 @@ const char* PTSOFTSET_KEYNAME = "STATE_PTSET_SOFT";
 
 const int COL_WORKFLOW_TAGOUT_ID = 1;
 const int COL_WORKFLOW_STATE_ID = 2;
-const int COL_WORKFLOW_USERGROUP_ID = 4;
 const int COL_WORKFLOW_ENABLE = 3;
-const int COL_WORKFLOW_USER_ID = 5;
+const int COL_WORKFLOW_USERGROUP_ID = 4;
+const int COL_WORKFLOW_FUNC_ID = 5;
+const int COL_WORKFLOW_USER_ID = 6;
 
 const int COL_TAGOUT_LASTTYPE = 7;
+
+const char* REASON_PTSET_VALV = "定值修改";
+const char* REASON_PTSET_ZONE = "定值区切换";
+const char* REASON_PTSET_SOFT = "软压板投退";
 
 /////////////////////////////////////////////////////////////////////////////
 // QPTSetStateTable
@@ -45,9 +46,9 @@ BOOL QPTSetStateTable::ReLoad()
 	if (IsReadLock())
 		return FALSE;
 	
-	LoadInfo("tb_sys_config");
+	LoadInfo(XJ::NAME_TB_SYS_CFG);
 	LoadDataAll();
-	//Save("c:/tb_sys_config.txt");
+	//Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_CFG));
 	
 	return bReturn;
 }
@@ -112,8 +113,8 @@ BOOL QPTSetStateTable::Check(int nTagOutType)
 			}
 		}
 		
+		//Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_CFG));
 		Save();
-		//Save("c:/tb_sys_config.txt");
 		//AfxMessageBox("Added.");
 	}else{
 		//AfxMessageBox("Already existed.");
@@ -370,11 +371,71 @@ QByteArray QPTSetStateTable::GetWorkFlowUserID(int nTagOutType, int nStateID)
 		if (nStateID != nFlowStateID)
 			continue;
 		
-		return flow.GetFieldValue(i, COL_WORKFLOW_USER_ID);
+		return flow.GetFieldValue(i, COL_WORKFLOW_USER_ID).trimmed();
 		break;
 	}
 
 	return s;
+}
+
+QByteArray QPTSetStateTable::GetWorkFlowFuncID(int nTagOutType, int nStateID)
+{
+	QByteArray s;
+	
+	if (-1 == nTagOutType)
+		nTagOutType = GetTagOutReasonTypeByState(nStateID);
+	if (nTagOutType == 0)
+		return s;
+	
+	QByteArrayMatrix &flow = GetWorkFlow(nTagOutType);
+	
+	for (int i = 1; i <= flow.GetRowCount(); i++){
+		int nFlowStateID = flow.GetFieldValue(i, COL_WORKFLOW_STATE_ID).toInt();
+		if (nStateID != nFlowStateID)
+			continue;
+		
+		return flow.GetFieldValue(i, COL_WORKFLOW_FUNC_ID);
+		break;
+	}
+	
+	return s;
+}
+
+bool QPTSetStateTable::IsWorkFlowEnableOnState(int nTagOutType, int nStateID)
+{
+	bool bReturn = false;
+	
+	if (-1 == nTagOutType)
+		nTagOutType = GetTagOutReasonTypeByState(nStateID);
+	if (nTagOutType == 0)
+		return false;
+	
+	QByteArrayMatrix &flow = GetWorkFlow(nTagOutType);
+	
+	for (int i = 1; i <= flow.GetRowCount(); i++){
+		int nFlowStateID = flow.GetFieldValue(i, COL_WORKFLOW_STATE_ID).toInt();
+		if (nStateID != nFlowStateID)
+			continue;
+		
+		return flow.GetFieldValue(i, COL_WORKFLOW_ENABLE).toInt() == 1;
+		break;
+	}
+	
+	return bReturn;
+}
+
+QByteArray QPTSetStateTable::GetLogUserID(int nTagOutType, int nStateID)
+{
+	QByteArray s;
+	
+// 	if (-1 == nTagOutType)
+// 		nTagOutType = GetTagOutReasonTypeByState(nStateID);
+// 	if (nTagOutType == 0)
+// 		return s;
+	
+	int iRow = 0;
+	QByteArrayMatrix &log = GetLog(nStateID, iRow);
+	return log.GetFieldValue(1, 2);
 }
 
 void QPTSetStateTable::SetWorkFlowUserID(int nTagOutType, int nStateID, const char* pszUserID)
@@ -394,7 +455,7 @@ void QPTSetStateTable::SetWorkFlowUserID(int nTagOutType, int nStateID, const ch
 		if (nStateID != nFlowStateID)
 			continue;
 		
-		flow.SetFieldValue(i, COL_WORKFLOW_USER_ID, pszUserID);
+		flow.SetFieldValue(i, COL_WORKFLOW_USER_ID, QByteArray(pszUserID).trimmed());
 		
 		SetFieldValue(nTagOutRowIdx, "reverse1", flow);
 		break;
@@ -446,38 +507,38 @@ QByteArrayMatrix QPTSetStateTable::GetDefaultWorkFlow(int nTagOutType)
 	100,101,0,101,
 	*/
 	
-	flow << XJ_TAGOUT_UNDEFINE << "," << XJ_OPER_HANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",;";
+	flow << XJ_TAGOUT_UNDEFINE << "," << XJ_OPER_HANGOUT << ",1," << XJ_USERGROUP_RUNNER << "," << XJ_FUNC_XJBROWSER_TAGOUT << ",;";
 	
 	switch (nTagOutType){
 	case XJ_TAGOUT_PTVALVSET:
 		flow 
 			//<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_HANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",;"
-			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
-			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << ",;"
-			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_4 << ",1," << XJ_USERGROUP_RUNNER << ",;"
-			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << ",;";
+			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << "," << XJ_FUNC_XJBROWSER_CONTROL << ",;"
+			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << "," << XJ_FUNC_XJBROWSER_CUSTODY << ",;"
+			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_4 << ",1," << XJ_USERGROUP_RUNNER << "," << XJ_FUNC_XJBROWSER_TAGOUT << ",;"
+			<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_PTVALVSET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << "," << XJ_FUNC_XJBROWSER_CONTROL << ",;";
 			//<< XJ_TAGOUT_PTVALVSET << "," << XJ_OPER_UNHANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",";
 		break;
 	case XJ_TAGOUT_PTZONESET:
 		flow 
 			//<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_HANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",;" 
-			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
-			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << ",;"
-			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_4 << ",0," << XJ_USERGROUP_RUNNER << ",;"
-			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << ",;";
+			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << "," << XJ_FUNC_XJBROWSER_CONTROL << ",;"
+			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << "," << XJ_FUNC_XJBROWSER_CUSTODY << ",;"
+			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_4 << ",1," << XJ_USERGROUP_RUNNER << "," << XJ_FUNC_XJBROWSER_TAGOUT << ",;"
+			<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_PTZONESET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << "," << XJ_FUNC_XJBROWSER_CONTROL << ",;";
 			//<< XJ_TAGOUT_PTZONESET << "," << XJ_OPER_UNHANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",";
 		break;
 	case XJ_TAGOUT_PTSOFTSET:
 		flow 
 			//<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_HANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",;" 
-			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << ",;"
-			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << ",;"
-			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_4 << ",0," << XJ_USERGROUP_RUNNER << ",;"
-			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << ",;";
+			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_2 << ",1," << XJ_USERGROUP_OPERATOR << "," << XJ_FUNC_XJBROWSER_CONTROL << ",;"
+			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_3 << ",1," << XJ_USERGROUP_MONITOR << "," << XJ_FUNC_XJBROWSER_CUSTODY << ",;"
+			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_4 << ",1," << XJ_USERGROUP_RUNNER << "," << XJ_FUNC_XJBROWSER_TAGOUT << ",;"
+			<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_PTSOFTSET_STATE_5 << ",1," << XJ_USERGROUP_OPERATOR << "," << XJ_FUNC_XJBROWSER_CONTROL << ",;";
 			//<< XJ_TAGOUT_PTSOFTSET << "," << XJ_OPER_UNHANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",";
 		break;
 	}
-	flow << XJ_TAGOUT_UNDEFINE << "," << XJ_OPER_UNHANGOUT << ",1," << XJ_USERGROUP_RUNNER << ",";
+	flow << XJ_TAGOUT_UNDEFINE << "," << XJ_OPER_UNHANGOUT << ",1," << XJ_USERGROUP_RUNNER << "," << XJ_FUNC_XJBROWSER_TAGOUT << ",";
 
 	return flow;
 }
@@ -796,7 +857,7 @@ void QPTSetStateTable::Next_PTSet_State_2(int nCPU, int nZone, const char *pszUs
 	SetCPUID(nCPU);
 	SetZoneID(nZone);
 
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_2, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_2, pszUserID);
 
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_2, pszUserID);
 	
@@ -814,7 +875,7 @@ void QPTSetStateTable::Next_PTSet_State_3(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTVALVSET_STATE_3);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_3, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_3, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_3, pszUserID);
 	
@@ -832,7 +893,7 @@ void QPTSetStateTable::Next_PTSet_State_4(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTVALVSET_STATE_4);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_4, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_4, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_4, pszUserID);
 	
@@ -850,7 +911,7 @@ void QPTSetStateTable::Next_PTSet_State_5(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTVALVSET_STATE_5);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_5, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTVALVSET_STATE_5, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTVALVSET_STATE_5, pszUserID);
 	
@@ -876,7 +937,7 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_2(int nCPU, int nZone, const char *
  	SetCPUID(nCPU);
 // 	SetZoneID(nZone);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_2, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_2, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTZONESET_STATE_2, pszUserID);
 	
@@ -894,7 +955,7 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_3(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTZONESET_STATE_3);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_3, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_3, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTZONESET_STATE_3, pszUserID);
 	
@@ -912,7 +973,7 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_4(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTZONESET_STATE_4);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_4, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_4, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTZONESET_STATE_4, pszUserID);
 	
@@ -930,7 +991,7 @@ void QPTSetStateTable::Next_PTSET_ZONE_STATE_5(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTZONESET_STATE_5);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_5, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTZONESET_STATE_5, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTZONESET_STATE_5, pszUserID);
 	
@@ -957,7 +1018,7 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_2(int nCPU, const char *pszUserID
 	SetCPUID(nCPU);
 	//SetZoneID(nZone);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_2, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_2, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSOFTSET_STATE_2, pszUserID);
 	
@@ -975,7 +1036,7 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_3(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_3);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_3, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_3, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSOFTSET_STATE_3, pszUserID);
 	
@@ -993,7 +1054,7 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_4(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_4);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_4, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_4, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSOFTSET_STATE_4, pszUserID);
 	
@@ -1011,7 +1072,7 @@ void QPTSetStateTable::Next_PTSET_SOFT_STATE_5(const char *pszUserID)
 
 	SetStateID(XJ_OPER_PTSOFTSET_STATE_5);
 	
-	SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_5, pszUserID);
+	//SetWorkFlowUserID(GetType(), XJ_OPER_PTSOFTSET_STATE_5, pszUserID);
 	
 	QByteArrayMatrix slog = AddLog(XJ_OPER_PTSOFTSET_STATE_5, pszUserID);
 	
@@ -1099,7 +1160,7 @@ BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id)
 	if (IsReadLock())
 		return FALSE;
 	
-	LoadInfo("tb_pt_setting_def");
+	LoadInfo(XJ::NAME_TB_PT_SETTING_DEF);
 	//LoadDataAll();
 	
 	QByteArray baPTID = pt_id;
@@ -1108,12 +1169,13 @@ BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id)
 	//if (!m_card.GetPTID().isEmpty()){
 	if (1){
 		QByteArray baSQL;
-		baSQL << "SELECT * FROM tb_pt_setting_def WHERE pt_id IN ('" 
+		baSQL << "SELECT * FROM " << XJ::NAME_TB_PT_SETTING_DEF
+			<< " WHERE pt_id IN ('" 
 			//<< "由由BH51"
 			<< baPTID
 			<< "')";
 		LoadData(baSQL);
-		//Save("c:/tb_pt_setting_def.txt");
+		//Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_SETTING_DEF));
 	}
 	
 	return bReturn;
@@ -1179,13 +1241,12 @@ BOOL QPTSetDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone, const MODIF
 		QByteArrayMatrix keyvals;
 		keyvals << pt_id << "," << nCPU << "," << nSettingID;
 		
-		QByteArray val = pts_data->Value.GetBuffer(0);
+		QByteArray val = pts_GetDisplayValue(pts_data, QByteArray(pts_data->Value.GetBuffer(0)));
 		if (val.isEmpty())
 			continue;
 		
 		SetFieldValue(keyvals, "reserve3", val);
 	}
-	
 	
 	nCount = arrModifyList.GetSize();
 	for(int i = 0; i < nCount; i++)
@@ -1276,7 +1337,8 @@ void QPTSetDataTable::UnitTest_01()
 	SetFieldValue(keyVals, "reserve3", "20,19.8");
 	SetFieldValue("由由BH51,2,1011", "reserve3", "10.6");
 	SetFieldValue("由由BH51,2,1014", "reserve3", "30,52.3");
-	Save("c:/tb_pt_setting_def.txt");
+
+	Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_SETTING_DEF));
 }
 
 
@@ -1304,7 +1366,7 @@ BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id)
 	if (IsReadLock())
 		return FALSE;
 
-	LoadInfo("tb_pt_zone_def");
+	LoadInfo(XJ::NAME_TB_PT_ZONE_DEF);
 	//LoadDataAll();
 	
 	QByteArray baPTID = pt_id;
@@ -1313,13 +1375,14 @@ BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id)
 	//if (!m_card.GetPTID().isEmpty()){
 	if (1){
 		QByteArray baSQL;
-		baSQL << "SELECT * FROM tb_pt_zone_def WHERE pt_id IN ('" 
+		baSQL << "SELECT * FROM " << XJ::NAME_TB_PT_ZONE_DEF
+			<< " WHERE pt_id IN ('" 
 			//<< "由由BH51"
 			<< baPTID
 			<< "')";
 		LoadData(baSQL);
+		//Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_ZONE_DEF));
 		//AfxMessageBox("loaded!");
-		Save("c:/tb_pt_zone_def.txt");
 	}
 	
 	return bReturn;
@@ -1339,7 +1402,8 @@ BOOL QPTZoneDataTable::ReLoad(QByteArray &pt_id, int nCPU, int nZone
 	QByteArray chagVal;
 	chagVal << oldZoneValue << "," << newZoneValue;
 	SetFieldValue(1, "reserve3", chagVal);
-	Save("c:/tb_pt_zone_def.txt");
+
+	//Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_ZONE_DEF));
 	
 	return TRUE;
 }
@@ -1410,7 +1474,8 @@ void QPTZoneDataTable::UnitTest_01()
 		<< 60001;
 	
 	SetFieldValue(keyVals, "reserve3", "1,5");
-	Save("c:/tb_pt_zone_def.txt");
+
+	Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_ZONE_DEF));
 }
 
 
@@ -1438,7 +1503,7 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id)
 	if (IsReadLock())
 		return FALSE;
 	
-	LoadInfo(NAME_TB_PT_SOFTBOARD_DEF);
+	LoadInfo(XJ::NAME_TB_PT_SOFTBOARD_DEF);
 	//LoadDataAll();
 	
 	QByteArray baPTID = pt_id;
@@ -1447,14 +1512,15 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id)
 	//if (!m_card.GetPTID().isEmpty()){
 	if (1){
 		QByteArray baSQL;
-		baSQL << "SELECT * FROM " << NAME_TB_PT_SOFTBOARD_DEF 
+		baSQL << "SELECT * FROM " << XJ::NAME_TB_PT_SOFTBOARD_DEF 
 			<< " WHERE pt_id IN ('" 
 			//<< "由由BH51"
 			<< baPTID
 			<< "')";
 		LoadData(baSQL);
 		//AfxMessageBox("loaded!");
-		Save(SAVE_PATH_TB_PT_SOFTBOARD_DEF);
+		//Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_SOFTBOARD_DEF));
+		Save();
 	}
 	
 	return bReturn;
@@ -1502,7 +1568,8 @@ BOOL QPTSoftDataTable::ReLoad(QByteArray &pt_id, int nCPU
 		SetFieldValue(keyvals, "reserve3", val);
 	}
 
-	Save(SAVE_PATH_TB_PT_SOFTBOARD_DEF);
+	//Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_SOFTBOARD_DEF));
+	Save();
 	
 	return TRUE;
 }
@@ -1567,5 +1634,5 @@ void QPTSoftDataTable::UnitTest_01()
 		<< 40005;
 	
 	SetFieldValue(keyVals, "reserve3", "0,1");
-	Save(SAVE_PATH_TB_PT_SOFTBOARD_DEF);
+	Save(XJ::GetFileSavePath(XJ::NAME_TB_PT_SOFTBOARD_DEF));
 }

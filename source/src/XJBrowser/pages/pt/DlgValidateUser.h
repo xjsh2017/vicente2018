@@ -2,6 +2,8 @@
 #define _DLG_VALIDATE_USER_H
 
 #include "resource.h"
+
+#include "qbytearraymatrix.h"
 // DlgValidateUser.h : header file
 //
 
@@ -33,11 +35,16 @@ public:
 	CString		m_strFuncID;
 	CString		m_strAuthUserID;
 
+	int			m_nFuncID;
+
 	int			m_nValidateType;
+	QByteArrayMatrix	m_excludeUserList;
 	//用于比较的用户ID
 	CString m_strComUserID;
 
 	void FillUserName();
+
+	void FillUserName2();
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -56,6 +63,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	//##ModelId=49B87BA3036D
 	virtual void OnOK();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -20,14 +20,6 @@ public:
 	BOOL		Save(const char *pszFilePath = NULL);
 
 public:
-	/*
-	 *  @brief   	GetUserGroupName	 获取用户组ID名 
-	 *  @param 		[In] pszID		const char*		ID
-	 *  @param 		[In] nIDType	int				ID 类别: 0 - 用户ID，1 - 用户组ID
-	 *  @return 	QByteArray	
-	 */
-	QByteArray			GetUserGroupName(const char* pszID, int nIDType = 0);
-	QByteArray			GetUserGroupName(QByteArray &baID, int nIDType = 0);
 	
 };
 
@@ -53,32 +45,6 @@ BOOL CXJUtilsStorePrivate::ReLoad()
 BOOL CXJUtilsStorePrivate::Save(const char *pszFilePath/* = NULL*/)
 {
 	return TRUE;
-}
-
-QByteArray CXJUtilsStorePrivate::GetUserGroupName(const char* pszID, int nIDType/* = 0*/)
-{
-	QByteArray s;
-
-	if (0 == nIDType){
-
-	}else if (1 == nIDType){
-		
-	}
-
-	return s;
-}
-
-QByteArray CXJUtilsStorePrivate::GetUserGroupName(QByteArray &baID, int nIDType/* = 0*/)
-{
-	QByteArray s;
-	
-	if (0 == nIDType){
-		
-	}else if (1 == nIDType){
-
-	}
-	
-	return s;
 }
 
 ////////////////////////////////////////////////////////////

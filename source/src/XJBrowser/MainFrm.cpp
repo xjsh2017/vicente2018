@@ -2194,7 +2194,6 @@ void CMainFrame::OnClose()
 	//pApp->SetUserLoginFlag(pApp->m_User.m_strUSER_ID, pApp->m_User.m_strGROUP_ID, CString(""));
 	CXJUserStore::GetInstance()->SetUserFlags(pApp->m_User.m_strUSER_ID.GetBuffer(0)
 		, pApp->m_User.m_strGROUP_ID.GetBuffer(0), 0);
-	//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
 	CXJUserStore::GetInstance()->Save();
 
 	WriteLog("CMainFrame::OnClose start", XJ_LOG_LV3);
@@ -3160,6 +3159,7 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
 
 	int nTagOutStateID = pTagOutState->GetStateID();
 
@@ -3212,15 +3212,70 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 // 		}
 
 		QByteArray &thisComputer = CXJUtilsStore::GetInstance()->GetComputerName();
+		QByteArray sTagOutUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT);
 		if (XJ_TAGOUT_PTVALVSET == pTagOutState->GetType()
-			&& pTagOutState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 4) == thisComputer){
-			if (XJ_OPER_PTVALVSET_STATE_3 == nTagOutStateID){
+			&& pTagOutState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 4) == thisComputer
+			&& (qstrcmp(pApp->m_User.m_strUSER_ID.GetBuffer(0), "ipofas") == 0 
+				|| qstrcmp(pApp->m_User.m_strUSER_ID.GetBuffer(0), sTagOutUserID.constData()) == 0)
+			)
+		{
+			if (XJ_OPER_PTVALVSET_STATE_3 == nTagOutStateID
+				&& pUserStore->hasFuncID(XJ_OPER_PTVALVSET_STATE_4, sTagOutUserID)
+				)
+			{
 				KillTimer(m_nMsgTimer);
 				DoPtsetVerify0();
 				m_oper = 0;
 			}else if (XJ_OPER_PTVALVSET_STATE_5 == nTagOutStateID && 0 == m_oper){
 				KillTimer(m_nMsgTimer);
 				AfxMessageBox("所有定值修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
+				m_oper = 1;
+				m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
+			}
+		}
+
+		sTagOutUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_HANGOUT);
+		if (XJ_TAGOUT_PTZONESET == pTagOutState->GetType() 
+			&& pTagOutState->IsWorkFlowEnableOnState(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_4)
+			&& pTagOutState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 4) == thisComputer
+			&& (qstrcmp(pApp->m_User.m_strUSER_ID.GetBuffer(0), "ipofas") == 0 
+			|| qstrcmp(pApp->m_User.m_strUSER_ID.GetBuffer(0), sTagOutUserID.constData()) == 0)
+			)
+		{
+			if (((pTagOutState->IsWorkFlowEnableOnState(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_3) && XJ_OPER_PTZONESET_STATE_3 == nTagOutStateID)
+				|| (!pTagOutState->IsWorkFlowEnableOnState(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_3) && XJ_OPER_PTZONESET_STATE_2 == nTagOutStateID))
+				&& pUserStore->hasFuncID(XJ_OPER_PTZONESET_STATE_4, sTagOutUserID)
+				)
+			{
+				KillTimer(m_nMsgTimer);
+				DoPtZoneVerify0();
+				m_oper = 0;
+			}else if (XJ_OPER_PTZONESET_STATE_5 == nTagOutStateID && 0 == m_oper){
+				KillTimer(m_nMsgTimer);
+				AfxMessageBox("所有定值区修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
+				m_oper = 1;
+				m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
+			}
+		}
+		
+		sTagOutUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_HANGOUT);
+		if (XJ_TAGOUT_PTSOFTSET == pTagOutState->GetType() && pTagOutState->IsWorkFlowEnableOnState(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_4)
+			&& pTagOutState->GetLog(XJ_OPER_HANGOUT).GetFieldValue(1, 4) == thisComputer
+			&& (qstrcmp(pApp->m_User.m_strUSER_ID.GetBuffer(0), "ipofas") == 0 
+			|| qstrcmp(pApp->m_User.m_strUSER_ID.GetBuffer(0), sTagOutUserID.constData()) == 0)
+			)
+		{
+			if (((pTagOutState->IsWorkFlowEnableOnState(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_3) && XJ_OPER_PTSOFTSET_STATE_3 == nTagOutStateID)
+				|| (!pTagOutState->IsWorkFlowEnableOnState(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_3) && XJ_OPER_PTSOFTSET_STATE_2 == nTagOutStateID))
+				&& pUserStore->hasFuncID(XJ_OPER_PTSOFTSET_STATE_4, sTagOutUserID)
+				)
+			{
+				KillTimer(m_nMsgTimer);
+				DoPtSoftVerify0();
+				m_oper = 0;
+			}else if (XJ_OPER_PTSOFTSET_STATE_5 == nTagOutStateID && 0 == m_oper){
+				KillTimer(m_nMsgTimer);
+				AfxMessageBox("所有软压板修改已执行成功，请在定值页面再召唤一次以确认是否正确", MB_OK|MB_ICONINFORMATION);
 				m_oper = 1;
 				m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
 			}
@@ -3302,11 +3357,14 @@ void CMainFrame::DoPtsetVerify0()
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
 	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
 	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
 	
 	int nTagOutStateID = pTagOutState->GetStateID();
 
 	CString strOutPut;
 	CString str;
+	
+	KillTimer(m_nMsgTimer);
 
 	//运行人员确认
 	CDlgDataCheck dlg(this, XJ_USERGROUP_RUNNER, XJ_TAGOUT_PTVALVSET);
@@ -3322,8 +3380,11 @@ void CMainFrame::DoPtsetVerify0()
 		{
 			//普通模式,要求运行人员验证
 			CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
-			dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+			//dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+			dlgUser.m_nFuncID = XJ_OPER_PTVALVSET_STATE_4;
 			dlgUser.m_strUser = sUserID.constData();
+			if (pUserStore->hasFuncID(XJ_OPER_PTVALVSET_STATE_4, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
+				dlgUser.m_strAuthUserID = pApp->m_User.m_strUSER_ID;
 			if (!sUserID.isEmpty())
 				dlgUser.m_strAuthUserID = sUserID.constData();
 			if(dlgUser.DoModal() == IDOK)
@@ -3352,8 +3413,139 @@ void CMainFrame::DoPtsetVerify0()
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_4, sUserID.constData()
 						, QByteArray(str.GetBuffer(0)));
 	}
+
+	m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
+}
+
+void CMainFrame::DoPtZoneVerify0() 
+{
+	// TODO: Add your control notification handler code here
+	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+	
+	int nTagOutStateID = pTagOutState->GetStateID();
+	
+	CString strOutPut;
+	CString str;
+
+	KillTimer(m_nMsgTimer);
+	
+	//运行人员确认
+	CDlgDataCheck dlg(this, XJ_USERGROUP_RUNNER, XJ_TAGOUT_PTZONESET);
+	dlg.m_strModify = strOutPut;
+	CString sRunUser;
+	QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_4);
+	if (sUserID.isEmpty()){
+		sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_HANGOUT);
+	}
+	if(dlg.DoModal() == IDOK)
+	{
+		if(g_PTControlModel == 1)
+		{
+			//普通模式,要求运行人员验证
+			CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
+			//dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+			dlgUser.m_nFuncID = XJ_OPER_PTZONESET_STATE_4;
+			dlgUser.m_strUser = sUserID.constData();
+			if (pUserStore->hasFuncID(XJ_OPER_PTZONESET_STATE_4, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
+				dlgUser.m_strAuthUserID = pApp->m_User.m_strUSER_ID;
+			if (!sUserID.isEmpty())
+				dlgUser.m_strAuthUserID = sUserID.constData();
+			if(dlgUser.DoModal() == IDOK)
+			{	
+				sRunUser = dlgUser.m_strUser;
+				pTagOutState->Next_PTSET_ZONE_STATE_4(sRunUser.GetBuffer(0));
+			}
+			else
+			{
+				// 权限不足
+				str.Format("用户[%s]以运行员身份验证失败：密码验证失败", sUserID.constData());
+				WriteLog(str, XJ_LOG_LV2);
+				pTagOutState->SetFlags(1);
+				pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_4, sUserID.constData()
+					, QByteArray(str.GetBuffer(0)));
+			}
+		}
+	}
+	else
+	{
+		//不同意修改
+		//回复修改前的值
+		str.Format("用户[%s]以运行员身份验证失败：不同意修改", sUserID.constData());
+		WriteLog(str, XJ_LOG_LV2);
+		pTagOutState->SetFlags(1);
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_4, sUserID.constData()
+			, QByteArray(str.GetBuffer(0)));
+	}
+
+	m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
+}
+
+void CMainFrame::DoPtSoftVerify0() 
+{
+	// TODO: Add your control notification handler code here
+	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
+	CXJUserStore *pUserStore = CXJUserStore::GetInstance();
+	
+	int nTagOutStateID = pTagOutState->GetStateID();
+	
+	CString strOutPut;
+	CString str;
 	
 	KillTimer(m_nMsgTimer);
+	
+	//运行人员确认
+	CDlgDataCheck dlg(this, XJ_USERGROUP_RUNNER, XJ_TAGOUT_PTSOFTSET);
+	dlg.m_strModify = strOutPut;
+	CString sRunUser;
+	QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_4);
+	if (sUserID.isEmpty()){
+		sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_HANGOUT);
+	}
+	if(dlg.DoModal() == IDOK)
+	{
+		if(g_PTControlModel == 1)
+		{
+			//普通模式,要求运行人员验证
+			CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
+			//dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+			dlgUser.m_nFuncID = XJ_OPER_PTSOFTSET_STATE_4;
+			dlgUser.m_strUser = sUserID.constData();
+			if (pUserStore->hasFuncID(XJ_OPER_PTSOFTSET_STATE_4, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
+				dlgUser.m_strAuthUserID = pApp->m_User.m_strUSER_ID;
+			if (!sUserID.isEmpty())
+				dlgUser.m_strAuthUserID = sUserID.constData();
+			if(dlgUser.DoModal() == IDOK)
+			{	
+				sRunUser = dlgUser.m_strUser;
+				pTagOutState->Next_PTSET_SOFT_STATE_4(sRunUser.GetBuffer(0));
+			}
+			else
+			{
+				// 权限不足
+				str.Format("用户[%s]以运行员身份验证失败：密码验证失败", sUserID.constData());
+				WriteLog(str, XJ_LOG_LV2);
+				pTagOutState->SetFlags(1);
+				pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_4, sUserID.constData()
+					, QByteArray(str.GetBuffer(0)));
+			}
+		}
+	}
+	else
+	{
+		//不同意修改
+		//回复修改前的值
+		str.Format("用户[%s]以运行员身份验证失败：不同意修改", sUserID.constData());
+		WriteLog(str, XJ_LOG_LV2);
+		pTagOutState->SetFlags(1);
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_4, sUserID.constData()
+			, QByteArray(str.GetBuffer(0)));
+	}
+	
 	m_nMsgTimer = SetTimer(201, MSG_TIMER_LEN*1000, NULL);
 }
 

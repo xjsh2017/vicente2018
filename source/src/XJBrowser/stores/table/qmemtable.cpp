@@ -82,6 +82,9 @@ public:
 	int			GetRecordCount();
 	int			GetRowCount();
 
+	QByteArrayMatrix GetRow(int iRow);
+	QByteArrayMatrix GetCol(int iCol);
+
 	int			GetNextFieldIndex();
 
 	BOOL		SetFieldValue(int iRow, int iCol, QByteArray val);
@@ -690,6 +693,32 @@ int	QMemTablePrivate::GetRowCount()
 	return m_data.GetRows();
 }
 
+QByteArrayMatrix QMemTablePrivate::GetRow(int iRow)
+{
+	QByteArrayMatrix baReturn;
+
+	return baReturn;
+}
+
+QByteArrayMatrix QMemTablePrivate::GetCol(int iCol)
+{
+	QByteArrayMatrix baReturn;
+	
+	int nRowCount = GetRowCount();
+	int nColCount = GetFieldCount();
+	if (iCol > nColCount)
+		return baReturn;
+
+	baReturn.SetDelimCol(m_data.GetDelimCol());
+	for (int i = 1; i <= nRowCount; i++){
+		if (i != 1)
+			baReturn << m_data.GetDelimCol();
+		baReturn << m_data.GetFieldValue(i, iCol);
+	}
+
+	return baReturn;
+}
+
 int	QMemTablePrivate::GetNextFieldIndex()
 {
 	int nNextIdx = -1;
@@ -1219,6 +1248,22 @@ int	QMemTable::GetRowCount()
 		return -1;
 	
 	return d_ptr->GetRowCount();
+}
+
+QByteArrayMatrix QMemTable::GetRow(int iRow)
+{
+	if (NULL == d_ptr)
+		return QByteArrayMatrix();
+
+	return d_ptr->GetRow(iRow);
+}
+
+QByteArrayMatrix QMemTable::GetCol(int iCol)
+{
+	if (NULL == d_ptr)
+		return QByteArrayMatrix();
+	
+	return d_ptr->GetCol(iCol);
 }
 
 BOOL QMemTable::SetFieldValue(int iRow, int iCol, QByteArray val)

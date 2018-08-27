@@ -82,7 +82,7 @@ void CDlgTagOutSet::OnCustomdrawList ( NMHDR* pNMHDR, LRESULT* pResult )
         // The background color will be light blue for column 0, red for
         // column 1, and black for column 2.
 		
-        COLORREF crText, crBkgnd;
+        COLORREF /*crText, */crBkgnd;
 		
 		int nRowIdx = static_cast<int> (pLVCD->nmcd.dwItemSpec); //行索引
 		int nColIdx = pLVCD->iSubItem; //列索引
@@ -144,10 +144,10 @@ void CDlgTagOutSet::OnBtnMark()
 	//运行人员确认
 	CString sUser;
 	CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
-	dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
-	if (pApp->m_User.m_strGROUP_ID == CString(pUserStore->GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())){
+	dlgUser.m_nFuncID = XJ_OPER_HANGOUT;
+	if (pUserStore->hasFuncID(XJ_OPER_HANGOUT, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
 		dlgUser.m_strUser = pApp->m_User.m_strUSER_ID;
-	}
+
 	if(dlgUser.DoModal() == IDOK)
 	{	
 		sUser = dlgUser.m_strUser;
@@ -161,7 +161,10 @@ void CDlgTagOutSet::OnBtnMark()
 			CXJTagOutStore::GetInstance()->GetState()->Next_1(sUser.GetBuffer(0)
 				, m_pObj->m_sID.GetBuffer(0), sInsert.GetBuffer(0));
 			
-			AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
+			QByteArray msg;
+			msg << "装置 [ " << m_pObj->m_sName.GetBuffer(0) << " ] 挂牌成功";
+			//AfxMessageBox( StringFromID(IDS_HANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
+			AfxMessageBox( msg.constData(), MB_OK | MB_ICONINFORMATION);
 			SetDeviceState();
 		}
 	}
@@ -185,10 +188,11 @@ void CDlgTagOutSet::OnBtnUnmark()
 	//运行人员确认
 	CString sUser;
 	CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
-	dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
-	if (pApp->m_User.m_strGROUP_ID == CString(pUserStore->GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())){
+	//dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
+	dlgUser.m_nFuncID = XJ_OPER_UNHANGOUT;
+	if (pUserStore->hasFuncID(XJ_OPER_UNHANGOUT, pApp->m_User.m_strUSER_ID.GetBuffer(0)))
 		dlgUser.m_strUser = pApp->m_User.m_strUSER_ID;
-	}
+
 	if(dlgUser.DoModal() == IDOK)
 	{	
 		sUser = dlgUser.m_strUser;
@@ -205,8 +209,12 @@ void CDlgTagOutSet::OnBtnUnmark()
 		if (InsertDBMark())
 		{
 			CXJTagOutStore::GetInstance()->GetState()->Next_0(sUser.GetBuffer(0));
+
 			
-			AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
+			QByteArray msg;
+			msg << "装置 [ " << m_pObj->m_sName.GetBuffer(0) << " ] 成功取消挂牌";
+			//AfxMessageBox( StringFromID(IDS_UNHANGOUT_SUCCESS), MB_OK | MB_ICONINFORMATION);
+			AfxMessageBox( msg.constData(), MB_OK | MB_ICONINFORMATION);
 			SetDeviceState();
 		}
 	}
@@ -247,7 +255,6 @@ void CDlgTagOutSet::OnApplySetting()
 			pTagOutState->SetFieldValue(nTagOutRowIdx, "reverse1", flow);
 		}
 	}
-	//pTagOutStore->SaveState("c:/tb_sys_config.txt");
 	pTagOutStore->SaveState();
 	
 	m_List.ClearEdited();
@@ -296,12 +303,14 @@ void CDlgTagOutSet::OnClickList1(NMHDR* pNMHDR, LRESULT* pResult)
 			//最新值列
 
 			int iRowFlow = m_List.GetItemData(nItem);
-			int nGroupType = flow.GetFieldValue(iRowFlow, 4).toInt();
+			int nFuncID = flow.GetFieldValue(iRowFlow, 5).toInt();
 			int nStateID = flow.GetFieldValue(iRowFlow, 2).toInt();
 
 			if (pTagOutState->GetType() == XJ_TAGOUT_UNDEFINE ||
 				!pTagOutState->GetLogs().contains(nStateID)){
-				m_List.ListSubItem(nItem, nSubItem, pUserStore->BuildComboxUserList(nGroupType).constData());
+				QByteArray s;
+				s << " ;" << pUserStore->BuildComboxUserList2(nFuncID);
+				m_List.ListSubItem(nItem, nSubItem, s.constData());
 			}
 			//AfxMessageBox(QByteArray::number(nGroupType).constData());
 			//AfxMessageBox(QByteArray::number(nStateID).constData());
@@ -713,7 +722,7 @@ int CDlgTagOutSet::InitListStyle()
 				break;
 			case 2://
 				lvCol.cx = 100; // 用户组
-				colName = "用户组";
+				colName = "功能ID";
 				break;
 			case 3://
 				lvCol.cx = 100; // 执行用户
@@ -806,8 +815,8 @@ void CDlgTagOutSet::FillData()
 		int nTagOutType = flow.GetFieldValue(i, 1).toInt();
 		int nStateID = flow.GetFieldValue(i, 2).toInt();
 		int nEnable = flow.GetFieldValue(i, 3).toInt();
-		QByteArray &usrGroupID = flow.GetFieldValue(i, 4);
-		QByteArray &usrID = flow.GetFieldValue(i, 5);
+		QByteArray &usrGroupID = flow.GetFieldValue(i, COL_WORKFLOW_USERGROUP_ID);
+		QByteArray &usrID = flow.GetFieldValue(i, COL_WORKFLOW_USER_ID);
 		QByteArray typeName;// = pTagOutStore->GetSubFuncID(nStateID);
 		typeName << baReasonName << " : " << pTagOutStore->GetSubFuncID(nStateID);
 
@@ -907,7 +916,7 @@ BOOL CDlgTagOutSet::CheckFlow()
 
 	// 运行组和操作组指定的用户不能是同一所有者
 	QByteArray msg;
-	if (pApp->m_User.m_strGROUP_ID == CString(pUserStore->GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())
+	if (pApp->m_User.m_strGROUP_ID == CString(GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())
 		&& !baLoginUser.isEmpty() && !baOper.isEmpty()){
 		if (baLoginUserOwner == baOperOwner){
 			msg << "[101 检查项]：运行组和操作组指定的用户不能是同一所有者" << "\n"

@@ -181,7 +181,7 @@ int CDlgOperHis::InitListStyle()
 		//载入配置失败
 		//char* arColumn[11]={"序号","定值名称", "定值代码", "单位", "基准值", "组号", "条目号","步长", "最小值/最大值", "精度", "数据类型"};
 		//分配列宽,最小需求
-		for (int nCol=0; nCol < 11 ; nCol++)
+		for (int nCol=0; nCol < 12 ; nCol++)
 		{
 			lvCol.iSubItem=nCol;
 			CString colName = "";
@@ -212,22 +212,26 @@ int CDlgOperHis::InitListStyle()
 				colName = "用户名";
 				break;
 			case 6:
-				lvCol.cx = 60; // 用户所有者
+				lvCol.cx = 100; // 用户所有者
 				colName = "所有者";
 				break;
 			case 7:
+				lvCol.cx = 100; // 用户组
+				colName = "用户组";
+				break;
+			case 8:
 				lvCol.cx = 80; // 操作对象
 				colName = "操作对象";
 				break;
-			case 8://
+			case 9://
 				lvCol.cx = 250; // 操作信息
 				colName = "人工操作信息";
 				break;
-			case 9:
+			case 10:
 				lvCol.cx = 80; // 计算机名
 				colName = "计算机名";
 				break;
-			case 10:
+			case 11:
 				lvCol.cx = 60; // 操作结果
 				colName = "操作结果";
 				break;
@@ -242,8 +246,8 @@ int CDlgOperHis::InitListStyle()
 		//m_List.SetColumnHide(0, TRUE);
 		m_List.SetColumnHide(1, TRUE);
 		m_List.SetColumnHide(4, TRUE);
-		m_List.SetColumnHide(7, TRUE);
-		//m_List.SetColumnHide(9, TRUE);
+		m_List.SetColumnHide(8, TRUE);
+		//m_List.SetColumnHide(10, TRUE);
 	}
 	//设置风格
 	m_List.SetExtendedStyle(LVS_EX_GRIDLINES |LVS_EX_FULLROWSELECT);
@@ -275,14 +279,14 @@ void CDlgOperHis::FillData()
 
 	QByteArray baSQL;
 	if (m_nType == 1){
-		baSQL << "SELECT 1,id,time,func,opertype,username,'',act,msg,computer,operresult "
+		baSQL << "SELECT 1,id,time,func,opertype,username,'','',act,msg,computer,operresult "
 			<< " FROM tb_operation WHERE ACT IN ('" << m_pObj->m_sID << "')"
 			<< " AND (opertype BETWEEN " << XJ_OPER_UNHANGOUT << " AND " << XJ_OPER_HANGOUT << " OR "
 			<< " opertype BETWEEN " << XJ_TAGOUT_PTVALVSET << " AND " << XJ_OPER_PTZONESET_STATE_5 << " )"
 			<< " AND FUNC like '定值%'"
 			<< " ORDER BY time DESC";
 	}else if (2 == m_nType){
-		baSQL << "SELECT 1,id,time,func,opertype,username,'',act,msg,computer,operresult "
+		baSQL << "SELECT 1,id,time,func,opertype,username,'','',act,msg,computer,operresult "
 			<< " FROM tb_operation WHERE ACT IN ('" << m_pObj->m_sID << "')"
 			<< " AND (opertype BETWEEN " << XJ_OPER_UNHANGOUT << " AND " << XJ_OPER_HANGOUT << " OR "
 			<< " opertype BETWEEN " << XJ_TAGOUT_PTSOFTSET << " AND " << XJ_OPER_PTSOFTSET_STATE_5 << " )"
@@ -334,10 +338,10 @@ void CDlgOperHis::FillData()
 			str.Format("%d", nCount - nIndex);
 			m_List.InsertItem(nIndex, str);
 
-			for (int j = 0; j < 11; j++){
+			for (int j = 0; j < 12; j++){
 				if (0 == j){
 					str.Format("%d", nCount - nIndex);
-				}else if (10 == j){
+				}else if (11 == j){
 					str = mem.GetValue((UINT)j);
 					if (atoi(str) == 0){
 						str = "成功";
@@ -354,6 +358,8 @@ void CDlgOperHis::FillData()
 			QByteArray user_id = mem.GetValue((UINT)5);
 			QByteArray &owner = pUsrStore->GetUserOwner(user_id.constData());
 			m_List.SetItemText(nIndex, 6, owner.constData());
+			QByteArray &group = pUsrStore->GetUserGroupName(user_id);
+			m_List.SetItemText(nIndex, 7, group.constData());
 			
 			nIndex++;
 			

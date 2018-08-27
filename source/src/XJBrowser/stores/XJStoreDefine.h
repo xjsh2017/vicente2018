@@ -21,6 +21,14 @@ int const XJ_USERGROUP_OPERATOR = 102;
 /** @brief			监视组*/
 int const XJ_USERGROUP_MONITOR = 103;
 
+// 功能权限ID
+/** @brief			挂牌设置*/
+int const XJ_FUNC_XJBROWSER_TAGOUT = 101;
+/** @brief			控制功能*/
+int const XJ_FUNC_XJBROWSER_CONTROL = 102;
+/** @brief			监护功能*/
+int const XJ_FUNC_XJBROWSER_CUSTODY = 103;
+
 /** @brief			挂牌原因: 未定义*/
 int const XJ_TAGOUT_UNDEFINE = 100;
 /** @brief			挂牌原因: 定值修改*/
@@ -127,5 +135,8 @@ XJ_NAMESPACE_END
 
 
 extern QByteArray GetTime(int nType = 0);
+extern QByteArray GetFuncIDName(int nType = XJ_FUNC_XJBROWSER_TAGOUT);
+extern QByteArray GetUserGroupIDName(int nType = XJ_USERGROUP_RUNNER);
+extern QByteArray pts_GetDisplayValue( PT_SETTING* pst, QByteArray &baValue);
 
 #endif // !defined(_XJSTOREDEFINE_H)

@@ -174,6 +174,10 @@ SOURCE=.\stores\table\qmemtable.cpp
 
 SOURCE=.\stores\table\qptsetstatetable.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\stores\table\qtabledefine.cpp
+# End Source File
 # End Group
 # Begin Source File
 
@@ -1102,6 +1106,10 @@ SOURCE=.\stores\table\qmemtable.h
 # Begin Source File
 
 SOURCE=.\stores\table\qptsetstatetable.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\stores\table\qtabledefine.h
 # End Source File
 # End Group
 # Begin Source File
@@ -2292,12 +2300,12 @@ SOURCE=.\xjbrowser.Manifest
 # End Source File
 # End Target
 # End Project
-# Section XJBrowser : {62274DEE-B5BF-48F8-910F-4F797CCBCD96}
-# 	2:21:DefaultSinkHeaderFile:ddvue.h
-# 	2:16:DefaultSinkClass:CDDVue
-# End Section
 # Section XJBrowser : {A1919AAD-5EF2-48E5-A8E1-2822EF1FA1F5}
 # 	2:5:Class:CDDVue
 # 	2:10:HeaderFile:ddvue.h
 # 	2:8:ImplFile:ddvue.cpp
+# End Section
+# Section XJBrowser : {62274DEE-B5BF-48F8-910F-4F797CCBCD96}
+# 	2:21:DefaultSinkHeaderFile:ddvue.h
+# 	2:16:DefaultSinkClass:CDDVue
 # End Section

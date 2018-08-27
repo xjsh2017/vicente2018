@@ -5,6 +5,7 @@
 #include "XJUserStore.h"
 
 #include "qmemtable.h"
+#include "qtabledefine.h"
 
 #include "XJBrowser.h"
 
@@ -23,6 +24,7 @@ public:
 	int					GetFlags(const char* pszID, const char* pszGroupID);
 	QByteArray			GetOwner(const char* pszID, const char* pszGroupID);
 	QByteArray			GetOwner(const char* pszID);
+	QByteArray			GetGroupID(const char* pszID);
 
 	void				SetFlags(const char *pszID, const char *pszGroupID, int nFlags);
 	void				SetOwner(const char *pszID, const char *pszGroupID, QByteArray &owner);
@@ -44,6 +46,37 @@ public:
 	QByteArray		GetName(const char* pszID);
 };
 
+// 系统功能表
+class QFuncTable : public QMemTable
+{
+public:
+	QFuncTable();
+	~QFuncTable();
+	
+public:	
+	BOOL		ReLoad();
+	BOOL		Save(const char *pszFilePath = NULL);
+	
+	QByteArray		GetName(const char* pszID);
+	QByteArray		GetFuncID(int nFuncID);
+};
+
+// 用户组功能关联表
+class QGroupFuncTable : public QMemTable
+{
+public:
+	QGroupFuncTable();
+	~QGroupFuncTable();
+	
+public:	
+	BOOL		ReLoad();
+	BOOL		Save(const char *pszFilePath = NULL);
+	
+	QByteArray			GetName(const char* pszID);
+	QByteArrayMatrix	GetFuncIDList(const char* pszGroupID);
+	QByteArrayMatrix	GetFuncIDList(QByteArray &baGroupID);
+};
+
 // 用户类存储私有数据
 class CXJUserStorePrivate 
 {
@@ -53,19 +86,36 @@ public:
 	
 	QUserTable			m_table_user;
 	QUserGroupTable		m_table_user_group;
+	QFuncTable			m_table_func;
+	QGroupFuncTable		m_table_group_func;
 	
 	BOOL		ReLoad();
 	BOOL		Save(const char *pszFilePath = NULL);
 
 public:
 	/*
-	 *  @brief   	GetUserGroupName	 获取用户组ID名 
+	 *  @brief   	GetUserGroupName	 获取用户组名 
 	 *  @param 		[In] pszID		const char*		ID
 	 *  @param 		[In] nIDType	int				ID 类别: 0 - 用户ID，1 - 用户组ID
 	 *  @return 	QByteArray	
 	 */
 	QByteArray			GetUserGroupName(const char* pszID, int nIDType = 0);
 	QByteArray			GetUserGroupName(QByteArray &baID, int nIDType = 0);
+	QByteArray			BuildComboxUserList(int nFuncID);
+
+	/*
+	 *  @brief   	GetFuncIDList	 获取功能ID列表 
+	 *  @param 		[In] pszID		const char*		ID
+	 *  @param 		[In] nIDType	int				ID 类别: 0 - 用户ID，1 - 用户组ID
+	 *  @return 	QByteArrayMatrix	
+	 */
+	QByteArrayMatrix	GetFuncIDList(const char* pszID, int nIDType = 0);
+	QByteArrayMatrix	GetFuncIDList(QByteArray &baID, int nIDType = 0);
+
+	bool				hasFuncID(int nFuncID, const char* pszID, int nIDType = 0);
+	bool				hasFuncID(int nFuncID, QByteArray &baID, int nIDType = 0);
+
+	QByteArray			GetFuncID(int nFuncID);
 	
 };
 
@@ -86,9 +136,9 @@ BOOL QUserTable::ReLoad()
 {
 	BOOL bReturn = FALSE;
 	
-	LoadInfo("tb_sys_user");
+	LoadInfo(XJ::NAME_TB_SYS_USER);
 	LoadDataAll();
-	//Save("c:/tb_sys_user.txt");
+	//Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_USER));
 
 	return bReturn;
 }
@@ -174,6 +224,22 @@ QByteArray QUserTable::GetOwner(const char* pszID)
 	return s;
 }
 
+QByteArray QUserTable::GetGroupID(const char* pszID)
+{
+	QByteArray s;
+	int nRowCount = GetRowCount();
+	
+	for (int i = 1; i <= nRowCount; i++){
+		if (QByteArray(pszID) != GetFieldValue(i, "user_id"))
+			continue;
+		
+		return GetFieldValue(i, "group_id");
+		break;
+	}
+	
+	return s;
+}
+
 void QUserTable::SetFlags(const char *pszID, const char *pszGroupID, int nFlags)
 {
 	QByteArrayMatrix keyVals;
@@ -232,9 +298,9 @@ BOOL QUserGroupTable::ReLoad()
 {
 	BOOL bReturn = FALSE;
 	
-	LoadInfo("tb_sys_group");
+	LoadInfo(XJ::NAME_TB_SYS_GROUP);
 	LoadDataAll();
-	//Save("c:/tb_sys_group.txt");
+	//Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_GROUP));
 	
 	return bReturn;
 }
@@ -288,6 +354,135 @@ QByteArray QUserGroupTable::GetName(const char* pszID)
 }
 
 ////////////////////////////////////////////////////////////
+// QFuncTable
+//
+QFuncTable::QFuncTable()
+{
+}
+
+QFuncTable::~QFuncTable()
+{
+	
+}
+
+BOOL QFuncTable::ReLoad()
+{
+	BOOL bReturn = FALSE;
+	
+	LoadInfo(XJ::NAME_TB_SYS_FUNC);
+	LoadDataAll();
+	Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_FUNC));
+	
+	return bReturn;
+}
+
+BOOL QFuncTable::Save(const char *pszFilePath)
+{
+	BOOL bReturn = FALSE;
+
+	if (SaveData())
+		bReturn = TRUE;
+	
+	if (NULL != pszFilePath)
+		FWrite(pszFilePath);
+	
+	return bReturn;
+}
+
+QByteArray QFuncTable::GetName(const char* pszID)
+{
+	QByteArrayMatrix keyVals;
+	keyVals.AppendField(pszID, true);
+	int nValRowIdx = GetRowIndex(keyVals);
+	// AfxMessageBox(QByteArray::number(nValRowIdx));
+	return GetFieldValue(nValRowIdx, "name");
+}
+
+QByteArray QFuncTable::GetFuncID(int nFuncID)
+{
+	QByteArray s;
+	int nRows = GetRowCount();
+
+	for (int iRow = 1; iRow <= nRows; iRow++)
+	{
+		if (GetFieldValue(iRow, "Sfunc").toInt() != nFuncID)
+			continue;
+
+		return GetFieldValue(iRow, "FUNC_ID");
+	}
+
+	return s;
+}
+
+
+////////////////////////////////////////////////////////////
+// QGroupFuncTable
+//
+QGroupFuncTable::QGroupFuncTable()
+{
+}
+
+QGroupFuncTable::~QGroupFuncTable()
+{
+	
+}
+
+BOOL QGroupFuncTable::ReLoad()
+{
+	BOOL bReturn = FALSE;
+	
+	LoadInfo(XJ::NAME_TB_SYS_GROUP_FUNC);
+	LoadDataAll();
+	Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_GROUP_FUNC));
+	
+	return bReturn;
+}
+
+BOOL QGroupFuncTable::Save(const char *pszFilePath)
+{
+	BOOL bReturn = FALSE;
+	
+	if (SaveData())
+		bReturn = TRUE;
+	
+	if (NULL != pszFilePath)
+		FWrite(pszFilePath);
+	
+	return bReturn;
+}
+
+QByteArray QGroupFuncTable::GetName(const char* pszID)
+{
+	QByteArrayMatrix keyVals;
+	keyVals.AppendField(pszID, true);
+	int nValRowIdx = GetRowIndex(keyVals);
+	// AfxMessageBox(QByteArray::number(nValRowIdx));
+	return GetFieldValue(nValRowIdx, "name");
+}
+
+QByteArrayMatrix QGroupFuncTable::GetFuncIDList(const char* pszGroupID)
+{
+	QByteArrayMatrix s;
+
+	int nRows = GetRowCount();
+	for (int iRow = 1; iRow <= nRows; iRow++){
+		if (qstrcmp(GetFieldValue(iRow, "GROUP_ID").constData(), pszGroupID) != 0)
+			continue;
+
+		if (!s.isEmpty())
+			s << s.GetDelimCol();
+		s << GetFieldValue(iRow, "FUNC_ID");
+	}
+
+	return s;
+}
+
+QByteArrayMatrix QGroupFuncTable::GetFuncIDList(QByteArray &baGroupID)
+{
+	return GetFuncIDList(baGroupID.constData());
+}
+
+////////////////////////////////////////////////////////////
 // CXJUserStorePrivate
 // 
 CXJUserStorePrivate::CXJUserStorePrivate()
@@ -304,6 +499,8 @@ BOOL CXJUserStorePrivate::ReLoad()
 
 	m_table_user.ReLoad();
 	m_table_user_group.ReLoad();
+	m_table_func.ReLoad();
+	m_table_group_func.ReLoad();
 
 	return bReturn;
 }
@@ -318,9 +515,10 @@ QByteArray CXJUserStorePrivate::GetUserGroupName(const char* pszID, int nIDType/
 	QByteArray s;
 
 	if (0 == nIDType){
-
+		QByteArray &group_id = m_table_user.GetGroupID(pszID);
+		return m_table_user_group.GetName(group_id.constData());
 	}else if (1 == nIDType){
-		
+		return m_table_user_group.GetName(pszID);
 	}
 
 	return s;
@@ -328,12 +526,60 @@ QByteArray CXJUserStorePrivate::GetUserGroupName(const char* pszID, int nIDType/
 
 QByteArray CXJUserStorePrivate::GetUserGroupName(QByteArray &baID, int nIDType/* = 0*/)
 {
-	QByteArray s;
+	return GetUserGroupName(baID.constData(), nIDType);
+}
+
+QByteArrayMatrix CXJUserStorePrivate::GetFuncIDList(const char* pszID, int nIDType/* = 0*/)
+{
+	QByteArrayMatrix s;
 	
 	if (0 == nIDType){
-		
+		QByteArray &grpID = m_table_user.GetGroupID(pszID);
+		return m_table_group_func.GetFuncIDList(grpID);
 	}else if (1 == nIDType){
+		return m_table_group_func.GetFuncIDList(pszID);
+	}
+	
+	return s;
+}
 
+QByteArrayMatrix CXJUserStorePrivate::GetFuncIDList(QByteArray &baID, int nIDType/* = 0*/)
+{
+	return GetFuncIDList(baID.constData(), nIDType);
+}
+
+bool CXJUserStorePrivate::hasFuncID(int nFuncID, const char* pszID, int nIDType/* = 0*/)
+{
+	QByteArrayMatrix &funcIDList = GetFuncIDList(pszID, nIDType);
+	QByteArray &funcID = GetFuncID(nFuncID);
+	return funcIDList.valueContains(funcID);
+}
+
+bool CXJUserStorePrivate::hasFuncID(int nFuncID, QByteArray &baID, int nIDType/* = 0*/)
+{
+	return hasFuncID(nFuncID, baID.constData(), nIDType);
+}
+
+QByteArray CXJUserStorePrivate::GetFuncID(int nFuncID)
+{
+	return m_table_func.GetFuncID(nFuncID);
+}
+
+QByteArray CXJUserStorePrivate::BuildComboxUserList(int nFuncID)
+{
+	QByteArray s;
+	
+	int nRows = m_table_user.GetRowCount();
+	for (int i = 1; i <= nRows; i++){
+		QByteArray &usrid = m_table_user.GetFieldValue(i, "user_id");
+
+		if (!hasFuncID(nFuncID, usrid))
+			continue;
+		
+		if (!s.isEmpty())
+			s << ";";
+		
+		s << usrid;
 	}
 	
 	return s;
@@ -387,26 +633,96 @@ BOOL CXJUserStore::Save(const char *pszFilePath)
 	return d_ptr->Save(pszFilePath);
 }
 
-QByteArray CXJUserStore::GetUserGroupIDName(int nType/* = XJ_USERGROUP_RUNNER*/)
-{
-	QByteArray s;
-
-	switch (nType){
-	case XJ_USERGROUP_RUNNER:
-		return QByteArray("运行用户");
-	case XJ_USERGROUP_OPERATOR:
-		return QByteArray("操作用户");
-	case XJ_USERGROUP_MONITOR:
-		return QByteArray("监护用户");
-	}
-
-	return s;
-}
-
 QByteArray CXJUserStore::GetUserGroupName(int nType/* = XJ_USERGROUP_RUNNER*/)
 {
 	QByteArray val = GetUserGroupIDName(nType);
 	return d_ptr->m_table_user_group.GetName(val);
+}
+
+QByteArray CXJUserStore::GetUserGroupName(const char* pszID, int nIDType)
+{
+	QByteArray s;
+	if (NULL == d_ptr)
+		return s;
+
+	return d_ptr->GetUserGroupName(pszID, nIDType);
+}
+
+QByteArray CXJUserStore::GetUserGroupName(QByteArray &baID, int nIDType)
+{
+	QByteArray s;
+	if (NULL == d_ptr)
+		return s;
+	
+	return d_ptr->GetUserGroupName(baID, nIDType);
+}
+
+QByteArray CXJUserStore::GetUserGroupID(const char* pszUserID)
+{
+	QByteArray s;
+	if (NULL == d_ptr)
+		return s;
+	
+	return d_ptr->m_table_user.GetGroupID(pszUserID);
+}
+
+QByteArray CXJUserStore::GetUserGroupID(QByteArray &baUserID)
+{
+	QByteArray s;
+	if (NULL == d_ptr)
+		return s;
+	
+	return d_ptr->m_table_user.GetGroupID(baUserID.constData());
+}
+
+QByteArrayMatrix CXJUserStore::GetFuncIDList(const char* pszID, int nIDType/* = 0*/)
+{
+	QByteArrayMatrix s;
+	if (NULL == d_ptr)
+		return s;
+
+	return d_ptr->GetFuncIDList(pszID, nIDType);
+}
+
+QByteArrayMatrix CXJUserStore::GetFuncIDList(QByteArray &baID, int nIDType/* = 0*/)
+{
+	QByteArrayMatrix s;
+	if (NULL == d_ptr)
+		return s;
+	
+	return d_ptr->GetFuncIDList(baID, nIDType);
+}
+
+
+
+bool CXJUserStore::hasFuncID(int nFuncID, const char* pszID, int nIDType/* = 0*/)
+{
+	bool bReturn = false;
+	if (NULL == d_ptr)
+		return bReturn;
+
+	return d_ptr->hasFuncID(nFuncID, pszID, nIDType);
+}
+
+bool CXJUserStore::hasFuncID(int nFuncID, QByteArray &baID, int nIDType/* = 0*/)
+{
+	bool bReturn = false;
+	if (NULL == d_ptr)
+		return bReturn;
+	
+	return d_ptr->hasFuncID(nFuncID, baID, nIDType);
+}
+
+QByteArray CXJUserStore::GetFuncID(int nFuncID)
+{
+	QByteArray s;
+
+	if (NULL == d_ptr)
+		return s;
+
+	return d_ptr->GetFuncID(nFuncID);
+
+	return s;
 }
 
 int CXJUserStore::GetUserFlags(const char* pszUserID, const char* pszUserGroupID)
@@ -466,4 +782,12 @@ QByteArray CXJUserStore::BuildComboxUserList(int nGroupType)
 		return QByteArray();
 	
 	return d_ptr->m_table_user.BuildComboxUserList(GetUserGroupIDName(nGroupType).constData());
+}
+
+QByteArray CXJUserStore::BuildComboxUserList2(int nFuncID)
+{
+	if (NULL == d_ptr)
+		return QByteArray();
+
+	return d_ptr->BuildComboxUserList(nFuncID);
 }

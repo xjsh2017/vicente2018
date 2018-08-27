@@ -74,7 +74,7 @@ void DLGMarked::OnBtnMark()
 	CString sUser;
 	CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
 	dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
-	if (pApp->m_User.m_strGROUP_ID == CString(pUserStore->GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())){
+	if (pApp->m_User.m_strGROUP_ID == CString(GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())){
 		dlgUser.m_strUser = pApp->m_User.m_strUSER_ID;
 	}
 	if(dlgUser.DoModal() == IDOK)
@@ -113,7 +113,7 @@ void DLGMarked::OnBtnUnmark()
 	CString sUser;
 	CDlgValidateUser dlgUser(XJ_USERGROUP_RUNNER);
 	dlgUser.m_strFuncID = FUNC_XJBROWSER_CONTROL;
-	if (pApp->m_User.m_strGROUP_ID == CString(pUserStore->GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())){
+	if (pApp->m_User.m_strGROUP_ID == CString(GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())){
 		dlgUser.m_strUser = pApp->m_User.m_strUSER_ID;
 	}
 	if(dlgUser.DoModal() == IDOK)
@@ -831,7 +831,7 @@ BOOL DLGMarked::CheckFlow()
 
 	// 运行组和操作组指定的用户不能是同一所有者
 	QByteArray msg;
-	if (pApp->m_User.m_strGROUP_ID == CString(pUserStore->GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())
+	if (pApp->m_User.m_strGROUP_ID == CString(GetUserGroupIDName(XJ_USERGROUP_RUNNER).constData())
 		&& !baLoginUser.isEmpty() && !baOper.isEmpty()){
 		if (baLoginUserOwner == baOperOwner){
 			msg << "[101 检查项]：运行组和操作组指定的用户不能是同一所有者" << "\n"

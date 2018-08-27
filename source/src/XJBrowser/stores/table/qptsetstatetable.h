@@ -54,6 +54,9 @@ public:
 	QByteArray			GetMonitorUserID();
 
 	QByteArray			GetWorkFlowUserID(int nTagOutType, int nStateID);
+	QByteArray			GetWorkFlowFuncID(int nTagOutType, int nStateID);
+	QByteArray			GetLogUserID(int nTagOutType, int nStateID);
+	bool				IsWorkFlowEnableOnState(int nTagOutType, int nStateID);
 
 	/** @brief           工作流程*/
 	QByteArrayMatrix	GetWorkFlow(int nTagOutType = -1);
@@ -198,7 +201,12 @@ extern const char* PTSOFTSET_KEYNAME;
 extern const int COL_WORKFLOW_TAGOUT_ID;
 extern const int COL_WORKFLOW_STATE_ID;
 extern const int COL_WORKFLOW_USERGROUP_ID;
+extern const int COL_WORKFLOW_FUNC_ID;
 extern const int COL_WORKFLOW_ENABLE;
 extern const int COL_WORKFLOW_USER_ID;
+
+extern const char* REASON_PTSET_VALV;
+extern const char* REASON_PTSET_ZONE;
+extern const char* REASON_PTSET_SOFT;
 
 #endif // QPTSETCARD_H

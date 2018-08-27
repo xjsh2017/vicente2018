@@ -141,9 +141,11 @@ BOOL CDlgDataCheck::OnInitDialog()
 	
 	// TODO: Add extra initialization here
 
+	QByteArray baTitle;
 	if (m_nType == XJ_USERGROUP_RUNNER)
 	{
-		SetWindowText( StringFromID(IDS_CHECK_RUNNER));
+		//SetWindowText( StringFromID(IDS_CHECK_RUNNER));
+		baTitle = "请挂牌员确认以下修改";
 		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET)
 			pPTSetData->ReLoad();
 		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
@@ -153,7 +155,8 @@ BOOL CDlgDataCheck::OnInitDialog()
 	}
 	else if (m_nType == XJ_USERGROUP_MONITOR)
 	{
-		SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
+		//SetWindowText( StringFromID(IDS_CHECK_GUARDIAN));
+		baTitle = "请监护员确认以下修改";
 		if (m_nTagOutType == XJ_TAGOUT_PTVALVSET)
 			pPTSetData->ReLoad();
 		else if (m_nTagOutType == XJ_TAGOUT_PTZONESET)
@@ -163,12 +166,15 @@ BOOL CDlgDataCheck::OnInitDialog()
 	}
 	else if (m_nType == XJ_USERGROUP_OPERATOR)
 	{
-		SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
+		//SetWindowText( StringFromID(IDS_CHECK_OPERATOR));
+		baTitle = "请操作员确认以下修改";
 	}
 	else
 	{
-		SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
+		//SetWindowText( StringFromID(IDS_CHECK_DEFAULT));
+		baTitle = "请确认以下修改";
 	}
+	SetWindowText(baTitle.constData());
 
 	UpdateLabels1();
 	InitListStyle1();

@@ -2,6 +2,7 @@
 #define _XJUSERSTORE_H
 
 #include "XJRootStore.h"
+#include "qbytearraymatrix.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CXJUserStore
@@ -56,9 +57,19 @@ public:
 	BOOL		Save(const char *pszFilePath = NULL);
 
 public:
-	QByteArray			GetUserGroupIDName(int nType = XJ_USERGROUP_RUNNER);
 	QByteArray			GetUserGroupName(int nType = XJ_USERGROUP_RUNNER);
-	QByteArray			GetUserGroupName(const char* pszUserGroupID);
+	QByteArray			GetUserGroupName(const char* pszID, int nIDType = 0);
+	QByteArray			GetUserGroupName(QByteArray &baID, int nIDType = 0);
+	QByteArray			GetUserGroupID(const char* pszUserID);
+	QByteArray			GetUserGroupID(QByteArray &baUserID);
+	
+	QByteArrayMatrix	GetFuncIDList(const char* pszID, int nIDType = 0);
+	QByteArrayMatrix	GetFuncIDList(QByteArray &baID, int nIDType = 0);
+	
+	bool				hasFuncID(int nFuncID, const char* pszID, int nIDType = 0);
+	bool				hasFuncID(int nFuncID, QByteArray &baID, int nIDType = 0);
+
+	QByteArray			GetFuncID(int nFuncID);
 
 	int					GetUserFlags(const char* pszUserID, const char* pszUserGroupID);
 	QByteArray			GetUserOwner(const char* pszUserID, const char* pszUserGroupID);
@@ -68,6 +79,7 @@ public:
 	void				SetUserOwner(const char *szUserID, const char *szUserGroupID, QByteArray &owner);
 	QByteArray			BuildComboxUserList(const char* pszUserGroupID);
 	QByteArray			BuildComboxUserList(int nGroupType = XJ_USERGROUP_RUNNER);
+	QByteArray			BuildComboxUserList2(int nFuncID);
 
 
 // Implementation

@@ -3437,6 +3437,16 @@ BOOL CXJBrowserApp::InitInstance()
 
 		pPTZoneData->ReLoad();
 
+		//AfxMessageBox(pUserStore->GetFuncID(XJ_OPER_PTSOFTSET_STATE_2).constData());
+
+// 		QByteArrayMatrix &funcID = pUserStore->GetFuncIDList("BXYX01");
+// 		AfxMessageBox(funcID.constData());
+// 
+// 		bool bHas = pUserStore->hasFuncID(XJ_FUNC_XJBROWSER_TAGOUT, "BXJX01");
+// 		AfxMessageBox(bHas ? "Has" : "no");
+// 
+// 		AfxMessageBox(pUserStore->BuildComboxUserList2(XJ_FUNC_XJBROWSER_TAGOUT).constData());
+
 //		AfxMessageBox(pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2));
 // 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_HANGOUT, QByteArray("run1"));
 // 		pTagOutState->SetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_HANGOUT, QByteArray("run2"));
@@ -4071,7 +4081,6 @@ BOOL CXJBrowserApp::DoLogin()
 		//SetUserLoginFlag(m_User.m_strUSER_ID, m_User.m_strGROUP_ID, CString("1"));
 		CXJUserStore::GetInstance()->SetUserFlags(m_User.m_strUSER_ID.GetBuffer(0)
 			, m_User.m_strGROUP_ID.GetBuffer(0), 1);
-		//CXJUserStore::GetInstance()->Save("c:/tb_sys_user.txt");
 		CXJUserStore::GetInstance()->Save();
 		
 		return TRUE;
