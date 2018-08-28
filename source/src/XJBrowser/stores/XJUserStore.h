@@ -50,11 +50,18 @@ public:
 	 */
 	BOOL		ReLoad();
 	/*
-	 *  @brief   	ReLoad	 保存数据
+	 *  @brief   	Save	 保存数据
 	 *  @param 		void
 	 *  @return 	BOOL
 	 */
 	BOOL		Save(const char *pszFilePath = NULL);
+
+	/*
+	 *  @brief   	Check	 检查数据（一些原始的数据记录）
+	 *  @param 		void
+	 *  @return 	BOOL
+	 */
+	BOOL		Check();
 
 public:
 	QByteArray			GetUserGroupName(int nType = XJ_USERGROUP_RUNNER);

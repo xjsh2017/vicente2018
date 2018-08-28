@@ -56,6 +56,7 @@ public:
 public:	
 	BOOL		ReLoad();
 	BOOL		Save(const char *pszFilePath = NULL);
+	BOOL		Check();
 	
 	QByteArray		GetName(const char* pszID);
 	QByteArray		GetFuncID(int nFuncID);
@@ -91,6 +92,7 @@ public:
 	
 	BOOL		ReLoad();
 	BOOL		Save(const char *pszFilePath = NULL);
+	BOOL		Check();
 
 public:
 	/*
@@ -371,7 +373,7 @@ BOOL QFuncTable::ReLoad()
 	
 	LoadInfo(XJ::NAME_TB_SYS_FUNC);
 	LoadDataAll();
-	Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_FUNC));
+	//Save(XJ::GetFileSavePath(XJ::NAME_TB_SYS_FUNC));
 	
 	return bReturn;
 }
@@ -387,6 +389,67 @@ BOOL QFuncTable::Save(const char *pszFilePath)
 		FWrite(pszFilePath);
 	
 	return bReturn;
+}
+
+BOOL QFuncTable::Check()
+{
+	QByteArray val;
+	
+	ReLoad();
+	
+	int nRowCount = GetRowCount();
+	int nIndex = nRowCount;
+
+	QByteArrayMatrix &colID = GetCol(4);
+
+	map<int, QByteArray> mapFunc;
+	map<int, QByteArray> mapFuncNotes;
+
+	mapFunc.insert(make_pair(XJ_OPER_HANGOUT, QByteArray("挂牌设置：挂牌")));
+	mapFunc.insert(make_pair(XJ_OPER_UNHANGOUT, QByteArray("挂牌设置：取消挂牌")));
+ 	
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_2, QByteArray("定值修改：修改核对")));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_3, QByteArray("定值修改：监护")));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_4, QByteArray("定值修改：验证")));
+	mapFunc.insert(make_pair(XJ_OPER_PTVALVSET_STATE_5, QByteArray("定值修改：执行")));
+
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_2, QByteArray("定值区切换：修改核对")));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_3, QByteArray("定值区切换：监护")));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_4, QByteArray("定值区切换：验证")));
+	mapFunc.insert(make_pair(XJ_OPER_PTZONESET_STATE_5, QByteArray("定值区切换：执行")));
+
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_2, QByteArray("软压板投退：修改核对")));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_3, QByteArray("软压板投退：监护")));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_4, QByteArray("软压板投退：验证")));
+	mapFunc.insert(make_pair(XJ_OPER_PTSOFTSET_STATE_5, QByteArray("软压板投退：执行")));
+
+	map<int, QByteArray>::iterator itMap = mapFunc.begin();
+	int iRow = 1;
+	while (itMap != mapFunc.end()){
+		int nm_id = itMap->first;
+
+		QByteArrayMatrix keyvals;
+		if (!colID.valueContains(nm_id)){
+			QByteArray msg;
+			msg << "no func id: " << nm_id;
+			//AfxMessageBox(msg.constData());
+			keyvals << itMap->second;
+			iRow = AddRow(keyvals);
+			SetFieldValue(nIndex + 1, "Sfunc", QByteArray::number(nm_id));
+			//SetFieldValue(nIndex + 1, "Notes", "控制功能：可对保护装置进行挂牌设置");
+			
+			nIndex++;
+			keyvals.clear();
+		}
+
+		itMap++;
+	}
+
+	//Save("d:/tables/tb_sys_func.txt");
+	Save();
+
+
+	return TRUE;
 }
 
 QByteArray QFuncTable::GetName(const char* pszID)
@@ -510,6 +573,11 @@ BOOL CXJUserStorePrivate::Save(const char *pszFilePath/* = NULL*/)
 	return m_table_user.Save(pszFilePath);
 }
 
+BOOL CXJUserStorePrivate::Check()
+{
+	return m_table_func.Check();
+}
+
 QByteArray CXJUserStorePrivate::GetUserGroupName(const char* pszID, int nIDType/* = 0*/)
 {
 	QByteArray s;
@@ -631,6 +699,14 @@ BOOL CXJUserStore::Save(const char *pszFilePath)
 		return FALSE;
 
 	return d_ptr->Save(pszFilePath);
+}
+
+BOOL CXJUserStore::Check()
+{
+	if (NULL == d_ptr)
+		return FALSE;
+
+	return d_ptr->Check();
 }
 
 QByteArray CXJUserStore::GetUserGroupName(int nType/* = XJ_USERGROUP_RUNNER*/)

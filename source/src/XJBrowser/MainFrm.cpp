@@ -55,7 +55,7 @@
 #include "qptsetstatetable.h"
 
 
-#define PTSET_REFRESHTIME	3000
+#define PTSET_REFRESHTIME	2000
 
 const int MSG_TIMER_LEN = 2;
 
@@ -3306,8 +3306,12 @@ void CMainFrame::OnTimer(UINT nIDEvent)
 		if (nTagOutStateID != XJ_OPER_UNHANGOUT)
 			baHangoutReasonType << dynText;
 		m_wndGlobalMsgBar.SetWindowText(baHangoutReasonType.constData());
-		m_wndGlobalMsgBar.GetParent()->SetWindowText(baHangoutReasonType.constData());
-		m_wndGlobalMsgBar.GetParent()->GetParent()->SetWindowText(baHangoutReasonType.constData());
+		if (m_wndGlobalMsgBar.GetParent()){
+			m_wndGlobalMsgBar.GetParent()->SetWindowText(baHangoutReasonType.constData());
+			
+			if (m_wndGlobalMsgBar.GetParent()->GetParent())
+				m_wndGlobalMsgBar.GetParent()->GetParent()->SetWindowText(baHangoutReasonType.constData());
+		}
 		OnUpdateFrameTitle(TRUE);
 	}
 

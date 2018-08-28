@@ -4410,6 +4410,8 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_5);
 		if (sUserID.isEmpty())
 			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2);
 		pTagOutState->Next_PTSet_State_5(sUserID.constData());
 
 		//ÌבÊ¾
@@ -4437,6 +4439,8 @@ void CPTSetting::OnSTTP20054( WPARAM wParam,LPARAM lParam )
 		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_5);
 		if (sUserID.isEmpty())
 			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTVALVSET, XJ_OPER_PTVALVSET_STATE_2);
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTVALVSET_STATE_5, sUserID.constData()
 				, QByteArray(str.GetBuffer(0)));
 		m_nCurrentDetailStatus = 0;
@@ -5372,6 +5376,8 @@ void CPTSetting::OnSTTP20056( WPARAM wParam,LPARAM lParam )
 		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_5);
 		if (sUserID.isEmpty())
 			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
 		pTagOutState->Next_PTSET_ZONE_STATE_5(sUserID.constData());
 		m_nCurrentDetailStatus = 0;
 
@@ -5395,6 +5401,8 @@ void CPTSetting::OnSTTP20056( WPARAM wParam,LPARAM lParam )
 		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_5);
 		if (sUserID.isEmpty())
 			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTZONESET, XJ_OPER_PTZONESET_STATE_2);
 		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTZONESET_STATE_5, sUserID.constData()
 			, QByteArray(str.GetBuffer(0)));
 		m_nCurrentDetailStatus = 0;

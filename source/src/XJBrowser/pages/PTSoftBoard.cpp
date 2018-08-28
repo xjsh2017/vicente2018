@@ -2064,7 +2064,7 @@ void CPTSoftBoard::OnBtnPtsoftModify2()
 		{
 			//无修改定值, 提示先修改
 			AfxMessageBox(StringFromID(IDS_TIP_EDIT_SOFT));
-			//return;
+			return;
 		}
 
 		m_nOperationNum = GetOperationNum();
@@ -2635,6 +2635,8 @@ void CPTSoftBoard::OnSTTP20114( WPARAM wParam,LPARAM lParam )
 		return;
 	
 	CXJBrowserApp * pApp = (CXJBrowserApp*)AfxGetApp();
+	CXJTagOutStore *pTagOutStore = CXJTagOutStore::GetInstance();
+	QPTSetStateTable *pTagOutState = pTagOutStore->GetState();
 	
 	//检查是处于软压板投退状态
 	if(m_nCurrentStatus != 2)
@@ -2699,15 +2701,38 @@ void CPTSoftBoard::OnSTTP20114( WPARAM wParam,LPARAM lParam )
 		//成功
 		//清除修改标记
 		m_List.ClearEdited();
+		
+		// 修改状态机
+		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_5);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+		pTagOutState->Next_PTSET_SOFT_STATE_5(sUserID.constData());
+		m_nCurrentDetailStatus = 0;
+
 		AfxMessageBox(StringFromID(IDS_EXECUTE_MODIFYSOFT_SUCCESS));
 	}
 	else
 	{
 		//失败
-		//回复修改前的值
-		
+		CString str;
+		str = StringFromID(IDS_EXECUTE_MODIFYSOFT_FAIL);
+
+		//回复修改前的值	
 		RevertModifyValue();
-		AfxMessageBox(StringFromID(IDS_EXECUTE_MODIFYSOFT_FAIL));
+
+		// 修改状态机
+		QByteArray &sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_5);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetWorkFlowUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+		if (sUserID.isEmpty())
+			sUserID = pTagOutState->GetLogUserID(XJ_TAGOUT_PTSOFTSET, XJ_OPER_PTSOFTSET_STATE_2);
+		pTagOutState->RevertTo_PTSet_State_1(XJ_OPER_PTSOFTSET_STATE_5, sUserID.constData()
+			, QByteArray(str.GetBuffer(0)));
+		m_nCurrentDetailStatus = 0;
+		
+		AfxMessageBox(str);
 	}
 
 	m_bMonVerify = false;

@@ -3437,6 +3437,8 @@ BOOL CXJBrowserApp::InitInstance()
 
 		pPTZoneData->ReLoad();
 
+		pUserStore->Check();
+
 		//AfxMessageBox(pUserStore->GetFuncID(XJ_OPER_PTSOFTSET_STATE_2).constData());
 
 // 		QByteArrayMatrix &funcID = pUserStore->GetFuncIDList("BXYX01");
